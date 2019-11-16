@@ -1,2 +1,2 @@
-# io.openslice.som
+# io.openslice.osom
 Openslice Service Orchestration Management
