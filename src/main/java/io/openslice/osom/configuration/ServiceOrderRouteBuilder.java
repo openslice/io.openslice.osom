@@ -29,7 +29,9 @@ public class ServiceOrderRouteBuilder extends RouteBuilder {
 			.log(LoggingLevel.INFO, log, "New OSOMIN_SERVICEORDER message received")
 			.to("stream:out");
 		
-		from("activemq:OSOMIN_TEXT").log(LoggingLevel.INFO, log, "New activemq:OSOMIN_TEXT message received")
+		from("activemq:OSOMIN_TEXT")
+		.log(LoggingLevel.INFO, log, "New activemq:OSOMIN_TEXT message received")
+		.setBody(constant("46"))
 		.to("stream:out");
 		
 		from("seda:OSOMIN_SERVICEORDERTEXT").log(LoggingLevel.INFO, log, "New seda:OSOMIN_SERVICEORDERTEXT message received")

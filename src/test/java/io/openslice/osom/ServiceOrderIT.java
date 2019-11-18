@@ -1,6 +1,7 @@
 package io.openslice.osom;
 
 import org.apache.camel.CamelContext;
+import org.apache.camel.ConsumerTemplate;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.component.mock.MockEndpoint;
@@ -42,7 +43,9 @@ public class ServiceOrderIT {
     
     @Autowired
     private CamelContext context;
-    
+
+	@Autowired
+	private ConsumerTemplate consumerTemplate;
 
 //    @EndpointInject("mock:jms:queue:OSOMIN_SERVICEORDER")
 //    MockEndpoint mock;
@@ -57,8 +60,10 @@ public class ServiceOrderIT {
         template.sendBody( "jms:queue:OSOMIN_SERVICEORDER", "ZZZZx");
 
         template.sendBody("seda:OSOMIN_SERVICEORDERTEXT", "ZxZZZ");
-        template.sendBody("activemq:OSOMIN_TEXT", "ZZZZ");
-        template.sendBody("jms:OSOMIN_SERVICEORDER", sor);
+        String s =(String) template.requestBody("activemq:OSOMIN_TEXT", "ZZZZ");
+        logger.info("String s = " +s);
+        template.sendBody("jms:OSOMIN_SERVICEORDER", sor.toString());
+
         //mock.assertIsSatisfied();
     }
 }
