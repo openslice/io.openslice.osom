@@ -25,17 +25,25 @@ public class ServiceOrderRouteBuilder extends RouteBuilder {
 
 	public void configure() {
 
-		from("jms:OSOMIN_SERVICEORDER").log(LoggingLevel.DEBUG, log, "New OSOMIN_SERVICEORDER message received")
-				.end();
+		from("jms:queue:OSOMIN_SERVICEORDER")
+			.log(LoggingLevel.INFO, log, "New OSOMIN_SERVICEORDER message received")
+			.to("stream:out");
+		
+		from("activemq:OSOMIN_TEXT").log(LoggingLevel.INFO, log, "New activemq:OSOMIN_TEXT message received")
+		.to("stream:out");
+		
+		from("seda:OSOMIN_SERVICEORDERTEXT").log(LoggingLevel.INFO, log, "New seda:OSOMIN_SERVICEORDERTEXT message received")
+		.to("stream:out");;
+		
 //		.unmarshal().json( JsonLibrary.Jackson, ServiceOrder.class, true)
 //		.bean( ServiceOrderManager.class, "processOrder")
 //		.to("direct:orders.newOrder");
 	}
 
 	public void processNextInvoice() {
-		ServiceOrder so = consumerTemplate.receiveBody("jms:OSOMIN_SERVICEORDER", ServiceOrder.class);
+		String so = consumerTemplate.receiveBody("jms:queue:OSOMIN_SERVICEORDERR", String.class);
 
-		logger.info("ServiceOrder so = " + so.toString());
+		logger.info("String so = " + so.toString());
 
 //	    ...
 //	    producerTemplate.sendBody("netty-http:http://invoicing.com/received/" + invoice.id());

@@ -6,7 +6,9 @@ info:
     description: Spring osom-service
     version: 1.0.0
 
-
+server:
+  port: 13100
+    
 spring:
   datasource:
     url: jdbc:h2:mem:db;DB_CLOSE_DELAY=-1
