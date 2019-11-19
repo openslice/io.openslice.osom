@@ -34,15 +34,9 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
-			<!-- 
-			<dependency>
-				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-consul-dependencies</artifactId>
-				<version>${spring.cloud-consul-version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-			 -->
+			<!-- <dependency> <groupId>org.springframework.cloud</groupId> <artifactId>spring-cloud-consul-dependencies</artifactId> 
+				<version>${spring.cloud-consul-version}</version> <type>pom</type> <scope>import</scope> 
+				</dependency> -->
 			<!-- Camel BOM -->
 			<dependency>
 				<groupId>org.apache.camel</groupId>
@@ -66,18 +60,14 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
-		<!-- 
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-consul-all</artifactId>
-		</dependency>
-
- 		-->
+		<!-- <dependency> <groupId>org.springframework.cloud</groupId> <artifactId>spring-cloud-starter-consul-all</artifactId> 
+			</dependency> -->
 		<dependency>
 			<groupId>org.flowable</groupId>
 			<artifactId>flowable-spring-boot-starter</artifactId>
 			<version>${flowable.version}</version>
 		</dependency>
+
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
@@ -87,6 +77,8 @@
 			<artifactId>io.openslice.tmf.api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		
+		
 
 
 		<!-- activeMQ -->
@@ -178,12 +170,13 @@
 			<artifactId>camel-test-spring</artifactId>
 			<scope>test</scope>
 		</dependency>
-		
-        <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-broker</artifactId>
+
+		<dependency>
+			<groupId>org.apache.activemq</groupId>
+			<artifactId>activemq-broker</artifactId>
 			<scope>test</scope>
-        </dependency>
+		</dependency>
+
 
 	</dependencies>
 
