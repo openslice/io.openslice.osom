@@ -1,0 +1,132 @@
+{
+  "uuid": "d8515f8f-786c-432b-9a74-5037e54c7974",
+  "lastUpdate": "2019-11-19T08:18:17.964Z",
+  "@baseType": "BaseEntity",
+  "@type": "CustomerFacingServiceSpecification",
+  "name": "BundleExampleSpec",
+  "description": "Test Spec example",
+  "lifecycleStatus": "In study",
+  "version": "1.8.0",
+  "isBundle": true,
+  "attachment": [],
+  "relatedParty": [
+    {
+      "uuid": "64436007-4723-4b5d-8774-d6057da0c8f3",
+      "@baseType": "BaseRootEntity",
+      "@type": "io.openslice.tmf.prm669.model.RelatedParty",
+      "name": "osadmin",
+      "role": "OWNER",
+      "@referredType": "SimpleUsername_Individual",
+      "id": "64436007-4723-4b5d-8774-d6057da0c8f3"
+    }
+  ],
+  "resourceSpecification": [],
+  "serviceLevelSpecification": [],
+  "serviceSpecCharacteristic": [
+    {
+      "uuid": "dd25f874-ed14-47e0-ba03-cce3bf4f9398",
+      "@baseType": "BaseRootEntity",
+      "@type": "io.openslice.tmf.scm633.model.ServiceSpecCharacteristic",
+      "name": "Coverage",
+      "configurable": true,
+      "description": "This attribute specifies the coverage area of the network slice - the area where the terminals can access a particular network slice",
+      "isUnique": true,
+      "maxCardinality": 1,
+      "minCardinality": 1,
+      "valueType": "ENUM",
+      "serviceSpecCharRelationship": [
+        {
+          "uuid": "34aaec60-372d-4baf-acf5-f3c2cb8194f6",
+          "id": "BundleExampleSpec-Character Attribute",
+          "name": "Character Attribute",
+          "relationshipType": "dependency",
+          "@baseType": "BaseEntity",
+          "role": "tag",
+          "validFor": {
+            "endDateTime": "2039-11-19T08:18:17.964Z",
+            "startDateTime": "2019-11-19T08:18:17.964Z"
+          }
+        },
+        {
+          "uuid": "02887c3c-3d1f-41d3-80e7-95cb2e6c5e28",
+          "id": "BundleExampleSpec-Scalability Attribute",
+          "name": "Scalability Attribute",
+          "relationshipType": "dependency",
+          "@baseType": "BaseEntity",
+          "role": "tag",
+          "validFor": {
+            "endDateTime": "2039-11-19T08:18:17.964Z",
+            "startDateTime": "2019-11-19T08:18:17.964Z"
+          }
+        },
+        {
+          "uuid": "07702d7e-00ca-4156-bd11-c8882caaff73",
+          "id": "BundleExampleSpec-Operational",
+          "name": "Operational",
+          "relationshipType": "dependency",
+          "@baseType": "BaseEntity",
+          "role": "tag",
+          "validFor": {
+            "endDateTime": "2039-11-19T08:18:17.964Z",
+            "startDateTime": "2019-11-19T08:18:17.964Z"
+          }
+        },
+        {
+          "uuid": "ee2865ca-164f-476f-8bbf-b23b620f7bf7",
+          "id": "BundleExampleSpec-KPI",
+          "name": "KPI",
+          "relationshipType": "dependency",
+          "@baseType": "BaseEntity",
+          "role": "tag",
+          "validFor": {
+            "endDateTime": "2039-11-19T08:18:17.964Z",
+            "startDateTime": "2019-11-19T08:18:17.964Z"
+          }
+        }
+      ],
+      "serviceSpecCharacteristicValue": [
+        {
+          "uuid": "d8424fff-290e-47eb-980d-a74e0551b76a",
+          "@baseType": "BaseEntity",
+          "isDefault": true,
+          "unitOfMeasure": "N/A",
+          "valueType": "SMALLINT",
+          "validFor": {
+            "endDateTime": "2039-11-19T08:18:17.964Z",
+            "startDateTime": "2019-11-19T08:18:17.964Z"
+          },
+          "value": {
+            "value": "4",
+            "alias": "Local (outdoor)"
+          }
+        }
+      ],
+      "validFor": {
+        "endDateTime": "2039-11-19T08:18:17.964Z",
+        "startDateTime": "2019-11-19T08:18:17.964Z"
+      },
+      "id": "dd25f874-ed14-47e0-ba03-cce3bf4f9398"
+    }
+  ],
+  "serviceSpecRelationship": [
+    {
+      "uuid": "d57d6f87-f560-4ab7-a356-19b6dbe7db4d",
+      "@baseType": "BaseRootEntity",
+      "@type": "io.openslice.tmf.scm633.model.ServiceSpecRelationship",
+      "name": "Spec1",
+      "id": "59d08753-e1b1-418b-9e3e-d3a3bb573051",
+      "relationshipType": "aggregation",
+      "role": "serviceSpecRelationship"
+    },
+    {
+      "uuid": "ab71202b-351e-40e3-8361-4dc3300cc9d2",
+      "@baseType": "BaseRootEntity",
+      "@type": "io.openslice.tmf.scm633.model.ServiceSpecRelationship",
+      "name": "Spec2",
+      "id": "a7ff2349-ccab-42a1-9212-51d4a1912247",
+      "relationshipType": "aggregation",
+      "role": "serviceSpecRelationship"
+    }
+  ],
+  "id": "d8515f8f-786c-432b-9a74-5037e54c7974"
+}

@@ -1,0 +1,112 @@
+{
+  "uuid": "b0661e27-020f-4026-84ab-5c265bac47e7",
+  "orderDate": "2019-11-19T08:18:18.048Z",
+  "requestedCompletionDate": "2019-11-19T08:18:17.989Z",
+  "requestedStartDate": "2019-11-19T08:18:17.989Z",
+  "@baseType": "BaseRootEntity",
+  "@type": "ServiceOrder",
+  "id": "b0661e27-020f-4026-84ab-5c265bac47e7",
+  "category": "Experimentation",
+  "description": "Experimentation Descr",
+  "note": [
+    {
+      "uuid": "b6720ab2-af2c-4bf1-98b6-682052ccf75d",
+      "@baseType": "BaseEntity",
+      "text": "test note"
+    }
+  ],
+  "orderItem": [
+    {
+      "uuid": "47f8ce29-ae70-420a-912f-b01c93aaf0a1",
+      "@baseType": "BaseEntity",
+      "id": "47f8ce29-ae70-420a-912f-b01c93aaf0a1",
+      "action": "add",
+      "orderItemRelationship": [],
+      "state": "initial",
+      "service": {
+        "uuid": "143deea7-02b6-4f73-9657-8a5ba25fe25a",
+        "serviceSpecification": {
+          "@baseType": "BaseEntity",
+          "name": "BundleExampleSpec",
+          "id": "d8515f8f-786c-432b-9a74-5037e54c7974"
+        },
+        "@baseType": "BaseEntity",
+        "id": "143deea7-02b6-4f73-9657-8a5ba25fe25a",
+        "place": [],
+        "relatedParty": [],
+        "serviceCharacteristic": [
+          {
+            "uuid": "dd78fb9a-7485-4ce3-bbeb-8fe4046fc5a7",
+            "@baseType": "BaseEntity",
+            "name": "Coverage",
+            "valueType": "ENUM",
+            "value": {
+              "value": "4",
+              "alias": "Local (outdoor)"
+            }
+          }
+        ],
+        "state": "feasibilityChecked",
+        "supportingResource": [
+          {
+            "uuid": "ca297dd6-ae63-44d5-a168-dcb29297fad9",
+            "@baseType": "BaseEntity",
+            "name": "resourceName",
+            "id": "resourceid"
+          }
+        ],
+        "serviceRelationship": [
+          {
+            "uuid": "044537c2-11bd-44c3-b7d5-f9abb883b685",
+            "@baseType": "BaseEntity",
+            "relationshipType": "aggregation",
+            "service": {
+              "uuid": "83c7df7f-ddbc-4b77-ad7f-393d5972d595",
+              "@baseType": "BaseEntity",
+              "name": "Spec2",
+              "id": "a7ff2349-ccab-42a1-9212-51d4a1912247"
+            }
+          },
+          {
+            "uuid": "d4715e75-8f49-4bcc-9283-d921412280a7",
+            "@baseType": "BaseEntity",
+            "relationshipType": "aggregation",
+            "service": {
+              "uuid": "c993e6e0-d618-4a3e-9201-c616ddff4e7c",
+              "@baseType": "BaseEntity",
+              "name": "Spec1",
+              "id": "59d08753-e1b1-418b-9e3e-d3a3bb573051"
+            }
+          }
+        ],
+        "supportingService": [
+          {
+            "uuid": "c993e6e0-d618-4a3e-9201-c616ddff4e7c",
+            "@baseType": "BaseEntity",
+            "name": "Spec1",
+            "id": "59d08753-e1b1-418b-9e3e-d3a3bb573051"
+          },
+          {
+            "uuid": "83c7df7f-ddbc-4b77-ad7f-393d5972d595",
+            "@baseType": "BaseEntity",
+            "name": "Spec2",
+            "id": "a7ff2349-ccab-42a1-9212-51d4a1912247"
+          }
+        ]
+      }
+    }
+  ],
+  "orderRelationship": [],
+  "relatedParty": [
+    {
+      "uuid": "1898a824-cf46-4c10-b343-1a66bfef67d0",
+      "@baseType": "BaseRootEntity",
+      "@type": "io.openslice.tmf.prm669.model.RelatedParty",
+      "name": "osadmin",
+      "role": "REQUESTER",
+      "@referredType": "SimpleUsername_Individual",
+      "id": "1898a824-cf46-4c10-b343-1a66bfef67d0"
+    }
+  ],
+  "state": "initial"
+}

@@ -25,14 +25,19 @@ public class ServiceOrderRouteBuilder extends RouteBuilder {
 
 	public void configure() {
 
-		from("jms:queue:OSOMIN_SERVICEORDER")
-			.log(LoggingLevel.INFO, log, "New OSOMIN_SERVICEORDER message received")
-			.to("stream:out");
+		from("jms:queue:OSOM.IN.SERVICEORDER.PROCESS")
+			.log(LoggingLevel.INFO, log, "New OSOM.IN.SERVICEORDER message received!")
+			.to("log:DEBUG?showBody=true&showHeaders=true")
+			.unmarshal().json( JsonLibrary.Jackson, ServiceOrder.class, true)
+			.log(LoggingLevel.INFO, log, "Order id = ${body.id} ")
+			.bean( ServiceOrderManager.class, "processOrder")
+			;
 		
 		from("activemq:OSOMIN_TEXT")
 		.log(LoggingLevel.INFO, log, "New activemq:OSOMIN_TEXT message received")
 		.setBody(constant("46"))
-		.to("stream:out");
+		.to("stream:out")
+		.end();
 		
 		from("seda:OSOMIN_SERVICEORDERTEXT").log(LoggingLevel.INFO, log, "New seda:OSOMIN_SERVICEORDERTEXT message received")
 		.to("stream:out");;
