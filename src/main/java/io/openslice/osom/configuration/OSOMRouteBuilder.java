@@ -16,9 +16,9 @@ import io.openslice.tmf.so641.model.ServiceOrder;
 @Configuration
 //@RefreshScope
 @Component
-public class ServiceOrderRouteBuilder extends RouteBuilder {
+public class OSOMRouteBuilder extends RouteBuilder {
 
-	private static final transient Log logger = LogFactory.getLog(ServiceOrderRouteBuilder.class.getName());
+	private static final transient Log logger = LogFactory.getLog(OSOMRouteBuilder.class.getName());
 
 	@Autowired
 	private ConsumerTemplate consumerTemplate;
