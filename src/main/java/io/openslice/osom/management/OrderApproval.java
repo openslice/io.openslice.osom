@@ -4,6 +4,7 @@ public class OrderApproval {
 
     private String id;
     private boolean status;
+    private String assignee;
 
     public String getId() {
         return id;
@@ -20,5 +21,13 @@ public class OrderApproval {
     public void setStatus(boolean status) {
         this.status = status;
     }
+
+	public String getAssignee() {
+		return assignee;
+	}
+
+	public void setAssignee(String assignee) {
+		this.assignee = assignee;
+	}
 
 }

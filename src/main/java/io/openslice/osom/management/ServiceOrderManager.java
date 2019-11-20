@@ -50,27 +50,47 @@ public class ServiceOrderManager {
           .taskCandidateGroup(assignee)
           .list();
         
-        List<String> articles = tasks.stream()
+        List<String> orders = tasks.stream()
           .map(task -> {
               Map<String, Object> variables = taskService.getVariables(task.getId());
               return (String) variables.get("orderid") ;
           })
           .collect(Collectors.toList());
 
-		logger.info("orderid(s) : " + articles.toString());
-        return articles;
+		logger.info("orderid(s) : " + orders.toString());
+        return orders;
     }
 	
 	 @Transactional
 	public void submitReview(OrderApproval approval) {
 //		 {
 //		  "id": "b0661e27-020f-4026-84ab-5c265bac47e7",
-//		  "status": "true"
+//		  "status": "true",
+//		 "assignee": "admin"
 //		}
+		 List<Task> tasks = taskService.createTaskQuery()
+		          .taskCandidateGroup(approval.getAssignee())
+		          .list();
+		 String taskId = null;
+		 for (Task t : tasks) {
+			 Map<String, Object> variables = taskService.getVariables( t.getId() );
+			 if ( variables.get("orderid").equals(approval.getId())) {
+				 taskId =   t.getId() ;
+				 break;
+             }
+		 }
+		
+		 if ( taskId!=null ) {
+
+				logger.info("Received OrderApproval for orderid="+ approval.getId() + " status= " + approval.isStatus() );
+		        Map<String, Object> variables = new HashMap<String, Object>();
+		        variables.put("approved", approval.isStatus());
+		        taskService.complete( taskId , variables);			 
+		 } else {
+
+				logger.error("Task ID cannot be found for received OrderApproval for orderid="+ approval.getId() );
+		 }
 	 
-	        Map<String, Object> variables = new HashMap<String, Object>();
-	        variables.put("approved", approval.isStatus());
-	        taskService.complete(approval.getId(), variables);
 	    }
 	
 }

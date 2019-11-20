@@ -37,7 +37,7 @@ public class OSOMRouteBuilder extends RouteBuilder {
 		.bean( ServiceOrderManager.class, "getTasks")
 		;
 		
-		from("jms:queue:OSOM.IN.ACK_SERVICEORDER_PROCESS.PROCESS")
+		from("jms:queue:OSOM.IN.ACK_SERVICEORDER_PROCESS")
 		.log(LoggingLevel.INFO, log, "New OSOM.IN.ACK_SERVICEORDER_PROCESS message received!")
 		.to("log:DEBUG?showBody=true&showHeaders=true")
 		.unmarshal().json( JsonLibrary.Jackson, OrderApproval.class, true)

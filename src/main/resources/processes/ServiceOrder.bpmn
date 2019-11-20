@@ -6,14 +6,14 @@
     <sequenceFlow id="flow1" sourceRef="startevent1" targetRef="userTaskAckServiceOrder"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow2" sourceRef="userTaskAckServiceOrder" targetRef="exclusivegateway1"></sequenceFlow>
-    <serviceTask id="servicetaskReject" name="Reject Service" activiti:class="io.openslice.osom.management.RejectServiceOrder"></serviceTask>
+    <serviceTask id="servicetaskReject" name="Reject Service" activiti:delegateExpression="${rejectServiceOrderBean}" ></serviceTask>
     <sequenceFlow id="flowRejected" name="Rejected" sourceRef="exclusivegateway1" targetRef="servicetaskReject">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!approved}]]></conditionExpression>
     </sequenceFlow>
     <endEvent id="endevent1" name="End"></endEvent>
     <endEvent id="endevent2" name="End"></endEvent>
     <sequenceFlow id="flow4" sourceRef="servicetaskReject" targetRef="endevent2"></sequenceFlow>
-    <serviceTask id="serviceTaskAddToProcessScheduler" name="Add Service Order to Process Scheduler" activiti:class="io.openslice.osom.management.AddServiceOrderToScheduler"></serviceTask>
+    <serviceTask id="serviceTaskAddToProcessScheduler" name="Add Service Order to Process Scheduler" activiti:delegateExpression="${addServiceOrderToScheduler}"></serviceTask>
     <sequenceFlow id="flowApproved" name="Approved" sourceRef="exclusivegateway1" targetRef="serviceTaskAddToProcessScheduler">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approved}]]></conditionExpression>
     </sequenceFlow>
