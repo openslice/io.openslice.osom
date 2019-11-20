@@ -32,9 +32,9 @@ import io.openslice.osom.management.RejectServiceOrder;
 
 @ExtendWith(FlowableSpringExtension.class)
 @SpringBootTest
-public class ServiceOrderProcessIntegrationTest {
+public class InitialServiceOrderProcessIntegrationTest {
 
-	private static final transient Log logger = LogFactory.getLog( ServiceOrderProcessIntegrationTest.class.getName());
+	private static final transient Log logger = LogFactory.getLog( InitialServiceOrderProcessIntegrationTest.class.getName());
 
 	@Autowired
 	RepositoryService repositoryService;

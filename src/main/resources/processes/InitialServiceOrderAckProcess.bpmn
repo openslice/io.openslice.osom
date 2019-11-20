@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns:flowable="http://flowable.org/bpmn" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
-  <process id="ServiceOrderAckProcess" name="My process" isExecutable="true">
+  <process id="InitialServiceOrderAckProcess" name="Initial Service Order Acknowledge Process" isExecutable="true">
     <userTask id="userTaskAckServiceOrder" name="Acknowledge Service Order" activiti:candidateGroups="admin"></userTask>
     <startEvent id="startevent1" name="Start"></startEvent>
     <sequenceFlow id="flow1" sourceRef="startevent1" targetRef="userTaskAckServiceOrder"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow2" sourceRef="userTaskAckServiceOrder" targetRef="exclusivegateway1"></sequenceFlow>
-    <serviceTask id="servicetaskReject" name="Reject Service" activiti:delegateExpression="${rejectServiceOrderBean}" ></serviceTask>
+    <serviceTask id="servicetaskReject" name="Reject Service" activiti:delegateExpression="${rejectServiceOrderBean}"></serviceTask>
     <sequenceFlow id="flowRejected" name="Rejected" sourceRef="exclusivegateway1" targetRef="servicetaskReject">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!approved}]]></conditionExpression>
     </sequenceFlow>
@@ -35,8 +35,8 @@ User modifies in the Form
     <association id="association3" sourceRef="textannotation1" targetRef="userTaskAckServiceOrder" associationDirection="None"></association>
     <association id="association4" sourceRef="textannotation2" targetRef="serviceTaskAddToProcessScheduler" associationDirection="None"></association>
   </process>
-  <bpmndi:BPMNDiagram id="BPMNDiagram_ServiceOrderAckProcess">
-    <bpmndi:BPMNPlane bpmnElement="ServiceOrderAckProcess" id="BPMNPlane_ServiceOrderAckProcess">
+  <bpmndi:BPMNDiagram id="BPMNDiagram_InitialServiceOrderAckProcess">
+    <bpmndi:BPMNPlane bpmnElement="InitialServiceOrderAckProcess" id="BPMNPlane_InitialServiceOrderAckProcess">
       <bpmndi:BPMNShape bpmnElement="userTaskAckServiceOrder" id="BPMNShape_userTaskAckServiceOrder">
         <omgdc:Bounds height="91.0" width="111.0" x="190.0" y="70.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>

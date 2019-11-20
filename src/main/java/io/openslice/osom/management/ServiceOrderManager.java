@@ -40,7 +40,7 @@ public class ServiceOrderManager {
         variables.put("orderid", serviceOrder.getId() );
         
 
-        runtimeService.startProcessInstanceByKey("ServiceOrderAckProcess", variables);
+        runtimeService.startProcessInstanceByKey("InitialServiceOrderAckProcess", variables);
 	}
 	
 	@Transactional
