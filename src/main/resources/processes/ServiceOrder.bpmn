@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns:flowable="http://flowable.org/bpmn" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
-  <process id="myProcess" name="My process" isExecutable="true">
+  <process id="ServiceOrderAckProcess" name="My process" isExecutable="true">
     <userTask id="userTaskAckServiceOrder" name="Acknowledge Service Order" activiti:candidateGroups="admin"></userTask>
     <startEvent id="startevent1" name="Start"></startEvent>
     <sequenceFlow id="flow1" sourceRef="startevent1" targetRef="userTaskAckServiceOrder"></sequenceFlow>
-    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway" default="flowApproved"></exclusiveGateway>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow2" sourceRef="userTaskAckServiceOrder" targetRef="exclusivegateway1"></sequenceFlow>
     <serviceTask id="servicetaskReject" name="Reject Service" activiti:class="io.openslice.osom.management.RejectServiceOrder"></serviceTask>
     <sequenceFlow id="flowRejected" name="Rejected" sourceRef="exclusivegateway1" targetRef="servicetaskReject">
@@ -32,9 +32,11 @@ User modifies in the Form
 			</text>
     </textAnnotation>
     <association id="association2" sourceRef="textannotation2" targetRef="servicetask3" associationDirection="None"></association>
+    <association id="association3" sourceRef="textannotation1" targetRef="userTaskAckServiceOrder" associationDirection="None"></association>
+    <association id="association4" sourceRef="textannotation2" targetRef="serviceTaskAddToProcessScheduler" associationDirection="None"></association>
   </process>
-  <bpmndi:BPMNDiagram id="BPMNDiagram_myProcess">
-    <bpmndi:BPMNPlane bpmnElement="myProcess" id="BPMNPlane_myProcess">
+  <bpmndi:BPMNDiagram id="BPMNDiagram_ServiceOrderAckProcess">
+    <bpmndi:BPMNPlane bpmnElement="ServiceOrderAckProcess" id="BPMNPlane_ServiceOrderAckProcess">
       <bpmndi:BPMNShape bpmnElement="userTaskAckServiceOrder" id="BPMNShape_userTaskAckServiceOrder">
         <omgdc:Bounds height="91.0" width="111.0" x="190.0" y="70.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
@@ -91,6 +93,14 @@ User modifies in the Form
       <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
         <omgdi:waypoint x="717.0" y="116.0"></omgdi:waypoint>
         <omgdi:waypoint x="830.0" y="115.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="association3" id="BPMNEdge_association3">
+        <omgdi:waypoint x="196.0" y="194.0"></omgdi:waypoint>
+        <omgdi:waypoint x="245.0" y="161.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="association4" id="BPMNEdge_association4">
+        <omgdi:waypoint x="720.0" y="194.0"></omgdi:waypoint>
+        <omgdi:waypoint x="638.0" y="147.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

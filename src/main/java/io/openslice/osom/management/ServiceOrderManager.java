@@ -40,11 +40,12 @@ public class ServiceOrderManager {
         variables.put("orderid", serviceOrder.getId() );
         
 
-        runtimeService.startProcessInstanceByKey("userTaskAckServiceOrder", variables);
+        runtimeService.startProcessInstanceByKey("ServiceOrderAckProcess", variables);
 	}
 	
 	@Transactional
     public List<String> getTasks(String assignee) {
+		logger.info("Received order to getTasks, assignee : " + assignee);
         List<Task> tasks = taskService.createTaskQuery()
           .taskCandidateGroup(assignee)
           .list();
@@ -55,11 +56,18 @@ public class ServiceOrderManager {
               return (String) variables.get("orderid") ;
           })
           .collect(Collectors.toList());
+
+		logger.info("orderid(s) : " + articles.toString());
         return articles;
     }
 	
 	 @Transactional
 	public void submitReview(OrderApproval approval) {
+//		 {
+//		  "id": "b0661e27-020f-4026-84ab-5c265bac47e7",
+//		  "status": "true"
+//		}
+	 
 	        Map<String, Object> variables = new HashMap<String, Object>();
 	        variables.put("approved", approval.isStatus());
 	        taskService.complete(approval.getId(), variables);

@@ -6,7 +6,7 @@
 		<groupId>io.openslice</groupId>
 		<artifactId>io.openslice.main</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
-		<relativePath>../../git/io.openslice.main</relativePath>
+		<relativePath>../io.openslice.main</relativePath>
 	</parent>
 
 	<artifactId>io.openslice.osom</artifactId>
@@ -191,12 +191,14 @@
 						<target>1.8</target>
 					</configuration>
 				</plugin>
+				<!-- 
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>3.0.0-M3</version>
+					<version>3.0.0-M8</version>
 				</plugin>
-
+ 				-->
+ 				
 				<plugin>
 					<!-- run mvn license:update-file-header to manually update all headers 
 						everywhere -->

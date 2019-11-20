@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.connection.JmsTransactionManager;
 
-@Configuration
+//@Configuration
 public class JmsConfig {
 
     @Bean
