@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
@@ -22,16 +23,25 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.openslice.osom.management.AddServiceOrderToScheduler;
 import io.openslice.osom.management.RejectServiceOrder;
+import io.openslice.tmf.so641.model.ServiceOrder;
+import io.openslice.tmf.so641.model.ServiceOrderStateType;
 
 
 @ExtendWith(FlowableSpringExtension.class)
 @SpringBootTest
+@ActiveProfiles("testing")
 public class InitialServiceOrderProcessIntegrationTest {
 
 	private static final transient Log logger = LogFactory.getLog( InitialServiceOrderProcessIntegrationTest.class.getName());
@@ -92,27 +102,28 @@ public class InitialServiceOrderProcessIntegrationTest {
 		assertThat( response  ).isInstanceOf(List.class);
 		assertThat( ((List<?>) response).size()  ).isEqualTo(2);
 		
+
+		ServiceOrder responseSO = toJsonObj(sspectext,  ServiceOrder.class);
+		responseSO.setState( ServiceOrderStateType.REJECTED  );
+		
 		//reject one order
-		template.sendBody( "jms:queue:OSOM.IN.ACK_SERVICEORDER_PROCESS", "{\n" + 
-				"		  \"id\": \"b0661e27-020f-4026-84ab-5c265bac47e7\",\n" + 
-				"		  \"status\": \"false\",\n" + 
-				"		 \"assignee\": \"admin\"\n" + 
-				"		}");
+		template.sendBody( "jms:queue:OSOM.IN.ACK_SERVICEORDER_PROCESS", toJsonString( responseSO ));
 
         Thread.sleep(1000); //wait
 		assertThat( taskService.createTaskQuery().count()  ).isEqualTo( 1 );
         
+
+		ServiceOrder accSO = toJsonObj(sspectext,  ServiceOrder.class);
+		accSO.setState( ServiceOrderStateType.ACKNOWLEDGED  );
+		
 		//accept the last order
-		template.sendBody( "jms:queue:OSOM.IN.ACK_SERVICEORDER_PROCESS", "{\n" + 
-				"		  \"id\": \"b0661e27-020f-4026-84ab-5c265bac47e7\",\n" + 
-				"		  \"status\": \"true\",\n" + 
-				"		 \"assignee\": \"admin\"\n" + 
-				"		}");
+		template.sendBody( "jms:queue:OSOM.IN.ACK_SERVICEORDER_PROCESS", toJsonString( accSO ));
 
         Thread.sleep(1000); //wait
 		assertThat( taskService.createTaskQuery().count()  ).isEqualTo( 0 );
-		
-		
+
+		verify( rejectServiceOrderBean, times(1)).execute(Mockito.any());
+		verify( addServiceOrderToScheduler, times(1)).execute(Mockito.any());
 		
 //		Map<String, Object> variableMap = new HashMap<String, Object>();
 //		variableMap.put("orderid", "10007");
@@ -142,4 +153,17 @@ public class InitialServiceOrderProcessIntegrationTest {
         context.stop();
         logger.info("EXIT TEST CASE");
 	}
+	
+	static <T> T toJsonObj(String content, Class<T> valueType)  throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        return mapper.readValue( content, valueType);
+    }
+	
+	 static String toJsonString(Object object) throws IOException {
+	        ObjectMapper mapper = new ObjectMapper();
+	        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+	        return mapper.writeValueAsString(object);
+	    }
+	
 }

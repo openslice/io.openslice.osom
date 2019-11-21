@@ -1,16 +1,13 @@
 package io.openslice.osom.configuration;
 
-import org.apache.camel.ConsumerTemplate;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.dataformat.JsonLibrary;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
-import io.openslice.osom.management.OrderApproval;
 import io.openslice.osom.management.ServiceOrderManager;
 import io.openslice.tmf.so641.model.ServiceOrder;
 
@@ -40,8 +37,8 @@ public class OSOMRouteBuilder extends RouteBuilder {
 		from("jms:queue:OSOM.IN.ACK_SERVICEORDER_PROCESS")
 		.log(LoggingLevel.INFO, log, "New OSOM.IN.ACK_SERVICEORDER_PROCESS message received!")
 		.to("log:DEBUG?showBody=true&showHeaders=true")
-		.unmarshal().json( JsonLibrary.Jackson, OrderApproval.class, true)
-		.log(LoggingLevel.INFO, log, "Order id = ${body.id} status = ${body.status} ")
+		.unmarshal().json( JsonLibrary.Jackson, ServiceOrder.class, true)
+		.log(LoggingLevel.INFO, log, "Order id = ${body.id}")
 		.bean( ServiceOrderManager.class, "submitReview")
 		;
 		

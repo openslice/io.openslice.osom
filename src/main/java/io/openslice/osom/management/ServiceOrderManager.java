@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import io.openslice.osom.configuration.OSOMRouteBuilder;
 import io.openslice.tmf.so641.model.ServiceOrder;
+import io.openslice.tmf.so641.model.ServiceOrderStateType;
 
 /**
  * @author ctranoris
@@ -25,6 +26,8 @@ import io.openslice.tmf.so641.model.ServiceOrder;
 public class ServiceOrderManager {
 
 	private static final transient Log logger = LogFactory.getLog(ServiceOrderManager.class.getName());
+
+	private static final String ORDER_ASSIGNEE = "admin";
 
 	@Autowired
 	private RuntimeService runtimeService;
@@ -45,9 +48,13 @@ public class ServiceOrderManager {
 	
 	@Transactional
     public List<String> getTasks(String assignee) {
-		logger.info("Received order to getTasks, assignee : " + assignee);
+		/**
+		 * we ignore for now the assignee
+		 */
+		String assign = ORDER_ASSIGNEE;
+		logger.info("Received order to getTasks, assignee : " + assign);
         List<Task> tasks = taskService.createTaskQuery()
-          .taskCandidateGroup(assignee)
+          .taskCandidateGroup(assign)
           .list();
         
         List<String> orders = tasks.stream()
@@ -62,33 +69,38 @@ public class ServiceOrderManager {
     }
 	
 	 @Transactional
-	public void submitReview(OrderApproval approval) {
+	public void submitReview(ServiceOrder serviceOrder) {
+			/**
+			 * we ignore for now the assignee
+			 */
+			String assignee = ORDER_ASSIGNEE;
+			
 //		 {
 //		  "id": "b0661e27-020f-4026-84ab-5c265bac47e7",
 //		  "status": "true",
 //		 "assignee": "admin"
 //		}
 		 List<Task> tasks = taskService.createTaskQuery()
-		          .taskCandidateGroup(approval.getAssignee())
+		          .taskCandidateGroup( assignee )
 		          .list();
 		 String taskId = null;
 		 for (Task t : tasks) {
 			 Map<String, Object> variables = taskService.getVariables( t.getId() );
-			 if ( variables.get("orderid").equals(approval.getId())) {
+			 if ( variables.get("orderid").equals( serviceOrder.getId()) ) {
 				 taskId =   t.getId() ;
 				 break;
              }
 		 }
 		
 		 if ( taskId!=null ) {
-
-				logger.info("Received OrderApproval for orderid="+ approval.getId() + " status= " + approval.isStatus() );
+			 	boolean approve = serviceOrder.getState().equals( ServiceOrderStateType.ACKNOWLEDGED );
+				logger.info("Received OrderApproval for orderid="+ serviceOrder.getId() + " status= " + approve );
 		        Map<String, Object> variables = new HashMap<String, Object>();
-		        variables.put("approved", approval.isStatus());
+		        variables.put("approved", approve );
 		        taskService.complete( taskId , variables);			 
 		 } else {
 
-				logger.error("Task ID cannot be found for received OrderApproval for orderid="+ approval.getId() );
+				logger.error("Task ID cannot be found for received OrderApproval for orderid="+ serviceOrder.getId() );
 		 }
 	 
 	    }

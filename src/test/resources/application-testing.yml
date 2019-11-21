@@ -15,9 +15,6 @@ spring:
       broker-url: vm://embedded?broker.persistent=false,useShutdownHook=false
       in-memory: true
       non-blocking-redelivery: true
-      packages:
-        trust-all: false
-        trusted: com.memorynotfound
       pool:
         block-if-full: true
         block-if-full-timeout: -1
