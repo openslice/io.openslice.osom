@@ -125,30 +125,7 @@ public class InitialServiceOrderProcessIntegrationTest {
 		verify( rejectServiceOrderBean, times(1)).execute(Mockito.any());
 		verify( addServiceOrderToScheduler, times(1)).execute(Mockito.any());
 		
-//		Map<String, Object> variableMap = new HashMap<String, Object>();
-//		variableMap.put("orderid", "10007");
-//		ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("userTaskAckServiceOrder",
-//				variableMap);
-//		assertNotNull(processInstance.getId());
-//		System.out.println("id " + processInstance.getId() + " " + processInstance.getProcessDefinitionId());
 
-//		 {
-//		  "id": "b0661e27-020f-4026-84ab-5c265bac47e7",
-//		  "status": "true",
-//		 "assignee": "admin"
-//		}
-		
-		
-//		Task task = taskService.createTaskQuery().singleResult();
-//		  
-//        assertEquals("Review the submitted tutorial", task.getName());
-//  
-//        variables.put("approved", true);
-//        taskService.complete(task.getId(), variables);
-//  
-//        assertEquals(0, runtimeService.createProcessInstanceQuery().count());
-		
-		//mock.assertIsSatisfied();
         logger.info("WAIT SHUTDOWN");
         context.stop();
         logger.info("EXIT TEST CASE");
