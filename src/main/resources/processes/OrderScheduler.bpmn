@@ -3,7 +3,7 @@
   <process id="OrderSchedulerProcess" name="My process" isExecutable="true">
     <startEvent id="timerstartevent1" name="Timer start">
       <timerEventDefinition>
-        <timeCycle>0/15 * * * * ?</timeCycle>
+        <timeCycle>0 0/1 * * * ?</timeCycle>
       </timerEventDefinition>
     </startEvent>
     <serviceTask id="stFetchAcknowledgedOrders" name="Fetch Acknowledged Orders" activiti:delegateExpression="${fetchAcknowledgedOrders}"></serviceTask>

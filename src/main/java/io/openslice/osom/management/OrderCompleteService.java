@@ -7,6 +7,8 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.springframework.stereotype.Component;
 
+
+@Component(value = "orderCompleteService") //bean name
 public class OrderCompleteService implements JavaDelegate {
 
 	private static final transient Log logger = LogFactory.getLog(OrderCompleteService.class.getName());

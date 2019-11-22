@@ -17,18 +17,9 @@ public class AutomationCheck implements JavaDelegate {
 		logger.info("Process Orders by Orchetrator:" + execution.getVariableNames().toString() );
 
 		if (execution.getVariable("orderid") instanceof String) {
+			logger.info("Will process/orchestrate order with id = " + execution.getVariable("orderid") );
 			
-			try {
-				long completionTime = RandomUtils.nextLong(5000, 10000);
-
-				logger.info("Will process/orchestrate order with id = " + execution.getVariable("orderid") + ". Completion in: " + completionTime);
-				Thread.sleep( completionTime  );
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-			logger.info("Will process/orchestrate order with id = " + execution.getVariable("orderid") + ". FINISHED!");
+		
 		}
 	}
 

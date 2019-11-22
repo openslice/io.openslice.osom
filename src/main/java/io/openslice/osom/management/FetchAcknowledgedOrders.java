@@ -42,8 +42,8 @@ public class FetchAcknowledgedOrders  implements JavaDelegate {
     	 }
     	
     	List<String> ordersToBeProcessed = new ArrayList<>();
-    	ordersToBeProcessed.add("ORDER-ID-A" + execution.getId()   );
-    	ordersToBeProcessed.add("ORDER-ID-B" + execution.getId() );
+    	ordersToBeProcessed.add("ORDER-ID-A: " + execution.getId() );
+    	ordersToBeProcessed.add("ORDER-ID-B: " + execution.getId() );
     	
     	execution.setVariable("ordersToBeProcessed", ordersToBeProcessed);
 

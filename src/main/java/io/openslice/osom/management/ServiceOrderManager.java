@@ -39,92 +39,97 @@ public class ServiceOrderManager {
 	public void processOrder(ServiceOrder serviceOrder) {
 
 		logger.info("Received order to process serviceOrder id : " + serviceOrder.getId());
-        Map<String, Object> variables = new HashMap<>();
-        variables.put("orderid", serviceOrder.getId() );
-        
+		Map<String, Object> variables = new HashMap<>();
+		variables.put("orderid", serviceOrder.getId());
 
-        runtimeService.startProcessInstanceByKey("InitialServiceOrderAckProcess", variables);
+		runtimeService.startProcessInstanceByKey("InitialServiceOrderAckProcess", variables);
 	}
-	
+
 	@Transactional
-    public List<String> getTasks(String assignee) {
+	public List<String> getTasks(String assignee) {
 		/**
 		 * we ignore for now the assignee
 		 */
 		String assign = ORDER_ASSIGNEE;
 		logger.info("Received order to getTasks, assignee : " + assign);
-        List<Task> tasks = taskService.createTaskQuery()
-          .taskCandidateGroup(assign)
-          .list();
-        
-        List<String> orders = tasks.stream()
-          .map(task -> {
-              Map<String, Object> variables = taskService.getVariables(task.getId());
-              return (String) variables.get("orderid") ;
-          })
-          .collect(Collectors.toList());
+		List<Task> tasks = taskService.createTaskQuery().taskCandidateGroup(assign).list();
+
+		List<String> orders = tasks.stream().map(task -> {
+			Map<String, Object> variables = taskService.getVariables(task.getId());
+			return (String) variables.get("orderid");
+		}).collect(Collectors.toList());
 
 		logger.info("orderid(s) : " + orders.toString());
-        return orders;
-    }
-	
-	 @Transactional
+		return orders;
+	}
+
+	@Transactional
 	public void submitReview(ServiceOrder serviceOrder) {
-			/**
-			 * we ignore for now the assignee
-			 */
-			String assignee = ORDER_ASSIGNEE;
-			
+		/**
+		 * we ignore for now the assignee
+		 */
+		String assignee = ORDER_ASSIGNEE;
+
 //		 {
 //		  "id": "b0661e27-020f-4026-84ab-5c265bac47e7",
 //		  "status": "true",
 //		 "assignee": "admin"
 //		}
-		 List<Task> tasks = taskService.createTaskQuery()
-		          .taskCandidateGroup( assignee )
-		          .list();
-		 String taskId = null;
-		 for (Task t : tasks) {
-			 Map<String, Object> variables = taskService.getVariables( t.getId() );
-			 if ( variables.get("orderid").equals( serviceOrder.getId()) ) {
-				 taskId =   t.getId() ;
-				 break;
-             }
-		 }
-		
-		 if ( taskId!=null ) {
-			 	boolean approve = serviceOrder.getState().equals( ServiceOrderStateType.ACKNOWLEDGED );
-				logger.info("Received OrderApproval for orderid="+ serviceOrder.getId() + " status= " + approve );
-		        Map<String, Object> variables = new HashMap<String, Object>();
-		        variables.put("approved", approve );
-		        taskService.complete( taskId , variables);			 
-		 } else {
+		List<Task> tasks = taskService.createTaskQuery().taskCandidateGroup(assignee).list();
+		String taskId = null;
+		for (Task t : tasks) {
+			Map<String, Object> variables = taskService.getVariables(t.getId());
+			if (variables.get("orderid").equals(serviceOrder.getId())) {
+				taskId = t.getId();
+				break;
+			}
+		}
 
-				logger.error("Task ID cannot be found for received OrderApproval for orderid="+ serviceOrder.getId() );
-		 }
-	 
-	    }
-	 
-	 @Transactional
-		public void humanComplete() {
-				/**
-				 * we ignore for now the assignee
-				 */
-				String assignee = ORDER_ASSIGNEE;
-				
+		if (taskId != null) {
+			boolean approve = serviceOrder.getState().equals(ServiceOrderStateType.ACKNOWLEDGED);
+			logger.info("Received OrderApproval for orderid=" + serviceOrder.getId() + " status= " + approve);
+			Map<String, Object> variables = new HashMap<String, Object>();
+			variables.put("approved", approve);
+			taskService.complete(taskId, variables);
+		} else {
 
-			 List<Task> tasks = taskService.createTaskQuery()
-			          //.taskCandidateGroup( assignee )
-			          .list();
-			 String taskId = null;
-			 
-			 for (Task t : tasks) {
-				 logger.info("humanComplete t.id="+ t.getId() + " status= " + t.getProcessVariables().toString() + ", t = " + t.getName());
-					
-				
-			 }			
-			 
-		 
-		    }
-	
+			logger.error("Task ID cannot be found for received OrderApproval for orderid=" + serviceOrder.getId());
+		}
+
+	}
+
+	@Transactional
+	public void humanComplete(String id) {
+		logger.info("Received Order manual complete for orderid=" +id );
+		/**
+		 * we ignore for now the assignee
+		 */
+		String assignee = ORDER_ASSIGNEE;
+
+		List<Task> tasks = taskService.createTaskQuery()
+				.taskDefinitionKey("usertaskManualCompleteOrder")
+				// .taskCandidateGroup( assignee )
+				.list();
+		String taskId = null;
+
+		for (Task t : tasks) {
+			logger.info("PENDING humanComplete t.id=" + t.getId() + "" + "orderid=" + taskService.getVariables(t.getId()).get("orderid") );
+			String orderid=  (String) taskService.getVariables(t.getId()).get("orderid");
+			if ( orderid.equals( id )) {
+				taskId = t.getId();
+				if (taskId != null) {
+
+					logger.info("will complete orderid=" +id );
+					taskService.complete(taskId);
+				} else {
+
+					logger.error("Task ID cannot be found for received OrderApproval for orderid=" + id);
+				}
+			}
+			
+
+		}
+
+	}
+
 }
