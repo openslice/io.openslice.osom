@@ -104,5 +104,27 @@ public class ServiceOrderManager {
 		 }
 	 
 	    }
+	 
+	 @Transactional
+		public void humanComplete() {
+				/**
+				 * we ignore for now the assignee
+				 */
+				String assignee = ORDER_ASSIGNEE;
+				
+
+			 List<Task> tasks = taskService.createTaskQuery()
+			          //.taskCandidateGroup( assignee )
+			          .list();
+			 String taskId = null;
+			 
+			 for (Task t : tasks) {
+				 logger.info("humanComplete t.id="+ t.getId() + " status= " + t.getProcessVariables().toString() + ", t = " + t.getName());
+					
+				
+			 }			
+			 
+		 
+		    }
 	
 }

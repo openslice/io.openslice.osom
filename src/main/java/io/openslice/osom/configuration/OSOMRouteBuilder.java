@@ -42,6 +42,15 @@ public class OSOMRouteBuilder extends RouteBuilder {
 		.bean( ServiceOrderManager.class, "submitReview")
 		;
 		
+		
+		from("jms:queue:OSOM.IN.HUMAN_COMPLETE_ORDER_TASK")
+		.log(LoggingLevel.INFO, log, "New OSOM.IN.HUMAN_COMPLETE_ORDER_TASK message received!")
+		.to("log:DEBUG?showBody=true&showHeaders=true")
+		//.unmarshal().json( JsonLibrary.Jackson, ServiceOrder.class, true)
+		//.log(LoggingLevel.INFO, log, "Order id = ${body.id}")
+		.bean( ServiceOrderManager.class, "humanComplete")
+		;
+		
 //		
 //		from("activemq:OSOMIN_TEXT")
 //		.log(LoggingLevel.INFO, log, "New activemq:OSOMIN_TEXT message received")

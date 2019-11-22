@@ -3,15 +3,17 @@
   <process id="OrderSchedulerProcess" name="My process" isExecutable="true">
     <startEvent id="timerstartevent1" name="Timer start">
       <timerEventDefinition>
-        <timeCycle>0/20 * * * * ?</timeCycle>
+        <timeCycle>0/15 * * * * ?</timeCycle>
       </timerEventDefinition>
     </startEvent>
     <serviceTask id="stFetchAcknowledgedOrders" name="Fetch Acknowledged Orders" activiti:delegateExpression="${fetchAcknowledgedOrders}"></serviceTask>
     <sequenceFlow id="flow1" sourceRef="timerstartevent1" targetRef="stFetchAcknowledgedOrders"></sequenceFlow>
-    <serviceTask id="stInitializeProcessOrder" name="Initialize Process Order" activiti:async="true" activiti:delegateExpression="${initializeProcessOrders}"></serviceTask>
+    <serviceTask id="stInitializeProcessOrder" name="Initialize Process Order" activiti:delegateExpression="${initializeProcessOrders}"></serviceTask>
     <sequenceFlow id="flow2" sourceRef="stFetchAcknowledgedOrders" targetRef="stInitializeProcessOrder"></sequenceFlow>
     <endEvent id="endevent1" name="End"></endEvent>
-    <sequenceFlow id="flow3" sourceRef="stInitializeProcessOrder" targetRef="endevent1"></sequenceFlow>
+    <callActivity id="paralletActivityStartOrderProcess" name="Start Order Process" activiti:async="true" calledElement="StartOrderProcess" activiti:inheritVariables="true"></callActivity>
+    <sequenceFlow id="flow3" sourceRef="stInitializeProcessOrder" targetRef="paralletActivityStartOrderProcess"></sequenceFlow>
+    <sequenceFlow id="flow4" sourceRef="paralletActivityStartOrderProcess" targetRef="endevent1"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_OrderSchedulerProcess">
     <bpmndi:BPMNPlane bpmnElement="OrderSchedulerProcess" id="BPMNPlane_OrderSchedulerProcess">
@@ -25,7 +27,10 @@
         <omgdc:Bounds height="68.0" width="105.0" x="530.0" y="126.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
-        <omgdc:Bounds height="35.0" width="35.0" x="760.0" y="143.0"></omgdc:Bounds>
+        <omgdc:Bounds height="35.0" width="35.0" x="900.0" y="143.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="paralletActivityStartOrderProcess" id="BPMNShape_paralletActivityStartOrderProcess">
+        <omgdc:Bounds height="71.0" width="141.0" x="720.0" y="124.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
         <omgdi:waypoint x="206.0" y="160.0"></omgdi:waypoint>
@@ -37,7 +42,11 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
         <omgdi:waypoint x="635.0" y="160.0"></omgdi:waypoint>
-        <omgdi:waypoint x="760.0" y="160.0"></omgdi:waypoint>
+        <omgdi:waypoint x="720.0" y="159.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="861.0" y="159.0"></omgdi:waypoint>
+        <omgdi:waypoint x="900.0" y="160.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

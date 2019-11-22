@@ -33,9 +33,17 @@ public class FetchAcknowledgedOrders  implements JavaDelegate {
 //        	logger.error("fetchAcknowledgedOrders by Service Order Repository");
 //		}
     	
+    	 if( execution.getVariable("ordersToBeProcessed") instanceof ArrayList) {
+         	
+         	List<String> ordersFromPrevious =  (ArrayList<String>) execution.getVariable("ordersToBeProcessed");
+         	for (String orderid : ordersFromPrevious) {
+         		logger.info("ordersFromPrevious = " + orderid);
+         	}
+    	 }
+    	
     	List<String> ordersToBeProcessed = new ArrayList<>();
-    	ordersToBeProcessed.add("ORDER-ID-A");
-    	ordersToBeProcessed.add("ORDER-ID-B");
+    	ordersToBeProcessed.add("ORDER-ID-A" + execution.getId()   );
+    	ordersToBeProcessed.add("ORDER-ID-B" + execution.getId() );
     	
     	execution.setVariable("ordersToBeProcessed", ordersToBeProcessed);
 

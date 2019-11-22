@@ -27,14 +27,14 @@ public class InitializeProcessOrders  implements JavaDelegate {
         if( execution.getVariable("ordersToBeProcessed") instanceof ArrayList) {
         	
         	List<String> ordersToBeProcessed =  (ArrayList<String>) execution.getVariable("ordersToBeProcessed");
-        	for (String orderid : ordersToBeProcessed) {
-        		logger.info("Will process order with id = " + orderid);
-        		
-        		
-        		 Map<String, Object> variables = new HashMap<>();
-        	    variables.put("orderid", orderid);
-                runtimeService.startProcessInstanceByKey("StartOrderProcess", variables);
-			}
+        	
+        	if ( ordersToBeProcessed.size()>0 ) {
+        		logger.info("Will push to SO orderid = " + ordersToBeProcessed.get(0));
+        		execution.setVariable("orderid", ordersToBeProcessed.get(0));//get the first one
+        	}
+        	
+        	
+    	    
         }
     }
 }
