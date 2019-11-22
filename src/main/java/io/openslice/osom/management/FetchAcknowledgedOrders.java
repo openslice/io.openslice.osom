@@ -1,5 +1,8 @@
 package io.openslice.osom.management;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.camel.ProducerTemplate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -21,15 +24,20 @@ public class FetchAcknowledgedOrders  implements JavaDelegate {
     	logger.info("fetchAcknowledgedOrders by Service Order Repository");
     	
     	// set the defautlEndPoint
-    	template.setDefaultEndpointUri("direct:start");
-    	try {
-        	Object response = template.requestBody( "jms:queue:SC.IN.SERVICEORDERS.LIST_ACK_PAST");
-        	logger.info("fetchAcknowledgedOrders by Service Order Repository response = " + response);    		
-    	} catch (Exception e) {
-
-        	logger.error("fetchAcknowledgedOrders by Service Order Repository");
-		}
+//    	template.setDefaultEndpointUri("direct:start");
+//    	try {
+//        	Object response = template.requestBody( "jms:queue:SC.IN.SERVICEORDERS.LIST_ACK_PAST");
+//        	logger.info("fetchAcknowledgedOrders by Service Order Repository response = " + response);    		
+//    	} catch (Exception e) {
+//
+//        	logger.error("fetchAcknowledgedOrders by Service Order Repository");
+//		}
     	
+    	List<String> ordersToBeProcessed = new ArrayList<>();
+    	ordersToBeProcessed.add("ORDER-ID-A");
+    	ordersToBeProcessed.add("ORDER-ID-B");
+    	
+    	execution.setVariable("ordersToBeProcessed", ordersToBeProcessed);
 
     }
 }

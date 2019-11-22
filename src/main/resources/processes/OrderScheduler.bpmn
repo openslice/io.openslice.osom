@@ -8,10 +8,10 @@
     </startEvent>
     <serviceTask id="stFetchAcknowledgedOrders" name="Fetch Acknowledged Orders" activiti:delegateExpression="${fetchAcknowledgedOrders}"></serviceTask>
     <sequenceFlow id="flow1" sourceRef="timerstartevent1" targetRef="stFetchAcknowledgedOrders"></sequenceFlow>
-    <serviceTask id="stProcessOrder" name="Process Order" activiti:delegateExpression="${processOrders}"></serviceTask>
-    <sequenceFlow id="flow2" sourceRef="stFetchAcknowledgedOrders" targetRef="stProcessOrder"></sequenceFlow>
+    <serviceTask id="stInitializeProcessOrder" name="Initialize Process Order" activiti:async="true" activiti:delegateExpression="${initializeProcessOrders}"></serviceTask>
+    <sequenceFlow id="flow2" sourceRef="stFetchAcknowledgedOrders" targetRef="stInitializeProcessOrder"></sequenceFlow>
     <endEvent id="endevent1" name="End"></endEvent>
-    <sequenceFlow id="flow3" sourceRef="stProcessOrder" targetRef="endevent1"></sequenceFlow>
+    <sequenceFlow id="flow3" sourceRef="stInitializeProcessOrder" targetRef="endevent1"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_OrderSchedulerProcess">
     <bpmndi:BPMNPlane bpmnElement="OrderSchedulerProcess" id="BPMNPlane_OrderSchedulerProcess">
@@ -21,8 +21,8 @@
       <bpmndi:BPMNShape bpmnElement="stFetchAcknowledgedOrders" id="BPMNShape_stFetchAcknowledgedOrders">
         <omgdc:Bounds height="60.0" width="121.0" x="310.0" y="131.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="stProcessOrder" id="BPMNShape_stProcessOrder">
-        <omgdc:Bounds height="55.0" width="105.0" x="530.0" y="133.0"></omgdc:Bounds>
+      <bpmndi:BPMNShape bpmnElement="stInitializeProcessOrder" id="BPMNShape_stInitializeProcessOrder">
+        <omgdc:Bounds height="68.0" width="105.0" x="530.0" y="126.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
         <omgdc:Bounds height="35.0" width="35.0" x="760.0" y="143.0"></omgdc:Bounds>
