@@ -20,7 +20,7 @@ public class OrchestrationService implements JavaDelegate {
 		if (execution.getVariable("orderid") instanceof String) {
 			
 			try {
-				long completionTime = RandomUtils.nextLong(8000, 13000);
+				long completionTime = RandomUtils.nextLong(68000, 73000);
 
 				logger.info("Orchestration of  order with id = " + execution.getVariable("orderid") + ". Completion in: " + completionTime);
 				Thread.sleep( completionTime  );

@@ -23,18 +23,25 @@ public class InitializeProcessOrders  implements JavaDelegate {
 	
     public void execute(DelegateExecution execution) {
     	
-        logger.info("Push Process Orders for Orchetration");
+        logger.info("Push Process Orders for Orchetration: " + execution.getVariables().toString());
+        
+        if( execution.getVariable("orderid") instanceof String) {
+    		logger.info("Task has available orderid = " + execution.getVariable("orderid") );
+		execution.setVariable("orderid", execution.getVariable("orderid")  );//get the first one
+        	
+        }
+        
         if( execution.getVariable("ordersToBeProcessed") instanceof ArrayList) {
         	
         	List<String> ordersToBeProcessed =  (ArrayList<String>) execution.getVariable("ordersToBeProcessed");
-        	
-        	if ( ordersToBeProcessed.size()>0 ) {
-        		logger.info("Will push to SO orderid = " + ordersToBeProcessed.get(0));
-        		execution.setVariable("orderid", ordersToBeProcessed.get(0));//get the first one
-        	}
-        	
-        	
-    	    
+        	for (String o : ordersToBeProcessed) {
+
+
+        		logger.info("Will send CAMEL Message that Order is IN-PROGRESS orderid= " + o);
+        		logger.info("Will push to SO orderid = " + o);
+			}
+	    
         }
+        
     }
 }

@@ -115,7 +115,7 @@ public class ServiceOrderManager {
 		for (Task t : tasks) {
 			logger.info("PENDING humanComplete t.id=" + t.getId() + "" + "orderid=" + taskService.getVariables(t.getId()).get("orderid") );
 			String orderid=  (String) taskService.getVariables(t.getId()).get("orderid");
-			if ( orderid.equals( id )) {
+			if ( orderid.contains( id )) {
 				taskId = t.getId();
 				if (taskId != null) {
 
