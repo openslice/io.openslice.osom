@@ -84,7 +84,7 @@ public class InitialServiceOrderProcessIntegrationTest {
 		InputStream in = new FileInputStream( sspec );
 		String sspectext = IOUtils.toString(in, "UTF-8");
 
-		assertThat( repositoryService.createProcessDefinitionQuery().count()  ).isEqualTo( 2 );
+		assertThat( repositoryService.createProcessDefinitionQuery().count()  ).isEqualTo(3 );
 		assertThat( taskService.createTaskQuery().count()  ).isEqualTo( 0 );
 
 		//send two orders
@@ -93,7 +93,7 @@ public class InitialServiceOrderProcessIntegrationTest {
 		
         Thread.sleep(1000); //wait
 
-		assertThat( repositoryService.createProcessDefinitionQuery().count()  ).isEqualTo( 2 );
+		assertThat( repositoryService.createProcessDefinitionQuery().count()  ).isEqualTo( 3 );
 		assertThat( taskService.createTaskQuery().count()  ).isEqualTo( 2 );
 		
 		Object response = template.requestBody( "jms:queue:OSOM.IN.NEW_SERVICEORDER_PROCESS.LIST_PENDING", "admin");

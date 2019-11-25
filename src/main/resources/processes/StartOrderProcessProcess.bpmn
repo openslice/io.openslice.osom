@@ -6,15 +6,15 @@
     <sequenceFlow id="flow1" sourceRef="startevent1" targetRef="stAutomationCheck"></sequenceFlow>
     <endEvent id="endevent1" name="End"></endEvent>
     <userTask id="usertask1" name="User Task"></userTask>
-    <serviceTask id="servicetask1" name="Service Task" activiti:delegateExpression="${orchestrationService}"></serviceTask>
+    <serviceTask id="stOrchestrationService" name="Orchestration Service" activiti:delegateExpression="${orchestrationService}"></serviceTask>
     <parallelGateway id="parallelgateway1" name="Parallel Gateway"></parallelGateway>
     <parallelGateway id="parallelgateway2" name="Parallel Gateway"></parallelGateway>
     <serviceTask id="servicetask2" name="Order Complete" activiti:delegateExpression="${orderCompleteService}"></serviceTask>
     <sequenceFlow id="flow2" sourceRef="stAutomationCheck" targetRef="parallelgateway1"></sequenceFlow>
     <sequenceFlow id="flow3" sourceRef="parallelgateway1" targetRef="usertask1"></sequenceFlow>
-    <sequenceFlow id="flow4" sourceRef="parallelgateway1" targetRef="servicetask1"></sequenceFlow>
+    <sequenceFlow id="flow4" sourceRef="parallelgateway1" targetRef="stOrchestrationService"></sequenceFlow>
     <sequenceFlow id="flow5" sourceRef="usertask1" targetRef="parallelgateway2"></sequenceFlow>
-    <sequenceFlow id="flow6" sourceRef="servicetask1" targetRef="parallelgateway2"></sequenceFlow>
+    <sequenceFlow id="flow6" sourceRef="stOrchestrationService" targetRef="parallelgateway2"></sequenceFlow>
     <sequenceFlow id="flow8" sourceRef="servicetask2" targetRef="endevent1"></sequenceFlow>
     <sequenceFlow id="flow9" sourceRef="parallelgateway2" targetRef="servicetask2"></sequenceFlow>
   </process>
@@ -32,8 +32,8 @@
       <bpmndi:BPMNShape bpmnElement="usertask1" id="BPMNShape_usertask1">
         <omgdc:Bounds height="55.0" width="105.0" x="590.0" y="50.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="servicetask1" id="BPMNShape_servicetask1">
-        <omgdc:Bounds height="55.0" width="105.0" x="590.0" y="220.0"></omgdc:Bounds>
+      <bpmndi:BPMNShape bpmnElement="stOrchestrationService" id="BPMNShape_stOrchestrationService">
+        <omgdc:Bounds height="91.0" width="105.0" x="590.0" y="200.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="parallelgateway1" id="BPMNShape_parallelgateway1">
         <omgdc:Bounds height="40.0" width="40.0" x="480.0" y="137.0"></omgdc:Bounds>
@@ -59,8 +59,8 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
         <omgdi:waypoint x="500.0" y="177.0"></omgdi:waypoint>
-        <omgdi:waypoint x="500.0" y="247.0"></omgdi:waypoint>
-        <omgdi:waypoint x="590.0" y="247.0"></omgdi:waypoint>
+        <omgdi:waypoint x="500.0" y="245.0"></omgdi:waypoint>
+        <omgdi:waypoint x="590.0" y="245.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
         <omgdi:waypoint x="695.0" y="77.0"></omgdi:waypoint>
@@ -68,8 +68,8 @@
         <omgdi:waypoint x="790.0" y="137.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
-        <omgdi:waypoint x="695.0" y="247.0"></omgdi:waypoint>
-        <omgdi:waypoint x="790.0" y="247.0"></omgdi:waypoint>
+        <omgdi:waypoint x="695.0" y="245.0"></omgdi:waypoint>
+        <omgdi:waypoint x="790.0" y="245.0"></omgdi:waypoint>
         <omgdi:waypoint x="790.0" y="177.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
