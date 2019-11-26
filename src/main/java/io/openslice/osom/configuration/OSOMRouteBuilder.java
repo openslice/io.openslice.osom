@@ -20,7 +20,7 @@ public class OSOMRouteBuilder extends RouteBuilder {
 
 	public void configure() {
 
-		from("jms:queue:OSOM.IN.NEW_SERVICEORDER_PROCESS")
+		from("jms:queue:OSOM.NEW_SERVICEORDER_PROCESS")
 			.log(LoggingLevel.INFO, log, "New OSOM.IN.SERVICEORDER message received!")
 			.to("log:DEBUG?showBody=true&showHeaders=true")
 			.unmarshal().json( JsonLibrary.Jackson, ServiceOrder.class, true)
@@ -28,14 +28,14 @@ public class OSOMRouteBuilder extends RouteBuilder {
 			.bean( ServiceOrderManager.class, "processOrder")
 			;
 		
-		from("jms:queue:OSOM.IN.NEW_SERVICEORDER_PROCESS.LIST_PENDING")
-		.log(LoggingLevel.INFO, log, "New OSOM.IN.NEW_SERVICEORDER_PROCESS.LIST_PENDING message received!")
+		from("jms:queue:OSOM.NEW_SERVICEORDER_PROCESS.LIST_PENDING")
+		.log(LoggingLevel.INFO, log, "New OSOM.NEW_SERVICEORDER_PROCESS.LIST_PENDING message received!")
 		.to("log:DEBUG?showBody=true&showHeaders=true")
 		.bean( ServiceOrderManager.class, "getTasks")
 		;
 		
-		from("jms:queue:OSOM.IN.ACK_SERVICEORDER_PROCESS")
-		.log(LoggingLevel.INFO, log, "New OSOM.IN.ACK_SERVICEORDER_PROCESS message received!")
+		from("jms:queue:OSOM.ACK_SERVICEORDER_PROCESS")
+		.log(LoggingLevel.INFO, log, "New OSOM.ACK_SERVICEORDER_PROCESS message received!")
 		.to("log:DEBUG?showBody=true&showHeaders=true")
 		.unmarshal().json( JsonLibrary.Jackson, ServiceOrder.class, true)
 		.log(LoggingLevel.INFO, log, "Order id = ${body.id}")
@@ -43,8 +43,8 @@ public class OSOMRouteBuilder extends RouteBuilder {
 		;
 		
 		
-		from("jms:queue:OSOM.IN.HUMAN_COMPLETE_ORDER_TASK")
-		.log(LoggingLevel.INFO, log, "New OSOM.IN.HUMAN_COMPLETE_ORDER_TASK message received!")
+		from("jms:queue:OSOM.HUMAN_COMPLETE_ORDER_TASK")
+		.log(LoggingLevel.INFO, log, "New OSOM.HUMAN_COMPLETE_ORDER_TASK message received!")
 		.to("log:DEBUG?showBody=true&showHeaders=true")
 		//.unmarshal().json( JsonLibrary.Jackson, ServiceOrder.class, true)
 		//.log(LoggingLevel.INFO, log, "Order id = ${body.id}")

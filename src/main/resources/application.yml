@@ -47,3 +47,5 @@ logging:
     console: "%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"
     file: "%d %p %c{1.} [%t] %m%n"
     
+ENDPOINT_CATALOG_GET_SERVICEORDER_BY_ID: "jms:queue:CATALOG.GET.SERVICEORDER_BY_ID"
+

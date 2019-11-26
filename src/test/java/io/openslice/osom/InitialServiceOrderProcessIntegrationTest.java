@@ -64,11 +64,11 @@ public class InitialServiceOrderProcessIntegrationTest {
     
     @MockBean(name = "rejectServiceOrderBean" )
     @Autowired
-    private systemTaskMocked rejectServiceOrderBean;
+    private SystemTaskMocked rejectServiceOrderBean;
     
     @MockBean(name = "addServiceOrderToScheduler" )
     @Autowired
-    private systemTaskMocked addServiceOrderToScheduler;
+    private SystemTaskMocked addServiceOrderToScheduler;
 
 	@Test
 	//@Deployment(resources = { "processes/ServiceOrder.bpmn" })
@@ -88,15 +88,15 @@ public class InitialServiceOrderProcessIntegrationTest {
 		assertThat( taskService.createTaskQuery().count()  ).isEqualTo( 0 );
 
 		//send two orders
-		template.sendBody( "jms:queue:OSOM.IN.NEW_SERVICEORDER_PROCESS", sspectext);
-		template.sendBody( "jms:queue:OSOM.IN.NEW_SERVICEORDER_PROCESS", sspectext);
+		template.sendBody( "jms:queue:OSOM.NEW_SERVICEORDER_PROCESS", sspectext);
+		template.sendBody( "jms:queue:OSOM.NEW_SERVICEORDER_PROCESS", sspectext);
 		
         Thread.sleep(1000); //wait
 
 		assertThat( repositoryService.createProcessDefinitionQuery().count()  ).isEqualTo( 3 );
 		assertThat( taskService.createTaskQuery().count()  ).isEqualTo( 2 );
 		
-		Object response = template.requestBody( "jms:queue:OSOM.IN.NEW_SERVICEORDER_PROCESS.LIST_PENDING", "admin");
+		Object response = template.requestBody( "jms:queue:OSOM.NEW_SERVICEORDER_PROCESS.LIST_PENDING", "admin");
         Thread.sleep(1000); //wait
 
 		assertThat( response  ).isInstanceOf(List.class);
@@ -107,7 +107,7 @@ public class InitialServiceOrderProcessIntegrationTest {
 		responseSO.setState( ServiceOrderStateType.REJECTED  );
 		
 		//reject one order
-		template.sendBody( "jms:queue:OSOM.IN.ACK_SERVICEORDER_PROCESS", toJsonString( responseSO ));
+		template.sendBody( "jms:queue:OSOM.ACK_SERVICEORDER_PROCESS", toJsonString( responseSO ));
 
         Thread.sleep(1000); //wait
 		assertThat( taskService.createTaskQuery().count()  ).isEqualTo( 1 );
@@ -117,7 +117,7 @@ public class InitialServiceOrderProcessIntegrationTest {
 		accSO.setState( ServiceOrderStateType.ACKNOWLEDGED  );
 		
 		//accept the last order
-		template.sendBody( "jms:queue:OSOM.IN.ACK_SERVICEORDER_PROCESS", toJsonString( accSO ));
+		template.sendBody( "jms:queue:OSOM.ACK_SERVICEORDER_PROCESS", toJsonString( accSO ));
 
         Thread.sleep(1000); //wait
 		assertThat( taskService.createTaskQuery().count()  ).isEqualTo( 0 );
