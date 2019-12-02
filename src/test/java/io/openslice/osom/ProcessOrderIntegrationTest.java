@@ -35,12 +35,15 @@ import org.springframework.test.context.ActiveProfiles;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.openslice.osom.management.ServiceOrderManager;
+import io.openslice.tmf.scm633.model.ServiceSpecification;
 import io.openslice.tmf.so641.model.ServiceOrder;
 
 
 @ExtendWith(FlowableSpringExtension.class)
 @SpringBootTest(properties = {
 	    "ENDPOINT_CATALOG_GET_SERVICEORDER_BY_ID = direct:get_mocked_order",
+	    "ENDPOINT_CATALOG_GET_SERVICESPEC_BY_ID = direct:get_mocked_spec",
 	    "uri.to   = mock:output" })
 @ActiveProfiles("testing")
 public class ProcessOrderIntegrationTest {
@@ -62,31 +65,46 @@ public class ProcessOrderIntegrationTest {
     @MockBean(name = "orchestrationService" )
     @Autowired
     private OrchestrationServiceMocked orchestrationServiceMocked;
+    
+
+   
+    
+
+    @Autowired
+    private ServiceOrderManager serviceOrderManager;
 	
 	@Test
 	//@Deployment(resources = { "processes/ServiceOrder.bpmn" })
 	public void startProcess() throws Exception {
 		doCallRealMethod().when( orchestrationServiceMocked).execute( Mockito.any()  ) ;
 		
-		File sspec = new File( "src/test/resources/TestExServiceOrder.json" );
-		InputStream in = new FileInputStream( sspec );
-		String sspectext = IOUtils.toString(in, "UTF-8");
-		ServiceOrder responseSO = toJsonObj(sspectext,  ServiceOrder.class);
 		
+		
+		/**
+		 * configure here the mocked routes
+		 */
 		RoutesBuilder builder = new RouteBuilder() {
 	        @Override
 	        public void configure() {
-	          from("direct:get_mocked_order").setBody (  simple(sspectext) );
+		          from("direct:get_mocked_order").bean( SCMocked.class, "getOrderById");
+		          from("direct:get_mocked_spec").bean( SCMocked.class, "getSpecById");
+	          
 	        };
 		};
 		
 		camelContext.addRoutes( builder );
+
+		logger.info("waiting 1secs");
+        Thread.sleep(1000); //wait
+        
+		assertThat( serviceOrderManager.retrieveServiceOrder( "b0661e27-020f-4026-84ab-5c265bac47e7")).isInstanceOf( ServiceOrder.class );
+		assertThat( serviceOrderManager.retrieveSpec( "59d08753-e1b1-418b-9e3e-d3a3bb573051")).isInstanceOf( ServiceSpecification.class );
+				
 		
-		MockEndpoint mockSO = camelContext.getEndpoint( "mock:catalog", MockEndpoint.class);
 		
 		assertThat( repositoryService.createProcessDefinitionQuery().count()  ).isEqualTo(3 );
 		assertThat( taskService.createTaskQuery().count()  ).isEqualTo( 0 );
-		repositoryService.suspendProcessDefinitionByKey("OrderSchedulerProcess");
+		repositoryService.suspendProcessDefinitionByKey("OrderSchedulerProcess"); //this is to stop the timer
 		
         Map<String, Object> variables = new HashMap<>();
         variables.put("orderid", "b0661e27-020f-4026-84ab-5c265bac47e7" );
@@ -101,21 +119,14 @@ public class ProcessOrderIntegrationTest {
         for (Task task : taskService.createTaskQuery().list()) {
         	logger.info(" task.name " + task.getName());
 		}
-        
+
         assertThat( taskService.createTaskQuery().count()  ).isEqualTo( 1 );
 
-		// Assert that 1 message will be received
-        mockSO.expectedMessageCount(3);
         
 		logger.info("waiting 1secs");
         Thread.sleep(1000); //wait
         
-        
+
 	}
 	
-	static <T> T toJsonObj(String content, Class<T> valueType)  throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        return mapper.readValue( content, valueType);
-    }
 }

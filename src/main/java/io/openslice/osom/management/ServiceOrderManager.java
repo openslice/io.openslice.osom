@@ -1,20 +1,27 @@
 package io.openslice.osom.management;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.camel.ProducerTemplate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.TaskService;
 import org.flowable.task.api.Task;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.openslice.osom.configuration.OSOMRouteBuilder;
+import io.openslice.tmf.scm633.model.ServiceSpecification;
 import io.openslice.tmf.so641.model.ServiceOrder;
 import io.openslice.tmf.so641.model.ServiceOrderStateType;
 
@@ -34,6 +41,19 @@ public class ServiceOrderManager {
 
 	@Autowired
 	private TaskService taskService;
+
+    @Autowired
+    private ProducerTemplate template;
+    
+
+
+	@Value("${ENDPOINT_CATALOG_GET_SERVICEORDER_BY_ID}")
+	private String ENDPOINT_CATALOG_GET_SERVICEORDER_BY_ID = "";
+	
+
+	@Value("${ENDPOINT_CATALOG_GET_SERVICESPEC_BY_ID}")
+	private String ENDPOINT_CATALOG_GET_SERVICESPEC_BY_ID = "";
+	
 
 	@Transactional
 	public void processOrder(ServiceOrder serviceOrder) {
@@ -132,4 +152,64 @@ public class ServiceOrderManager {
 
 	}
 
+
+	/**
+	 * get  service order by id from model via bus
+	 * @param id
+	 * @return
+	 * @throws IOException
+	 */
+	public ServiceOrder retrieveServiceOrder( String orderid) {
+		logger.info("will retrieve Service Order from catalog orderid=" + orderid   );
+		try {
+			Object response = template.
+					requestBody( ENDPOINT_CATALOG_GET_SERVICEORDER_BY_ID, orderid);
+
+			if ( !(response instanceof String)) {
+				logger.error("Service Order object is wrong.");
+				return null;
+			}
+			ServiceOrder sor = toJsonObj( (String)response, ServiceOrder.class); 
+			return sor;
+			
+		}catch (Exception e) {
+			logger.error("Cannot retrieve Service Order details from catalog. " + e.toString());
+		}
+		return null;
+	}
+
+
+
+	/**
+	 * get  service spec by id from model via bus
+	 * @param id
+	 * @return
+	 * @throws IOException
+	 */
+	public ServiceSpecification retrieveSpec(String specid) {
+		logger.info("will retrieve Service Specification from catalog orderid=" + specid   );
+		
+		try {
+			Object response = template.
+					requestBody( ENDPOINT_CATALOG_GET_SERVICESPEC_BY_ID, specid);
+
+			if ( !(response instanceof String)) {
+				logger.error("Service Specification object is wrong.");
+				return null;
+			}
+			ServiceSpecification sor = toJsonObj( (String)response, ServiceSpecification.class); 
+			return sor;
+			
+		}catch (Exception e) {
+			logger.error("Cannot retrieve Service Specification details from catalog. " + e.toString());
+		}
+		return null;
+	}
+	
+	
+	static <T> T toJsonObj(String content, Class<T> valueType)  throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        return mapper.readValue( content, valueType);
+    }
 }

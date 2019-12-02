@@ -5,6 +5,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.dataformat.JsonLibrary;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +19,8 @@ public class OSOMRouteBuilder extends RouteBuilder {
 
 	private static final transient Log logger = LogFactory.getLog(OSOMRouteBuilder.class.getName());
 
+	
+	
 	public void configure() {
 
 		from("jms:queue:OSOM.NEW_SERVICEORDER_PROCESS")
@@ -48,8 +51,11 @@ public class OSOMRouteBuilder extends RouteBuilder {
 		.to("log:DEBUG?showBody=true&showHeaders=true")
 		//.unmarshal().json( JsonLibrary.Jackson, ServiceOrder.class, true)
 		//.log(LoggingLevel.INFO, log, "Order id = ${body.id}")
-		.bean( ServiceOrderManager.class, "humanComplete")
-		;
+		.bean( ServiceOrderManager.class, "humanComplete");
+		
+		
+		
+		//create route here to get service spec by id from model via bus
 		
 //		
 //		from("activemq:OSOMIN_TEXT")
