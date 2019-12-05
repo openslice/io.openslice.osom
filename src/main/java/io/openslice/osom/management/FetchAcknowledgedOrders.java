@@ -11,41 +11,38 @@ import org.flowable.engine.delegate.JavaDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component(value = "fetchAcknowledgedOrders") //bean name
-public class FetchAcknowledgedOrders  implements JavaDelegate {
+@Component(value = "fetchAcknowledgedOrders") // bean name
+public class FetchAcknowledgedOrders implements JavaDelegate {
 
 	private static final transient Log logger = LogFactory.getLog(FetchAcknowledgedOrders.class.getName());
 
 
     @Autowired
-    private ProducerTemplate template;
-	
-    public void execute(DelegateExecution execution) {
-    	logger.info("fetchAcknowledgedOrders by Service Order Repository");
-    	
-    	// set the defautlEndPoint
-//    	template.setDefaultEndpointUri("direct:start");
-//    	try {
-//        	Object response = template.requestBody( "jms:queue:SC.IN.SERVICEORDERS.LIST_ACK_PAST");
-//        	logger.info("fetchAcknowledgedOrders by Service Order Repository response = " + response);    		
-//    	} catch (Exception e) {
-//
-//        	logger.error("fetchAcknowledgedOrders by Service Order Repository");
-//		}
-    	
-    	 if( execution.getVariable("ordersToBeProcessed") instanceof ArrayList) {
-         	
-         	List<String> ordersFromPrevious =  (ArrayList<String>) execution.getVariable("ordersToBeProcessed");
-         	for (String orderid : ordersFromPrevious) {
-         		logger.info("ordersFromPrevious = " + orderid);
-         	}
-    	 }
-    	
-    	List<String> ordersToBeProcessed = new ArrayList<>();
-    	ordersToBeProcessed.add("ORDER-ID-A: " + execution.getId() );
-    	ordersToBeProcessed.add("ORDER-ID-B: " + execution.getId() );
-    	
-    	execution.setVariable("ordersToBeProcessed", ordersToBeProcessed);
+    private ServiceOrderManager serviceOrderManager;
 
-    }
+	public void execute(DelegateExecution execution) {
+		logger.info("fetchAcknowledgedOrders by Service Order Repository");
+
+		List<String> ordersToBeProcessed = null;
+		if (execution.getVariable("ordersToBeProcessed") instanceof ArrayList) {
+			ordersToBeProcessed = (ArrayList<String>) execution.getVariable("ordersToBeProcessed");
+			for (String orderid : ordersToBeProcessed) {
+				logger.info("ordersFromPrevious = " + orderid);
+			}
+		} else {
+			ordersToBeProcessed = new ArrayList<>();
+		}
+
+		List<String> orderlist = serviceOrderManager.retrieveOrdersToBeProcessed();
+		
+		for (String orderid : orderlist) {
+			if ( !ordersToBeProcessed.contains( orderid )  ) {
+				ordersToBeProcessed.add( orderid );
+				
+			}
+		}
+		
+		execution.setVariable("ordersToBeProcessed", ordersToBeProcessed);
+
+	}
 }

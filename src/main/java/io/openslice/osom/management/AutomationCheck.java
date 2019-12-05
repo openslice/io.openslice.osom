@@ -48,28 +48,29 @@ public class AutomationCheck implements JavaDelegate {
 				return;
 			}
 			
-			logger.info("ServiceOrder id" + sor.getId() );
-			logger.info("ServiceOrder Description" + sor.getDescription());
+			logger.debug("ServiceOrder id:" + sor.getId() );
+			logger.debug("ServiceOrder Description:" + sor.getDescription());
+			logger.debug("Examin service items" );
 			
 			for (ServiceOrderItem soi : sor.getOrderItem()) {
-				logger.info("Service Item ID:" + soi.getId()  );
-				logger.info("Service spec ID:" + soi.getService().getServiceSpecification().getId()   );
+				logger.debug("Service Item ID:" + soi.getId()  );
+				logger.debug("Service spec ID:" + soi.getService().getServiceSpecification().getId()   );
 				
 				//get service spec by id from model via bus, find if bundle and analyse its related services
 				ServiceSpecification spec = serviceOrderManager.retrieveSpec( soi.getService().getServiceSpecification().getId() );
 				
-				logger.info("Retrieved Service ID:" + spec.getId()    );
-				logger.info("Retrieved Service Name:" + spec.getName()    );
-				
-				logger.info("<=======related specs====== >");
+				logger.debug("Retrieved Service ID:" + spec.getId()    );
+				logger.debug("Retrieved Service Name:" + spec.getName()    );
+
+				logger.debug("<--------------- related specs -------------->");
 				for (ServiceSpecRelationship specRels : spec.getServiceSpecRelationship()) {
-					logger.info("Service specRelsId:" + specRels.getId()   );		
+					logger.debug("\tService specRelsId:" + specRels.getId()   );		
 					ServiceSpecification specrel = serviceOrderManager.retrieveSpec( specRels.getId() );
-					logger.info("Service spec name :" + specrel.getName()  );		
-					logger.info("Service spec type :" + specrel.getType()   );		
+					logger.debug("\tService spec name :" + specrel.getName()  );		
+					logger.debug("\tService spec type :" + specrel.getType()   );		
 					
 				}
-				logger.info("<=======related specs====== >");
+				logger.debug("<--------------- /related specs -------------->");
 				
 //				for (ServiceRelationship rels : soi.getService().getServiceRelationship() ) {
 //					logger.info("Service rels:" + rels.getService().getName()    );					

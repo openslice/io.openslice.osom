@@ -77,6 +77,17 @@
               "name": "Spec1",
               "id": "59d08753-e1b1-418b-9e3e-d3a3bb573051"
             }
+          },
+          {
+            "uuid": "14715e75-8f49-4bcc-9283-d921412280a7",
+            "@baseType": "BaseEntity",
+            "relationshipType": "aggregation",
+            "service": {
+              "uuid": "1993e6e0-d618-4a3e-9201-c616ddff4e7c",
+              "@baseType": "BaseEntity",
+              "name": "Spec3",
+              "id": "81a08735-e1b1-418b-9e3e-d3a3bb573007"
+            }
           }
         ],
         "supportingService": [
@@ -91,6 +102,12 @@
             "@baseType": "BaseEntity",
             "name": "Spec2",
             "id": "a7ff2349-ccab-42a1-9212-51d4a1912247"
+          },
+          {
+              "uuid": "1993e6e0-d618-4a3e-9201-c616ddff4e7c",
+              "@baseType": "BaseEntity",
+              "name": "Spec3",
+              "id": "81a08735-e1b1-418b-9e3e-d3a3bb573007"
           }
         ]
       }

@@ -123,8 +123,8 @@ public class ProcessOrderIntegrationTest {
         assertThat( taskService.createTaskQuery().count()  ).isEqualTo( 1 );
 
         
-		logger.info("waiting 1secs");
-        Thread.sleep(1000); //wait
+		logger.info("waiting 2secs");
+        Thread.sleep( 2000 ); //wait
         
 
 	}

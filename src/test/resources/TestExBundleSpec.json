@@ -126,6 +126,15 @@
       "id": "a7ff2349-ccab-42a1-9212-51d4a1912247",
       "relationshipType": "aggregation",
       "role": "serviceSpecRelationship"
+    },
+    {
+      "uuid": "1b71202b-351e-40e3-8361-4dc3300cc9a1",
+      "@baseType": "BaseRootEntity",
+      "@type": "io.openslice.tmf.scm633.model.ServiceSpecRelationship",
+      "name": "Spec3",
+      "id": "81a08735-e1b1-418b-9e3e-d3a3bb573007",
+      "relationshipType": "aggregation",
+      "role": "serviceSpecRelationship"
     }
   ],
   "id": "d8515f8f-786c-432b-9a74-5037e54c7974"

@@ -1,6 +1,7 @@
 package io.openslice.osom.management;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +54,10 @@ public class ServiceOrderManager {
 
 	@Value("${ENDPOINT_CATALOG_GET_SERVICESPEC_BY_ID}")
 	private String ENDPOINT_CATALOG_GET_SERVICESPEC_BY_ID = "";
+	
+	@Value("${ENDPOINT_CATALOG_GET_INITIAL_SERVICEORDERS}")
+	private String ENDPOINT_CATALOG_GET_INITIAL_SERVICEORDERS = "";
+	
 	
 
 	@Transactional
@@ -152,6 +157,28 @@ public class ServiceOrderManager {
 
 	}
 
+	/**
+	 * Request orders to be processed
+	 * @return a string list of Order IDs
+	 */
+	public List<String> retrieveOrdersToBeProcessed() {
+		logger.info("will retrieve Service Orders to be processed from catalog "   );
+		try {
+			Object response = template.
+					requestBody( ENDPOINT_CATALOG_GET_INITIAL_SERVICEORDERS );
+
+			if ( !(response instanceof List)) {
+				logger.error("List  object is wrong.");
+				return null;
+			}
+			ArrayList<String> sor = toJsonObj( (String)response, ArrayList.class ); 
+			return sor;
+			
+		}catch (Exception e) {
+			logger.error("Cannot retrieve Listof Service Orders to be processed from catalog. " + e.toString());
+		}
+		return null;
+	}
 
 	/**
 	 * get  service order by id from model via bus
@@ -212,4 +239,6 @@ public class ServiceOrderManager {
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         return mapper.readValue( content, valueType);
     }
+
+
 }
