@@ -67,15 +67,15 @@ public class ServiceOrderManager {
     
 
 
-	@Value("${ENDPOINT_CATALOG_GET_SERVICEORDER_BY_ID}")
-	private String ENDPOINT_CATALOG_GET_SERVICEORDER_BY_ID = "";
+	@Value("${CATALOG_GET_SERVICEORDER_BY_ID}")
+	private String CATALOG_GET_SERVICEORDER_BY_ID = "";
 	
 
-	@Value("${ENDPOINT_CATALOG_GET_SERVICESPEC_BY_ID}")
-	private String ENDPOINT_CATALOG_GET_SERVICESPEC_BY_ID = "";
+	@Value("${CATALOG_GET_SERVICESPEC_BY_ID}")
+	private String CATALOG_GET_SERVICESPEC_BY_ID = "";
 	
-	@Value("${ENDPOINT_CATALOG_GET_INITIAL_SERVICEORDERS}")
-	private String ENDPOINT_CATALOG_GET_INITIAL_SERVICEORDERS = "";
+	@Value("${CATALOG_GET_INITIAL_SERVICEORDERS}")
+	private String CATALOG_GET_INITIAL_SERVICEORDERS = "";
 	
 	
 
@@ -184,7 +184,7 @@ public class ServiceOrderManager {
 		logger.info("will retrieve Service Orders to be processed from catalog "   );
 		try {
 			Object response = template.
-					requestBody( ENDPOINT_CATALOG_GET_INITIAL_SERVICEORDERS );
+					requestBody( CATALOG_GET_INITIAL_SERVICEORDERS );
 
 			if ( !(response instanceof List)) {
 				logger.error("List  object is wrong.");
@@ -209,7 +209,7 @@ public class ServiceOrderManager {
 		logger.info("will retrieve Service Order from catalog orderid=" + orderid   );
 		try {
 			Object response = template.
-					requestBody( ENDPOINT_CATALOG_GET_SERVICEORDER_BY_ID, orderid);
+					requestBody( CATALOG_GET_SERVICEORDER_BY_ID, orderid);
 
 			if ( !(response instanceof String)) {
 				logger.error("Service Order object is wrong.");
@@ -237,7 +237,7 @@ public class ServiceOrderManager {
 		
 		try {
 			Object response = template.
-					requestBody( ENDPOINT_CATALOG_GET_SERVICESPEC_BY_ID, specid);
+					requestBody( CATALOG_GET_SERVICESPEC_BY_ID, specid);
 
 			if ( !(response instanceof String)) {
 				logger.error("Service Specification object is wrong.");

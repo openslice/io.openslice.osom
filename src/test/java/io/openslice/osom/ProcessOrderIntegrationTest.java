@@ -61,8 +61,8 @@ import io.openslice.tmf.so641.model.ServiceOrder;
 
 @ExtendWith(FlowableSpringExtension.class)
 @SpringBootTest(properties = {
-	    "ENDPOINT_CATALOG_GET_SERVICEORDER_BY_ID = direct:get_mocked_order",
-	    "ENDPOINT_CATALOG_GET_SERVICESPEC_BY_ID = direct:get_mocked_spec",
+	    "CATALOG_GET_SERVICEORDER_BY_ID = direct:get_mocked_order",
+	    "CATALOG_GET_SERVICESPEC_BY_ID = direct:get_mocked_spec",
 	    "uri.to   = mock:output" })
 @ActiveProfiles("testing")
 public class ProcessOrderIntegrationTest {

@@ -37,11 +37,11 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.openslice.tmf.common.model.service.ServiceRelationship;
 import io.openslice.tmf.scm633.model.ServiceSpecRelationship;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
 import io.openslice.tmf.so641.model.ServiceOrder;
 import io.openslice.tmf.so641.model.ServiceOrderItem;
-import io.openslice.tmf.so641.model.ServiceRelationship;
 
 @Component(value = "automationCheck") // bean name
 public class AutomationCheck implements JavaDelegate {
