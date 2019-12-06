@@ -53,7 +53,9 @@ public class FetchAcknowledgedOrders implements JavaDelegate {
 		}
 
 		List<String> orderlist = serviceOrderManager.retrieveOrdersToBeProcessed();
-		
+		if ( orderlist == null ) {
+			return;
+		}
 		for (String orderid : orderlist) {
 			if ( !ordersToBeProcessed.contains( orderid )  ) {
 				ordersToBeProcessed.add( orderid );

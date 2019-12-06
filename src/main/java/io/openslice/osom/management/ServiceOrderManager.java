@@ -184,7 +184,7 @@ public class ServiceOrderManager {
 		logger.info("will retrieve Service Orders to be processed from catalog "   );
 		try {
 			Object response = template.
-					requestBody( CATALOG_GET_INITIAL_SERVICEORDERS );
+					requestBody( CATALOG_GET_INITIAL_SERVICEORDERS, "" );
 
 			if ( !(response instanceof List)) {
 				logger.error("List  object is wrong.");
