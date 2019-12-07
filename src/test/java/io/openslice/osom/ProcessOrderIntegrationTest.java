@@ -121,7 +121,7 @@ public class ProcessOrderIntegrationTest {
 				
 		
 		
-		assertThat( repositoryService.createProcessDefinitionQuery().count()  ).isEqualTo(3 );
+		assertThat( repositoryService.createProcessDefinitionQuery().count()  ).isEqualTo(2);
 		assertThat( taskService.createTaskQuery().count()  ).isEqualTo( 0 );
 		repositoryService.suspendProcessDefinitionByKey("OrderSchedulerProcess"); //this is to stop the timer
 		
@@ -139,7 +139,7 @@ public class ProcessOrderIntegrationTest {
         	logger.info(" task.name " + task.getName());
 		}
 
-        assertThat( taskService.createTaskQuery().count()  ).isEqualTo( 1 );
+        assertThat( taskService.createTaskQuery().count()  ).isEqualTo( 2 );
 
         
 		logger.info("waiting 2secs");

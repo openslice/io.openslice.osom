@@ -70,6 +70,8 @@ public class AutomationCheck implements JavaDelegate {
 			logger.debug("ServiceOrder id:" + sor.getId() );
 			logger.debug("ServiceOrder Description:" + sor.getDescription());
 			logger.debug("Examin service items" );
+			List<String> serviceSpecsManual = new ArrayList<>();
+			
 			
 			for (ServiceOrderItem soi : sor.getOrderItem()) {
 				logger.debug("Service Item ID:" + soi.getId()  );
@@ -86,7 +88,11 @@ public class AutomationCheck implements JavaDelegate {
 					logger.debug("\tService specRelsId:" + specRels.getId()   );		
 					ServiceSpecification specrel = serviceOrderManager.retrieveSpec( specRels.getId() );
 					logger.debug("\tService spec name :" + specrel.getName()  );		
-					logger.debug("\tService spec type :" + specrel.getType()   );		
+					logger.debug("\tService spec type :" + specrel.getType()   );	
+					if ( specrel.getType().equals( "CustomerFacingServiceSpecification")  ) {
+
+						serviceSpecsManual.add( specRels.getId()  );	
+					}
 					
 				}
 				logger.debug("<--------------- /related specs -------------->");
@@ -97,6 +103,8 @@ public class AutomationCheck implements JavaDelegate {
 				
 				
 			}
+
+			execution.setVariable("serviceSpecsManual", serviceSpecsManual);
 			
 		}
 	}

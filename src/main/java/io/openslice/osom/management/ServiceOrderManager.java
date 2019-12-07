@@ -77,6 +77,8 @@ public class ServiceOrderManager {
 	@Value("${CATALOG_GET_INITIAL_SERVICEORDERS}")
 	private String CATALOG_GET_INITIAL_SERVICEORDERS = "";
 	
+	@Value("${CATALOG_GET_ACKNOWLEDGED_SERVICEORDERS}")
+	private String CATALOG_GET_ACKNOWLEDGED_SERVICEORDERS = "";
 	
 
 	@Transactional
@@ -184,7 +186,7 @@ public class ServiceOrderManager {
 		logger.info("will retrieve Service Orders to be processed from catalog "   );
 		try {
 			Object response = template.
-					requestBody( CATALOG_GET_INITIAL_SERVICEORDERS, "" );
+					requestBody( CATALOG_GET_ACKNOWLEDGED_SERVICEORDERS, "" );
 
 			if ( !(response instanceof List)) {
 				logger.error("List  object is wrong.");
