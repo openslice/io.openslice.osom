@@ -44,6 +44,7 @@ import io.openslice.osom.configuration.OSOMRouteBuilder;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
 import io.openslice.tmf.so641.model.ServiceOrder;
 import io.openslice.tmf.so641.model.ServiceOrderStateType;
+import static java.util.Arrays.asList;
 
 /**
  * @author ctranoris
@@ -186,13 +187,18 @@ public class ServiceOrderManager {
 		logger.info("will retrieve Service Orders to be processed from catalog "   );
 		try {
 			Object response = template.
-					requestBody( CATALOG_GET_ACKNOWLEDGED_SERVICEORDERS, "" );
+					requestBody( CATALOG_GET_ACKNOWLEDGED_SERVICEORDERS, "", String.class );
 
-			if ( !(response instanceof List)) {
+			logger.info("will retrieve Service Orders to be processed from catalog response: " + response.getClass()  );
+			if ( !(response instanceof String)) {
 				logger.error("List  object is wrong.");
 				return null;
 			}
+			//String[] sor = toJsonObj( (String)response, String[].class );
+
 			ArrayList<String> sor = toJsonObj( (String)response, ArrayList.class ); 
+			
+//			return asList(sor);
 			return sor;
 			
 		}catch (Exception e) {

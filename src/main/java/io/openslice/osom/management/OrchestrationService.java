@@ -39,9 +39,9 @@ public class OrchestrationService implements JavaDelegate {
 		if (execution.getVariable("orderid") instanceof String) {
 			
 			try {
-				long completionTime = RandomUtils.nextLong(68000, 73000);
+				long completionTime = RandomUtils.nextLong(30000, 63000);
 
-				logger.info("Orchestration of  order with id = " + execution.getVariable("orderid") + ". Completion in: " + completionTime);
+				logger.info("Orchestration of  order with id = " + execution.getVariable("orderid") + ". WWill be Completed in: " + completionTime);
 				Thread.sleep( completionTime  );
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block

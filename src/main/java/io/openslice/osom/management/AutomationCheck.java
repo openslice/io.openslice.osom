@@ -66,7 +66,7 @@ public class AutomationCheck implements JavaDelegate {
 				logger.error("Cannot retrieve Service Order details from catalog.");
 				return;
 			}
-			
+
 			logger.debug("ServiceOrder id:" + sor.getId() );
 			logger.debug("ServiceOrder Description:" + sor.getDescription());
 			logger.debug("Examin service items" );
@@ -80,6 +80,7 @@ public class AutomationCheck implements JavaDelegate {
 				//get service spec by id from model via bus, find if bundle and analyse its related services
 				ServiceSpecification spec = serviceOrderManager.retrieveSpec( soi.getService().getServiceSpecification().getId() );
 				
+				if ( spec!=null)
 				logger.debug("Retrieved Service ID:" + spec.getId()    );
 				logger.debug("Retrieved Service Name:" + spec.getName()    );
 
