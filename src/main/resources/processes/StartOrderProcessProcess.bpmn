@@ -16,7 +16,7 @@
     <sequenceFlow id="flow8" sourceRef="servicetask2" targetRef="endevent1"></sequenceFlow>
     <sequenceFlow id="flow9" sourceRef="parallelgateway2" targetRef="servicetask2"></sequenceFlow>
     <sequenceFlow id="flow10" sourceRef="stNFVO_RFS" targetRef="parallelgateway2"></sequenceFlow>
-    <serviceTask id="stManualCompleteService" name="User Task Manual Complete Service">
+    <serviceTask id="stManualCompleteService" name="User Task Manual Complete Service" activiti:delegateExpression="${userOrderCompleteService}">
       <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="serviceSpecsManual" activiti:elementVariable="serviceSpec"></multiInstanceLoopCharacteristics>
     </serviceTask>
   </process>

@@ -45,6 +45,7 @@ import io.openslice.tmf.common.model.service.Note;
 import io.openslice.tmf.common.model.service.ServiceRelationship;
 import io.openslice.tmf.common.model.service.ServiceSpecificationRef;
 import io.openslice.tmf.common.model.service.ServiceStateType;
+import io.openslice.tmf.prm669.model.RelatedParty;
 import io.openslice.tmf.scm633.model.ServiceSpecCharacteristic;
 import io.openslice.tmf.scm633.model.ServiceSpecCharacteristicValue;
 import io.openslice.tmf.scm633.model.ServiceSpecRelationship;
@@ -106,23 +107,20 @@ public class AutomationCheck implements JavaDelegate {
 					logger.debug("\tService spec name :" + specrel.getName());
 					logger.debug("\tService spec type :" + specrel.getType());
 					if (specrel.getType().equals("CustomerFacingServiceSpecification")) {
-						serviceSpecsManual.add(specrel.getId());
 						createServiceByServiceSpec(sor, soi, specrel, "4");
+						//serviceSpecsManual.add(specrel.getId()); this is wrong..we need to add service IDs not serviceSpecs
 					} else {
-						serviceSpecsAutomated.add(specrel.getId());
 						createServiceByServiceSpec(sor, soi, specrel, "1");
+						//serviceSpecsAutomated.add(specrel.getId());
 					}
 
 				}
 				logger.debug("<--------------- /related specs -------------->");
 
-//				for (ServiceRelationship rels : soi.getService().getServiceRelationship() ) {
-//					logger.info("Service rels:" + rels.getService().getName()    );					
-//				}
 
 			}
 
-			execution.setVariable("serviceSpecsManual", serviceSpecsManual);
+			//execution.setVariable("serviceSpecsManual", serviceSpecsManual);
 
 		}
 	}
@@ -135,6 +133,7 @@ public class AutomationCheck implements JavaDelegate {
 	private void createServiceByServiceSpec(ServiceOrder sor, ServiceOrderItem soi, ServiceSpecification spec, String startMode) {
 		ServiceCreate s = new ServiceCreate();
 		s.setCategory(spec.getType());
+		s.setType(spec.getType());
 		s.setDescription("A Service for " + spec.getName());
 		s.setServiceDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
 		s.hasStarted(false);
@@ -154,29 +153,35 @@ public class AutomationCheck implements JavaDelegate {
 		ServiceSpecificationRef serviceSpecificationRef = new ServiceSpecificationRef();
 		serviceSpecificationRef.setId( spec.getId());
 		serviceSpecificationRef.setName(spec.getName());
-		s.setServiceSpecification(serviceSpecificationRef );
+		s.setServiceSpecificationRef(serviceSpecificationRef );
 		
 		s.setServiceType( spec.getName());
 		s.setState( ServiceStateType.RESERVED );
 		
-		s.getRelatedParty().addAll( spec.getRelatedParty());
+		if (spec.getRelatedParty()!=null) {
+			for (RelatedParty rp : spec.getRelatedParty()) {
+				s.addRelatedPartyItem(rp);
+			}			
+		}
 		
-		for (ServiceSpecCharacteristic c : spec.getServiceSpecCharacteristic()) {
-			for (Characteristic orderCharacteristic : soi.getService().getServiceCharacteristic()) {
-				if ( orderCharacteristic.getName().equals( c.getName()) ) { //copy only characteristics that are related from the order
-					Characteristic serviceCharacteristicItem =  new Characteristic();
-					serviceCharacteristicItem.setName( c.getName() );
-					serviceCharacteristicItem.setValueType( c.getValueType() );
-								
-					Any val = new Any();
-					val.setValue( orderCharacteristic.getValue().getValue() );
-					val.setAlias( orderCharacteristic.getValue().getAlias() );
-					
-					serviceCharacteristicItem.setValue( val );
-					s.addServiceCharacteristicItem(serviceCharacteristicItem);
+		if (soi.getService().getServiceCharacteristic() != null ) {
+			for (ServiceSpecCharacteristic c : spec.getServiceSpecCharacteristic()) {
+				
+				for (Characteristic orderCharacteristic : soi.getService().getServiceCharacteristic()) {
+					if ( orderCharacteristic.getName().equals( c.getName()) ) { //copy only characteristics that are related from the order
+						Characteristic serviceCharacteristicItem =  new Characteristic();
+						serviceCharacteristicItem.setName( c.getName() );
+						serviceCharacteristicItem.setValueType( c.getValueType() );
+									
+						Any val = new Any();
+						val.setValue( orderCharacteristic.getValue().getValue() );
+						val.setAlias( orderCharacteristic.getValue().getAlias() );
+						
+						serviceCharacteristicItem.setValue( val );
+						s.addServiceCharacteristicItem(serviceCharacteristicItem);
+					}
 				}
 			}
-			
 			
 		}
 		
