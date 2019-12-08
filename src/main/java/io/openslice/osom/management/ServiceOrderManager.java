@@ -42,8 +42,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.openslice.osom.configuration.OSOMRouteBuilder;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
+import io.openslice.tmf.sim638.model.ServiceCreate;
 import io.openslice.tmf.so641.model.ServiceOrder;
 import io.openslice.tmf.so641.model.ServiceOrderStateType;
+import io.openslice.tmf.so641.model.ServiceOrderUpdate;
+
 import static java.util.Arrays.asList;
 
 /**
@@ -75,11 +78,24 @@ public class ServiceOrderManager {
 	@Value("${CATALOG_GET_SERVICESPEC_BY_ID}")
 	private String CATALOG_GET_SERVICESPEC_BY_ID = "";
 	
-	@Value("${CATALOG_GET_INITIAL_SERVICEORDERS}")
-	private String CATALOG_GET_INITIAL_SERVICEORDERS = "";
+	@Value("${CATALOG_GET_INITIAL_SERVICEORDERS_IDS}")
+	private String CATALOG_GET_INITIAL_SERVICEORDERS_IDS = "";
+
+	@Value("${CATALOG_GET_ACKNOWLEDGED_SERVICEORDERS_IDS}")
+	private String CATALOG_GET_ACKNOWLEDGED_SERVICEORDERS_IDS = "";
 	
-	@Value("${CATALOG_GET_ACKNOWLEDGED_SERVICEORDERS}")
-	private String CATALOG_GET_ACKNOWLEDGED_SERVICEORDERS = "";
+	@Value("${CATALOG_UPD_SERVICEORDER_BY_ID}")
+	private String CATALOG_UPD_SERVICEORDER_BY_ID = "";
+	
+
+	@Value("${CATALOG_ADD_SERVICE}")
+	private String CATALOG_ADD_SERVICE = "";
+
+	@Value("${CATALOG_UPD_SERVICE}")
+	private String CATALOG_UPD_SERVICE = "";
+
+	@Value("${CATALOG_GET_SERVICE}")
+	private String CATALOG_GET_SERVICE = "";
 	
 
 	@Transactional
@@ -187,7 +203,7 @@ public class ServiceOrderManager {
 		logger.info("will retrieve Service Orders to be processed from catalog "   );
 		try {
 			Object response = template.
-					requestBody( CATALOG_GET_ACKNOWLEDGED_SERVICEORDERS, "", String.class );
+					requestBody( CATALOG_GET_ACKNOWLEDGED_SERVICEORDERS_IDS, "", String.class );
 
 			logger.info("will retrieve Service Orders to be processed from catalog response: " + response.getClass()  );
 			if ( !(response instanceof String)) {
@@ -232,7 +248,22 @@ public class ServiceOrderManager {
 		return null;
 	}
 
+	public void setOrderInProgress(String orderid) {
+		logger.info("will set Service Order in progress orderid=" + orderid   );
+		try {
+			ServiceOrderUpdate serviceOrder = new ServiceOrderUpdate();
+			serviceOrder.setState(ServiceOrderStateType.INPROGRESS);
+			template.sendBodyAndHeader( CATALOG_UPD_SERVICEORDER_BY_ID, toJsonString(serviceOrder), "orderid", orderid);
 
+//			if ( !(response instanceof String)) {
+//				logger.error("Service Order object is wrong.");
+//			}
+			
+		}catch (Exception e) {
+			logger.error("Cannot set Service Order status from catalog. " + e.toString());
+		}
+		
+	}
 
 	/**
 	 * get  service spec by id from model via bus
@@ -261,11 +292,39 @@ public class ServiceOrderManager {
 	}
 	
 	
+
+	public void createService( ServiceCreate s, ServiceOrder sor, ServiceSpecification spec) {
+		logger.info("will create Service for spec: " + spec.getId() );
+		try {
+			Map<String, Object> map = new HashMap<>();
+			map.put("orderid", sor.getId() );
+			map.put("serviceSpecid", spec.getId() );
+			template.sendBodyAndHeaders( CATALOG_ADD_SERVICE, toJsonString(s), map);
+
+//			if ( !(response instanceof String)) {
+//				logger.error("Service Order object is wrong.");
+//			}
+			
+		}catch (Exception e) {
+			logger.error("Cannot create Service for spec " + spec.getId()+ ": " + e.toString());
+		}
+		
+	}
+
+	
+	
+	
 	static <T> T toJsonObj(String content, Class<T> valueType)  throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         return mapper.readValue( content, valueType);
     }
+
+	 static String toJsonString(Object object) throws IOException {
+	        ObjectMapper mapper = new ObjectMapper();
+	        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+	        return mapper.writeValueAsString(object);
+	    }
 
 
 }
