@@ -24,6 +24,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.model.dataformat.JsonLibrary;
@@ -42,6 +43,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.openslice.tmf.common.model.Any;
 import io.openslice.tmf.common.model.service.Characteristic;
 import io.openslice.tmf.common.model.service.Note;
+import io.openslice.tmf.common.model.service.ServiceRef;
 import io.openslice.tmf.common.model.service.ServiceRelationship;
 import io.openslice.tmf.common.model.service.ServiceSpecificationRef;
 import io.openslice.tmf.common.model.service.ServiceStateType;
@@ -55,6 +57,8 @@ import io.openslice.tmf.sim638.model.ServiceCreate;
 import io.openslice.tmf.sim638.model.ServiceOrderRef;
 import io.openslice.tmf.so641.model.ServiceOrder;
 import io.openslice.tmf.so641.model.ServiceOrderItem;
+import io.openslice.tmf.so641.model.ServiceOrderStateType;
+import io.openslice.tmf.so641.model.ServiceOrderUpdate;
 
 /**
  * @author ctranoris
@@ -83,8 +87,8 @@ public class AutomationCheck implements JavaDelegate {
 
 			logger.debug("ServiceOrder id:" + sor.getId());
 			logger.debug("Examin service items");
-			List<String> serviceSpecsManual = new ArrayList<>();
-			List<String> serviceSpecsAutomated = new ArrayList<>();
+			List<String> servicesHandledManual = new ArrayList<>();
+			List<String> servicesHandledAutomated = new ArrayList<>();
 
 			for (ServiceOrderItem soi : sor.getOrderItem()) {
 				logger.debug("Service Item ID:" + soi.getId());
@@ -94,12 +98,12 @@ public class AutomationCheck implements JavaDelegate {
 				// related services
 				ServiceSpecification spec = serviceOrderManager
 						.retrieveSpec(soi.getService().getServiceSpecification().getId());
-				createServiceByServiceSpec(sor, soi, spec, "5");
-
-				if (spec != null)
-					logger.debug("Retrieved Service ID:" + spec.getId());
+				
+				logger.debug("Retrieved Service ID:" + spec.getId());
 				logger.debug("Retrieved Service Name:" + spec.getName());
 
+				//List<Service> createdServices = new ArrayList<>();
+				
 				logger.debug("<--------------- related specs -------------->");
 				for (ServiceSpecRelationship specRels : spec.getServiceSpecRelationship()) {
 					logger.debug("\tService specRelsId:" + specRels.getId());
@@ -107,21 +111,52 @@ public class AutomationCheck implements JavaDelegate {
 					logger.debug("\tService spec name :" + specrel.getName());
 					logger.debug("\tService spec type :" + specrel.getType());
 					if (specrel.getType().equals("CustomerFacingServiceSpecification")) {
-						createServiceByServiceSpec(sor, soi, specrel, "4");
-						//serviceSpecsManual.add(specrel.getId()); this is wrong..we need to add service IDs not serviceSpecs
+						Service createdServ = createServiceByServiceSpec(sor, soi, specrel, "3");
+						servicesHandledManual.add(createdServ.getId()); 
+						//createdServices.add(createdServ);
+						ServiceRef supportingServiceItem = new ServiceRef();
+						supportingServiceItem.setId( createdServ.getId() );
+						supportingServiceItem.setReferredType( createdServ.getName() );
+						supportingServiceItem.setName(  createdServ.getName()  );
+						soi.getService().addSupportingServiceItem(supportingServiceItem );
 					} else {
-						createServiceByServiceSpec(sor, soi, specrel, "1");
-						//serviceSpecsAutomated.add(specrel.getId());
+						Service createdServ = createServiceByServiceSpec(sor, soi, specrel, "1");
+						servicesHandledAutomated.add(createdServ.getId()); 
+						//createdServices.add(createdServ);
+						ServiceRef supportingServiceItem = new ServiceRef();
+						supportingServiceItem.setId( createdServ.getId() );
+						supportingServiceItem.setReferredType( createdServ.getName() );
+						supportingServiceItem.setName(  createdServ.getName()  );
+						soi.getService().addSupportingServiceItem(supportingServiceItem );
 					}
 
 				}
 				logger.debug("<--------------- /related specs -------------->");
-
+				
+				
 
 			}
 
-			//execution.setVariable("serviceSpecsManual", serviceSpecsManual);
+			execution.setVariable("servicesHandledManual", servicesHandledManual);
+			execution.setVariable("servicesHandledAutomated", servicesHandledAutomated);
 
+
+			//Service createdMainServ = createServiceByServiceSpec(sor, soi, spec, "5");
+			//execution.setVariable("mainService", createdMainServ);
+			
+			/***
+			 * we can update now the serviceorder element in catalog
+			 */
+			
+			ServiceOrderUpdate serviceOrderUpd = new ServiceOrderUpdate();
+			for (ServiceOrderItem orderItemItem : sor.getOrderItem()) {
+				orderItemItem.setState(ServiceOrderStateType.INPROGRESS);
+				orderItemItem.getService().setState( ServiceStateType.RESERVED );
+				serviceOrderUpd.addOrderItemItem(orderItemItem);
+			}
+			serviceOrderManager.updateServiceOrderOrder( sor.getId(), serviceOrderUpd );
+			
+			
 		}
 	}
 
@@ -129,8 +164,9 @@ public class AutomationCheck implements JavaDelegate {
 	 * @param sor
 	 * @param soi 
 	 * @param spec
+	 * @return 
 	 */
-	private void createServiceByServiceSpec(ServiceOrder sor, ServiceOrderItem soi, ServiceSpecification spec, String startMode) {
+	private Service createServiceByServiceSpec(ServiceOrder sor, ServiceOrderItem soi, ServiceSpecification spec, String startMode) {
 		ServiceCreate s = new ServiceCreate();
 		s.setCategory(spec.getType());
 		s.setType(spec.getType());
@@ -186,7 +222,8 @@ public class AutomationCheck implements JavaDelegate {
 		}
 		
 		
-		serviceOrderManager.createService(s, sor, spec);
+		Service createdService = serviceOrderManager.createService(s, sor, spec);
+		return createdService;
 	}
 
 }

@@ -19,12 +19,19 @@
  */
 package io.openslice.osom.management;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import io.openslice.tmf.so641.model.ServiceOrder;
+import io.openslice.tmf.so641.model.ServiceOrderItem;
 
 
 @Component(value = "orderCompleteService") //bean name
@@ -32,10 +39,30 @@ public class OrderCompleteService implements JavaDelegate {
 
 	private static final transient Log logger = LogFactory.getLog(OrderCompleteService.class.getName());
 
+
+    @Autowired
+    private ServiceOrderManager serviceOrderManager;
+    
 	public void execute(DelegateExecution execution) {
 
 		logger.info("OrderCompleteService:" + execution.getVariableNames().toString() );
 
+		if (execution.getVariable("orderId")!=null) {
+			logger.info("Will check status of services of orderid:" + execution.getVariable("orderId") );
+			
+			ServiceOrder sOrder = serviceOrderManager.retrieveServiceOrder((String) execution.getVariable("orderId") );
+			
+			if (sOrder == null) {
+				logger.error("Cannot retrieve Service Order details from catalog.");
+				return;
+			}
+
+			logger.debug("ServiceOrder id:" + sOrder.getId());
+			for (ServiceOrderItem soi : sOrder.getOrderItem()) {
+				
+			}
+			
+		}
 		
 	}
 

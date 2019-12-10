@@ -5,10 +5,12 @@
     <serviceTask id="stAutomationCheck" name="Automation Check" activiti:async="true" activiti:delegateExpression="${automationCheck}"></serviceTask>
     <sequenceFlow id="flow1" sourceRef="startevent1" targetRef="stAutomationCheck"></sequenceFlow>
     <endEvent id="endevent1" name="End"></endEvent>
-    <serviceTask id="stNFVO_RFS" name="NFVO RFS Task" activiti:delegateExpression="${orchestrationService}"></serviceTask>
+    <serviceTask id="stNFVO_RFS" name="NFVO RFS Task" activiti:delegateExpression="${orchestrationService}">
+      <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="servicesHandledAutomated" activiti:elementVariable="serviceId"></multiInstanceLoopCharacteristics>
+    </serviceTask>
     <parallelGateway id="parallelgateway1" name="Parallel Gateway"></parallelGateway>
     <parallelGateway id="parallelgateway2" name="Parallel Gateway"></parallelGateway>
-    <serviceTask id="servicetask2" name="Wait Services to Complete" activiti:delegateExpression="${orderCompleteService}"></serviceTask>
+    <serviceTask id="servicetask2" name="Order Complete" activiti:delegateExpression="${orderCompleteService}"></serviceTask>
     <sequenceFlow id="flow2" sourceRef="stAutomationCheck" targetRef="parallelgateway1"></sequenceFlow>
     <sequenceFlow id="flow3" sourceRef="parallelgateway1" targetRef="stManualCompleteService"></sequenceFlow>
     <sequenceFlow id="flow4" sourceRef="parallelgateway1" targetRef="stNFVO_RFS"></sequenceFlow>
@@ -17,7 +19,7 @@
     <sequenceFlow id="flow9" sourceRef="parallelgateway2" targetRef="servicetask2"></sequenceFlow>
     <sequenceFlow id="flow10" sourceRef="stNFVO_RFS" targetRef="parallelgateway2"></sequenceFlow>
     <serviceTask id="stManualCompleteService" name="User Task Manual Complete Service" activiti:delegateExpression="${userOrderCompleteService}">
-      <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="serviceSpecsManual" activiti:elementVariable="serviceSpec"></multiInstanceLoopCharacteristics>
+      <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="servicesHandledManual" activiti:elementVariable="serviceId"></multiInstanceLoopCharacteristics>
     </serviceTask>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_StartOrderProcess">

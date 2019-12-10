@@ -25,10 +25,14 @@ import java.util.List;
 import org.apache.camel.ProducerTemplate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.flowable.engine.TaskService;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
+import org.flowable.task.api.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import io.openslice.tmf.so641.model.ServiceOrderStateType;
 
 @Component(value = "fetchAcknowledgedOrders") // bean name
 public class FetchAcknowledgedOrders implements JavaDelegate {
@@ -39,8 +43,13 @@ public class FetchAcknowledgedOrders implements JavaDelegate {
     @Autowired
     private ServiceOrderManager serviceOrderManager;
 
+	@Autowired
+	private TaskService taskService;
+
+	
 	public void execute(DelegateExecution execution) {
-		logger.info("fetchAcknowledgedOrders by Service Order Repository");
+		logger.info("======================" + execution.getProcessDefinitionId()  + "======================================");
+		logger.info("FetchAcknowledgedOrders by Service Order Repository");
 
 		List<String> ordersToBeProcessed = null;
 		if (execution.getVariable("ordersToBeProcessed") instanceof ArrayList) {
@@ -52,7 +61,8 @@ public class FetchAcknowledgedOrders implements JavaDelegate {
 			ordersToBeProcessed = new ArrayList<>();
 		}
 
-		List<String> orderlist = serviceOrderManager.retrieveOrdersToBeProcessed();
+		List<String> orderlist = serviceOrderManager.retrieveOrdersByState( ServiceOrderStateType.ACKNOWLEDGED );
+		
 		if ( orderlist != null ) {
 			for (String orderid : orderlist) {
 				if ( !ordersToBeProcessed.contains( orderid )  ) {
@@ -63,6 +73,15 @@ public class FetchAcknowledgedOrders implements JavaDelegate {
 		}
 		
 		execution.setVariable("ordersToBeProcessed", ordersToBeProcessed);
+		
+		
+		List<Task> tasks = taskService.createTaskQuery()
+				.taskDefinitionKey("stManualCompleteService")
+				.list();
+
+		for (Task t : tasks) {
+			logger.info("PENDING humanComplete t.id=" + t.getId() + "" + "orderid=" + taskService.getVariables(t.getId()).get("orderid") );
+		}
 
 	}
 }

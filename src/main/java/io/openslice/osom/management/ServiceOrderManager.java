@@ -81,8 +81,8 @@ public class ServiceOrderManager {
 	@Value("${CATALOG_GET_INITIAL_SERVICEORDERS_IDS}")
 	private String CATALOG_GET_INITIAL_SERVICEORDERS_IDS = "";
 
-	@Value("${CATALOG_GET_ACKNOWLEDGED_SERVICEORDERS_IDS}")
-	private String CATALOG_GET_ACKNOWLEDGED_SERVICEORDERS_IDS = "";
+	@Value("${CATALOG_GET_SERVICEORDER_IDS_BY_STATE}")
+	private String CATALOG_GET_SERVICEORDER_IDS_BY_STATE = "";
 	
 	@Value("${CATALOG_UPD_SERVICEORDER_BY_ID}")
 	private String CATALOG_UPD_SERVICEORDER_BY_ID = "";
@@ -94,8 +94,8 @@ public class ServiceOrderManager {
 	@Value("${CATALOG_UPD_SERVICE}")
 	private String CATALOG_UPD_SERVICE = "";
 
-	@Value("${CATALOG_GET_SERVICE}")
-	private String CATALOG_GET_SERVICE = "";
+	@Value("${CATALOG_GET_SERVICE_BY_ID}")
+	private String CATALOG_GET_SERVICE_BY_ID = "";
 	
 
 	@Transactional
@@ -126,40 +126,7 @@ public class ServiceOrderManager {
 		return orders;
 	}
 
-	@Transactional
-	public void submitReview(ServiceOrder serviceOrder) {
-		/**
-		 * we ignore for now the assignee
-		 */
-		String assignee = ORDER_ASSIGNEE;
 
-//		 {
-//		  "id": "b0661e27-020f-4026-84ab-5c265bac47e7",
-//		  "status": "true",
-//		 "assignee": "admin"
-//		}
-		List<Task> tasks = taskService.createTaskQuery().taskCandidateGroup(assignee).list();
-		String taskId = null;
-		for (Task t : tasks) {
-			Map<String, Object> variables = taskService.getVariables(t.getId());
-			if (variables.get("orderid").equals(serviceOrder.getId())) {
-				taskId = t.getId();
-				break;
-			}
-		}
-
-		if (taskId != null) {
-			boolean approve = serviceOrder.getState().equals(ServiceOrderStateType.ACKNOWLEDGED);
-			logger.info("Received OrderApproval for orderid=" + serviceOrder.getId() + " status= " + approve);
-			Map<String, Object> variables = new HashMap<String, Object>();
-			variables.put("approved", approve);
-			taskService.complete(taskId, variables);
-		} else {
-
-			logger.error("Task ID cannot be found for received OrderApproval for orderid=" + serviceOrder.getId());
-		}
-
-	}
 
 	@Transactional
 	public void humanComplete(String id) {
@@ -195,17 +162,51 @@ public class ServiceOrderManager {
 
 	}
 
+//	/**
+//	 * Request orders to be processed
+//	 * @return a string list of Order IDs
+//	 */
+//	public List<String> retrieveOrdersToBeProcessed() {
+//		logger.info("will retrieve Service Orders to be processed from catalog "   );
+//		try {
+//			Map<String, Object> map = new HashMap<>();
+//			map.put("orderstate", ServiceOrderStateType.ACKNOWLEDGED.toString() );
+//			
+//			Object response = template.
+//					requestBodyAndHeaders( CATALOG_GET_SERVICEORDER_IDS_BY_STATE, "", map );
+//
+//			logger.info("will retrieve Service OrdersACKNOWLEDGED from catalog response: " + response.getClass()  );
+//			if ( !(response instanceof String)) {
+//				logger.error("List  object is wrong.");
+//				return null;
+//			}
+//			//String[] sor = toJsonObj( (String)response, String[].class );
+//
+//			ArrayList<String> sor = toJsonObj( (String)response, ArrayList.class ); 
+//			logger.debug("retrieveOrdersToBeProcessed response is: " + response);
+//			
+////			return asList(sor);
+//			return sor;
+//			
+//		}catch (Exception e) {
+//			logger.error("Cannot retrieve Listof Service Orders ACKNOWLEDGED from catalog. " + e.toString());
+//		}
+//		return null;
+//	}
+	
+	
 	/**
-	 * Request orders to be processed
-	 * @return a string list of Order IDs
+	 * @return
 	 */
-	public List<String> retrieveOrdersToBeProcessed() {
-		logger.info("will retrieve Service Orders to be processed from catalog "   );
+	public List<String> retrieveOrdersByState(ServiceOrderStateType orderState) {
+		logger.info("will retrieve Service Orders " + orderState.toString() + " from catalog "   );
 		try {
+			Map<String, Object> map = new HashMap<>();
+			map.put("orderstate", orderState.toString() );
 			Object response = template.
-					requestBody( CATALOG_GET_ACKNOWLEDGED_SERVICEORDERS_IDS, "", String.class );
+					requestBodyAndHeaders( CATALOG_GET_SERVICEORDER_IDS_BY_STATE, "", map );
 
-			logger.info("will retrieve Service Orders to be processed from catalog response: " + response.getClass()  );
+			logger.debug("will retrieve Service Orders " + orderState.toString() + " from catalog response: " + response.getClass()  );
 			if ( !(response instanceof String)) {
 				logger.error("List  object is wrong.");
 				return null;
@@ -213,16 +214,16 @@ public class ServiceOrderManager {
 			//String[] sor = toJsonObj( (String)response, String[].class );
 
 			ArrayList<String> sor = toJsonObj( (String)response, ArrayList.class ); 
+			logger.debug("retrieveOrdersByState response is: " + response);
 			
 //			return asList(sor);
 			return sor;
 			
 		}catch (Exception e) {
-			logger.error("Cannot retrieve Listof Service Orders to be processed from catalog. " + e.toString());
+			logger.error("Cannot retrieve Listof Service Orders "+ orderState.toString() + " from catalog. " + e.toString());
 		}
 		return null;
 	}
-
 	/**
 	 * get  service order by id from model via bus
 	 * @param id
@@ -240,6 +241,7 @@ public class ServiceOrderManager {
 				return null;
 			}
 			ServiceOrder sor = toJsonObj( (String)response, ServiceOrder.class); 
+			//logger.debug("retrieveServiceOrder response is: " + response);
 			return sor;
 			
 		}catch (Exception e) {
@@ -248,16 +250,14 @@ public class ServiceOrderManager {
 		return null;
 	}
 
-	public void setOrderInProgress(String orderid) {
+
+	
+	public void updateServiceOrderOrder(String orderid, ServiceOrderUpdate serviceOrder) {
 		logger.info("will set Service Order in progress orderid=" + orderid   );
 		try {
-			ServiceOrderUpdate serviceOrder = new ServiceOrderUpdate();
-			serviceOrder.setState(ServiceOrderStateType.INPROGRESS);
+
 			template.sendBodyAndHeader( CATALOG_UPD_SERVICEORDER_BY_ID, toJsonString(serviceOrder), "orderid", orderid);
 
-//			if ( !(response instanceof String)) {
-//				logger.error("Service Order object is wrong.");
-//			}
 			
 		}catch (Exception e) {
 			logger.error("Cannot set Service Order status from catalog. " + e.toString());
@@ -283,6 +283,7 @@ public class ServiceOrderManager {
 				return null;
 			}
 			ServiceSpecification sor = toJsonObj( (String)response, ServiceSpecification.class); 
+			//logger.debug("retrieveSpec response is: " + response);
 			return sor;
 			
 		}catch (Exception e) {
@@ -293,22 +294,54 @@ public class ServiceOrderManager {
 	
 	
 
-	public void createService( ServiceCreate s, ServiceOrder sor, ServiceSpecification spec) {
+	public io.openslice.tmf.sim638.model.Service createService( ServiceCreate s, ServiceOrder sor, ServiceSpecification spec) {
 		logger.info("will create Service for spec: " + spec.getId() );
 		try {
 			Map<String, Object> map = new HashMap<>();
 			map.put("orderid", sor.getId() );
 			map.put("serviceSpecid", spec.getId() );
-			template.sendBodyAndHeaders( CATALOG_ADD_SERVICE, toJsonString(s), map);
+			Object response = template.requestBodyAndHeaders( CATALOG_ADD_SERVICE, toJsonString(s), map);
 
-//			if ( !(response instanceof String)) {
-//				logger.error("Service Order object is wrong.");
-//			}
+			if ( !(response instanceof String)) {
+				logger.error("Service Instance object is wrong.");
+			}
+
+			io.openslice.tmf.sim638.model.Service serviceInstance = toJsonObj( (String)response, io.openslice.tmf.sim638.model.Service.class); 
+			//logger.debug("createService response is: " + response);
+			return serviceInstance;
+			
 			
 		}catch (Exception e) {
 			logger.error("Cannot create Service for spec " + spec.getId()+ ": " + e.toString());
 		}
+		return null;
 		
+	}
+	
+
+	/**
+	 * Ger service instance via bus
+	 * @param serviceID
+	 * @return
+	 */
+	public io.openslice.tmf.sim638.model.Service retrieveService(String serviceID) {
+		logger.info("will retrieve Service instance from catalog serviceID=" + serviceID   );
+		try {
+			Object response = template.
+					requestBody( CATALOG_GET_SERVICE_BY_ID, serviceID);
+
+			if ( !(response instanceof String)) {
+				logger.error("Service object is wrong.");
+				return null;
+			}
+			io.openslice.tmf.sim638.model.Service serviceInstance = toJsonObj( (String)response, io.openslice.tmf.sim638.model.Service.class); 
+			//logger.debug("retrieveService response is: " + response);
+			return serviceInstance;
+			
+		}catch (Exception e) {
+			logger.error("Cannot retrieve Service details from catalog. " + e.toString());
+		}
+		return null;
 	}
 
 	
@@ -325,6 +358,9 @@ public class ServiceOrderManager {
 	        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 	        return mapper.writeValueAsString(object);
 	    }
+
+	
+
 
 
 }
