@@ -52,6 +52,7 @@ import io.openslice.tmf.scm633.model.ServiceSpecCharacteristic;
 import io.openslice.tmf.scm633.model.ServiceSpecCharacteristicValue;
 import io.openslice.tmf.scm633.model.ServiceSpecRelationship;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
+import io.openslice.tmf.sim638.model.EServiceStartMode;
 import io.openslice.tmf.sim638.model.Service;
 import io.openslice.tmf.sim638.model.ServiceCreate;
 import io.openslice.tmf.sim638.model.ServiceOrderRef;
@@ -111,7 +112,7 @@ public class AutomationCheck implements JavaDelegate {
 					logger.debug("\tService spec name :" + specrel.getName());
 					logger.debug("\tService spec type :" + specrel.getType());
 					if (specrel.getType().equals("CustomerFacingServiceSpecification")) {
-						Service createdServ = createServiceByServiceSpec(sor, soi, specrel, "3");
+						Service createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.MANUALLY_BY_SERVICE_PROVIDER);
 						servicesHandledManual.add(createdServ.getId()); 
 						//createdServices.add(createdServ);
 						ServiceRef supportingServiceItem = new ServiceRef();
@@ -120,7 +121,7 @@ public class AutomationCheck implements JavaDelegate {
 						supportingServiceItem.setName(  createdServ.getName()  );
 						soi.getService().addSupportingServiceItem(supportingServiceItem );
 					} else {
-						Service createdServ = createServiceByServiceSpec(sor, soi, specrel, "1");
+						Service createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.AUTOMATICALLY_MANAGED);
 						servicesHandledAutomated.add(createdServ.getId()); 
 						//createdServices.add(createdServ);
 						ServiceRef supportingServiceItem = new ServiceRef();
@@ -141,8 +142,6 @@ public class AutomationCheck implements JavaDelegate {
 			execution.setVariable("servicesHandledAutomated", servicesHandledAutomated);
 
 
-			//Service createdMainServ = createServiceByServiceSpec(sor, soi, spec, "5");
-			//execution.setVariable("mainService", createdMainServ);
 			
 			/***
 			 * we can update now the serviceorder element in catalog
@@ -166,7 +165,8 @@ public class AutomationCheck implements JavaDelegate {
 	 * @param spec
 	 * @return 
 	 */
-	private Service createServiceByServiceSpec(ServiceOrder sor, ServiceOrderItem soi, ServiceSpecification spec, String startMode) {
+	private Service createServiceByServiceSpec(ServiceOrder sor, ServiceOrderItem soi,
+			ServiceSpecification spec, EServiceStartMode startMode) {
 		ServiceCreate s = new ServiceCreate();
 		s.setCategory(spec.getType());
 		s.setType(spec.getType());
@@ -175,7 +175,7 @@ public class AutomationCheck implements JavaDelegate {
 		s.hasStarted(false);
 		s.setIsServiceEnabled(false);
 		s.setName(spec.getName());
-		s.setStartMode( startMode );
+		s.setStartMode( startMode.getValue() );
 		
 		Note noteItem = new Note();
 		noteItem.setText("Service Created by OSOM:AutomationCheck");
