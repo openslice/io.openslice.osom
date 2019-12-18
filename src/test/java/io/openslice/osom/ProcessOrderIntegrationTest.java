@@ -141,6 +141,8 @@ public class ProcessOrderIntegrationTest {
 
         assertThat( taskService.createTaskQuery().count()  ).isEqualTo( 2 );
 
+
+		//assertThat( serviceOrderManager.retrieveServiceOrder( "93b9928c-de35-4495-a157-1100f6e71c92")).isInstanceOf( ServiceOrder.class );
         
 		logger.info("waiting 2secs");
         Thread.sleep( 2000 ); //wait

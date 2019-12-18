@@ -82,6 +82,10 @@ public class SCMocked {
 			File sspec = new File( "src/test/resources/TestExSpec3.json" );
 			InputStream in = new FileInputStream( sspec );
 			sspectext = IOUtils.toString(in, "UTF-8");			
+		} else if ( id.equals( "93b9928c-de35-4495-a157-1100f6e71c92" )) {
+			File sspec = new File( "src/test/resources/TestServiceOrderDates.json" );
+			InputStream in = new FileInputStream( sspec );
+			sspectext = IOUtils.toString(in, "UTF-8");			
 		}
 		
 		return sspectext;
