@@ -145,11 +145,14 @@ public class AutomationCheck implements JavaDelegate {
 			
 			/***
 			 * we can update now the serviceorder element in catalog
+			 * Update also the related service attributes
 			 */
 			
 			ServiceOrderUpdate serviceOrderUpd = new ServiceOrderUpdate();
 			for (ServiceOrderItem orderItemItem : sor.getOrderItem()) {
 				orderItemItem.setState(ServiceOrderStateType.INPROGRESS);
+				orderItemItem.getService().setName( orderItemItem.getService().getServiceSpecification().getName() );
+				orderItemItem.getService().setCategory( orderItemItem.getService().getServiceSpecification().getType() );
 				orderItemItem.getService().setState( ServiceStateType.RESERVED );
 				serviceOrderUpd.addOrderItemItem(orderItemItem);
 			}
