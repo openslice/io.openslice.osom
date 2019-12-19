@@ -91,6 +91,41 @@ public class SCMocked {
 		return sspectext;
 	}
 	
+	public String getMockedService()  throws IOException {
+		logger.info( "getMockedService()"  );
+
+		String sspectext = null;
+		
+		File sspec = new File( "src/test/resources/TestService.json" );
+		InputStream in = new FileInputStream( sspec );
+		sspectext = IOUtils.toString(in, "UTF-8");
+		return sspectext;		
+	}
+	
+	public String updateServiceOrder(String so)  throws IOException {
+
+		logger.info( "updateServiceOrder so= " + so );
+		String sspectext = null;
+		
+		File sspec = new File( "src/test/resources/TestService.json" );
+		InputStream in = new FileInputStream( sspec );
+		sspectext = IOUtils.toString(in, "UTF-8");
+		return sspectext;		
+	}
+
+	
+	public String getServiceById(String id)  throws IOException {
+
+		logger.info( "getServiceById id = " + id );
+		String sspectext = null;
+		
+		File sspec = new File( "src/test/resources/TestService.json" );
+		InputStream in = new FileInputStream( sspec );
+		sspectext = IOUtils.toString(in, "UTF-8");
+		return sspectext;		
+	}
+	
+	
 
 	static <T> T toJsonObj(String content, Class<T> valueType)  throws IOException {
         ObjectMapper mapper = new ObjectMapper();
