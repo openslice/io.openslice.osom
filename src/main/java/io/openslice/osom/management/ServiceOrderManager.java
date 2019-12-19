@@ -235,13 +235,14 @@ public class ServiceOrderManager {
 		try {
 			Object response = template.
 					requestBody( CATALOG_GET_SERVICEORDER_BY_ID, orderid);
-
+			
 			if ( !(response instanceof String)) {
 				logger.error("Service Order object is wrong.");
 				return null;
 			}
+			logger.debug("retrieveServiceOrder response is: " + response);
 			ServiceOrder sor = toJsonObj( (String)response, ServiceOrder.class); 
-			//logger.debug("retrieveServiceOrder response is: " + response);
+			
 			return sor;
 			
 		}catch (Exception e) {
