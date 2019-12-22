@@ -48,11 +48,8 @@ public class UserOrderCompleteService implements JavaDelegate {
 		if (execution.getVariable("serviceId") instanceof String) {
 			Service s = serviceOrderManager.retrieveService( (String) execution.getVariable("serviceId") );
 			logger.info("Service name:" + s.getName() );
-			logger.info("Service state:" + s.getState()  );
-			
-		}
-
-		
+			logger.info("Service state:" + s.getState()  );			
+		}		
 
 		
 	}
