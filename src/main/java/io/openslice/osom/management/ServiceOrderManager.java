@@ -78,8 +78,8 @@ public class ServiceOrderManager {
 	@Value("${CATALOG_GET_SERVICESPEC_BY_ID}")
 	private String CATALOG_GET_SERVICESPEC_BY_ID = "";
 	
-	@Value("${CATALOG_GET_INITIAL_SERVICEORDERS_IDS}")
-	private String CATALOG_GET_INITIAL_SERVICEORDERS_IDS = "";
+//	@Value("${CATALOG_GET_INITIAL_SERVICEORDERS_IDS}")
+//	private String CATALOG_GET_INITIAL_SERVICEORDERS_IDS = "";
 
 	@Value("${CATALOG_GET_SERVICEORDER_IDS_BY_STATE}")
 	private String CATALOG_GET_SERVICEORDER_IDS_BY_STATE = "";
@@ -91,8 +91,8 @@ public class ServiceOrderManager {
 	@Value("${CATALOG_ADD_SERVICE}")
 	private String CATALOG_ADD_SERVICE = "";
 
-	@Value("${CATALOG_UPD_SERVICE}")
-	private String CATALOG_UPD_SERVICE = "";
+//	@Value("${CATALOG_UPD_SERVICE}")
+//	private String CATALOG_UPD_SERVICE = "";
 
 	@Value("${CATALOG_GET_SERVICE_BY_ID}")
 	private String CATALOG_GET_SERVICE_BY_ID = "";
