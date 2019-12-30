@@ -124,7 +124,7 @@ public class ProcessOrderIntegrationTest {
         
 		assertThat( serviceOrderManager.retrieveServiceOrder( "b0661e27-020f-4026-84ab-5c265bac47e7")).isInstanceOf( ServiceOrder.class );
 		assertThat( serviceOrderManager.retrieveServiceOrder( "93b9928c-de35-4495-a157-1100f6e71c92")).isInstanceOf( ServiceOrder.class );
-		assertThat( serviceOrderManager.retrieveSpec( "59d08753-e1b1-418b-9e3e-d3a3bb573051")).isInstanceOf( ServiceSpecification.class );
+		assertThat( serviceOrderManager.retrieveServiceSpec( "59d08753-e1b1-418b-9e3e-d3a3bb573051")).isInstanceOf( ServiceSpecification.class );
 				
 		
 		

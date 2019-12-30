@@ -40,6 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.openslice.model.DeploymentDescriptor;
 import io.openslice.osom.configuration.OSOMRouteBuilder;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
 import io.openslice.tmf.sim638.model.ServiceCreate;
@@ -273,7 +274,7 @@ public class ServiceOrderManager {
 	 * @return
 	 * @throws IOException
 	 */
-	public ServiceSpecification retrieveSpec(String specid) {
+	public ServiceSpecification retrieveServiceSpec(String specid) {
 		logger.info("will retrieve Service Specification from catalog orderid=" + specid   );
 		
 		try {
@@ -385,6 +386,14 @@ public class ServiceOrderManager {
 	        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 	        return mapper.writeValueAsString(object);
 	    }
+
+	public DeploymentDescriptor nfvoDeploymentRequestByNSDid(String nsdId) {
+		// TODO Auto-generated method stub
+		
+		DeploymentDescriptor da = new DeploymentDescriptor();
+		da.setId( 987654321 );
+		return da;
+	}
 
 	
 

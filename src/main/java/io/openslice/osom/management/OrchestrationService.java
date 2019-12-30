@@ -35,6 +35,9 @@ import io.openslice.tmf.common.model.Any;
 import io.openslice.tmf.common.model.service.Characteristic;
 import io.openslice.tmf.common.model.service.Note;
 import io.openslice.tmf.common.model.service.ServiceStateType;
+import io.openslice.tmf.scm633.model.ServiceSpecCharacteristic;
+import io.openslice.tmf.scm633.model.ServiceSpecCharacteristicValue;
+import io.openslice.tmf.scm633.model.ServiceSpecification;
 import io.openslice.tmf.sim638.model.Service;
 import io.openslice.tmf.sim638.model.ServiceUpdate;
 
@@ -51,34 +54,86 @@ public class OrchestrationService implements JavaDelegate {
 	public void execute(DelegateExecution execution) {
 
 		logger.info( execution.getVariableNames().toString() );
-		logger.info("serviceId:" + execution.getVariable("serviceId").toString() );
 		logger.info("orderid:" + execution.getVariable("orderid").toString() );
+		logger.info("serviceId:" + execution.getVariable("serviceId").toString() );
 
+		ServiceUpdate su = new ServiceUpdate();//the object to update the service
+		
 		if (execution.getVariable("serviceId") instanceof String) {
+
 			Service s = serviceOrderManager.retrieveService( (String) execution.getVariable("serviceId") );
 			logger.info("Service name:" + s.getName() );
-			logger.info("Service state:" + s.getState()  );
+			logger.info("Service state:" + s.getState()  );			
+			logger.info("Request to NFVO for Service: " + s.getId() );
 			
+			//we need to retrieve here the Service Spec of the service
+			
+			ServiceSpecification spec = serviceOrderManager.retrieveServiceSpec( s.getServiceSpecificationRef().getId() );
+			
+			if ( spec!=null ) {			
+				
+				String NSDID = null;
+				 
+				for (ServiceSpecCharacteristic c : spec.getServiceSpecCharacteristic() ) {
+					if (c.getName().equals("NSDID")) {
+						for (ServiceSpecCharacteristicValue val : c.getServiceSpecCharacteristicValue()) {
+							if (val.isIsDefault()) {
+								NSDID = val.getValue().getValue();
+							}
+						}
+					}
+				}
+				
+				if ( NSDID != null) {
+					su.setState(ServiceStateType.RESERVED );
+					Note noteItem = new Note();
+					noteItem.setText("Request to NFVO for NSDID:" + NSDID);
+					noteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
+					noteItem.setAuthor("OSOM");
+					su.addNoteItem( noteItem );
+					Characteristic serviceCharacteristicItem = new Characteristic();
+										
+					
+					DeploymentDescriptor dd = createNewDeploymentRequest( NSDID );
+										
+					serviceCharacteristicItem.setName( "DeploymentRequestID" );
+					serviceCharacteristicItem.setValue( new Any( dd.getId() + "" ));
+					su.addServiceCharacteristicItem(serviceCharacteristicItem);
+					
+					Service supd = serviceOrderManager.updateService(  execution.getVariable("serviceId").toString(), su);
+					logger.info("Request to NFVO for NSDID:" + NSDID + " done! Service: " + supd.getId() );
+					
+					return;					
+				} else {
+
+					logger.error( "Cannot retrieve NSDID from ServiceSpecification for service :" + spec.getId() );
+				}
+				
+			} else {
+
+				logger.error( "Cannot retrieve ServiceSpecification for service :" + (String) execution.getVariable("serviceId") );
+			}
+		} else {
+			logger.error( "Cannot retrieve variable serviceId"  );
 		}
+
+		//if we get here somethign is wrong so we need to terminate the service.
+		Note noteItem = new Note();
+		noteItem.setText("Request to NFVO FAILED");
+		noteItem.setAuthor("OSOM");
+		noteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
+		su.addNoteItem( noteItem );
+		su.setState(ServiceStateType.TERMINATED   );
+		serviceOrderManager.updateService(  execution.getVariable("serviceId").toString(), su);
 		
-		if (execution.getVariable("orderid") instanceof String) {
-			
-			
-			ServiceUpdate su = new ServiceUpdate();
-			su.setState(ServiceStateType.RESERVED );
-			Note noteItem = new Note();
-			noteItem.setText("Request to NFVO");
-			noteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
-			su.addNoteItem( noteItem );
-			Characteristic serviceCharacteristicItem = new Characteristic();
-			DeploymentDescriptor dd = new DeploymentDescriptor();
-			
-			serviceCharacteristicItem.setName( "DeploymentRequestID" );
-			serviceCharacteristicItem.setValue( new Any("007a008"));
-			su.addServiceCharacteristicItem(serviceCharacteristicItem);
-			serviceOrderManager.updateService(  execution.getVariable("serviceId").toString(), su);
-			logger.info("Orchestration of serviceId with id = " + execution.getVariable("serviceId") + ". FINISHED!");
-		}
+	}
+
+	private DeploymentDescriptor createNewDeploymentRequest(String nsdId) {
+		
+		DeploymentDescriptor dd =serviceOrderManager.nfvoDeploymentRequestByNSDid( nsdId );
+		
+		
+		return dd;
 	}
 
 }

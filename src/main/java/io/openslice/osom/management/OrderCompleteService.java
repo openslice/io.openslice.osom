@@ -19,6 +19,8 @@
  */
 package io.openslice.osom.management;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +34,7 @@ import org.flowable.engine.delegate.JavaDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import io.openslice.tmf.common.model.service.Note;
 import io.openslice.tmf.common.model.service.ResourceRef;
 import io.openslice.tmf.common.model.service.ServiceRef;
 import io.openslice.tmf.common.model.service.ServiceStateType;
@@ -143,6 +146,11 @@ public class OrderCompleteService implements JavaDelegate {
 					serviceOrderUpd.addOrderItemItem(orderItemItem);
 				}
 				
+				Note noteItem = new Note();
+				noteItem.setText("Update Service Order State");
+				noteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
+				noteItem.setAuthor("OSOM");
+				sOrder.addNoteItem( noteItem );
 				
 				serviceOrderManager.updateServiceOrderOrder( sOrder.getId() , serviceOrderUpd);
 				

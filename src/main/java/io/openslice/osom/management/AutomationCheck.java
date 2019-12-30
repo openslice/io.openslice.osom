@@ -98,7 +98,7 @@ public class AutomationCheck implements JavaDelegate {
 				// get service spec by id from model via bus, find if bundle and analyse its
 				// related services
 				ServiceSpecification spec = serviceOrderManager
-						.retrieveSpec(soi.getService().getServiceSpecification().getId());
+						.retrieveServiceSpec(soi.getService().getServiceSpecification().getId());
 				
 				logger.debug("Retrieved Service ID:" + spec.getId());
 				logger.debug("Retrieved Service Name:" + spec.getName());
@@ -108,7 +108,7 @@ public class AutomationCheck implements JavaDelegate {
 				logger.debug("<--------------- related specs -------------->");
 				for (ServiceSpecRelationship specRels : spec.getServiceSpecRelationship()) {
 					logger.debug("\tService specRelsId:" + specRels.getId());
-					ServiceSpecification specrel = serviceOrderManager.retrieveSpec(specRels.getId());
+					ServiceSpecification specrel = serviceOrderManager.retrieveServiceSpec(specRels.getId());
 					logger.debug("\tService spec name :" + specrel.getName());
 					logger.debug("\tService spec type :" + specrel.getType());
 					if (specrel.getType().equals("CustomerFacingServiceSpecification")) {
@@ -182,7 +182,8 @@ public class AutomationCheck implements JavaDelegate {
 		s.setStartMode( startMode.getValue() );
 		
 		Note noteItem = new Note();
-		noteItem.setText("Service Created by OSOM:AutomationCheck");
+		noteItem.setText("Service Created by AutomationCheck");
+		noteItem.setAuthor("OSOM");
 		s.addNoteItem(noteItem);
 		
 		ServiceOrderRef serviceOrderref = new ServiceOrderRef();
