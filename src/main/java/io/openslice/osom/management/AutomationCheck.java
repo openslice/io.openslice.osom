@@ -175,6 +175,7 @@ public class AutomationCheck implements JavaDelegate {
 		s.setType(spec.getType());
 		s.setDescription("A Service for " + spec.getName());
 		s.setServiceDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
+		s.setStartDate( OffsetDateTime.now(ZoneOffset.UTC).toString()  );
 		s.hasStarted(false);
 		s.setIsServiceEnabled(false);
 		s.setName(spec.getName());
