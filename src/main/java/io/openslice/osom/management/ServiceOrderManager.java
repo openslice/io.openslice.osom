@@ -43,6 +43,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.openslice.osom.configuration.OSOMRouteBuilder;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
 import io.openslice.tmf.sim638.model.ServiceCreate;
+import io.openslice.tmf.sim638.model.ServiceUpdate;
 import io.openslice.tmf.so641.model.ServiceOrder;
 import io.openslice.tmf.so641.model.ServiceOrderStateType;
 import io.openslice.tmf.so641.model.ServiceOrderUpdate;
@@ -91,8 +92,8 @@ public class ServiceOrderManager {
 	@Value("${CATALOG_ADD_SERVICE}")
 	private String CATALOG_ADD_SERVICE = "";
 
-//	@Value("${CATALOG_UPD_SERVICE}")
-//	private String CATALOG_UPD_SERVICE = "";
+	@Value("${CATALOG_UPD_SERVICE}")
+	private String CATALOG_UPD_SERVICE = "";
 
 	@Value("${CATALOG_GET_SERVICE_BY_ID}")
 	private String CATALOG_GET_SERVICE_BY_ID = "";
@@ -319,7 +320,32 @@ public class ServiceOrderManager {
 		
 	}
 	
+	public io.openslice.tmf.sim638.model.Service updateService(String serviceId, ServiceUpdate s) {
+		logger.info("will update Service : " + serviceId );
+		try {
+			Map<String, Object> map = new HashMap<>();
+			map.put("serviceid", serviceId );
+			Object response = template.requestBodyAndHeaders( CATALOG_UPD_SERVICE, toJsonString(s), map);
 
+			if ( !(response instanceof String)) {
+				logger.error("Service Instance object is wrong.");
+			}
+
+			io.openslice.tmf.sim638.model.Service serviceInstance = toJsonObj( (String)response, io.openslice.tmf.sim638.model.Service.class); 
+			//logger.debug("createService response is: " + response);
+			return serviceInstance;
+			
+			
+		}catch (Exception e) {
+			logger.error("Cannot update Service: " + serviceId + ": " + e.toString());
+		}
+		return null;
+		
+	}
+	
+
+	
+	
 	/**
 	 * Ger service instance via bus
 	 * @param serviceID

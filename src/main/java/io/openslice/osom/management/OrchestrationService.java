@@ -19,6 +19,9 @@
  */
 package io.openslice.osom.management;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,7 +30,13 @@ import org.flowable.engine.delegate.JavaDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import io.openslice.model.DeploymentDescriptor;
+import io.openslice.tmf.common.model.Any;
+import io.openslice.tmf.common.model.service.Characteristic;
+import io.openslice.tmf.common.model.service.Note;
+import io.openslice.tmf.common.model.service.ServiceStateType;
 import io.openslice.tmf.sim638.model.Service;
+import io.openslice.tmf.sim638.model.ServiceUpdate;
 
 
 @Component(value = "orchestrationService") //bean name
@@ -54,17 +63,21 @@ public class OrchestrationService implements JavaDelegate {
 		
 		if (execution.getVariable("orderid") instanceof String) {
 			
-			try {
-				long completionTime = RandomUtils.nextLong(30000, 63000);
-
-				logger.info("Orchestration of  order with id = " + execution.getVariable("orderid") + ". WWill be Completed in: " + completionTime);
-				Thread.sleep( completionTime  );
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-			logger.info("Orchestration of order with id = " + execution.getVariable("orderid") + ". FINISHED!");
+			
+			ServiceUpdate su = new ServiceUpdate();
+			su.setState(ServiceStateType.RESERVED );
+			Note noteItem = new Note();
+			noteItem.setText("Request to NFVO");
+			noteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
+			su.addNoteItem( noteItem );
+			Characteristic serviceCharacteristicItem = new Characteristic();
+			DeploymentDescriptor dd = new DeploymentDescriptor();
+			
+			serviceCharacteristicItem.setName( "DeploymentRequestID" );
+			serviceCharacteristicItem.setValue( new Any("007a008"));
+			su.addServiceCharacteristicItem(serviceCharacteristicItem);
+			serviceOrderManager.updateService(  execution.getVariable("serviceId").toString(), su);
+			logger.info("Orchestration of serviceId with id = " + execution.getVariable("serviceId") + ". FINISHED!");
 		}
 	}
 
