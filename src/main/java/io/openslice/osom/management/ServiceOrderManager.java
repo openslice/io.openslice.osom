@@ -99,7 +99,12 @@ public class ServiceOrderManager {
 	@Value("${CATALOG_GET_SERVICE_BY_ID}")
 	private String CATALOG_GET_SERVICE_BY_ID = "";
 	
-
+	@Value("${NFV_CATALOG_DEPLOY_NSD_REQ}")
+	private String NFV_CATALOG_DEPLOY_NSD_REQ = "";
+	
+	
+	
+	
 	@Transactional
 	public void processOrder(ServiceOrder serviceOrder) {
 
@@ -387,12 +392,28 @@ public class ServiceOrderManager {
 	        return mapper.writeValueAsString(object);
 	    }
 
-	public DeploymentDescriptor nfvoDeploymentRequestByNSDid(String nsdId) {
-		// TODO Auto-generated method stub
+	public DeploymentDescriptor nfvoDeploymentRequestByNSDid( DeploymentDescriptor ddreq ) {
 		
-		DeploymentDescriptor da = new DeploymentDescriptor();
-		da.setId( 987654321 );
-		return da;
+		
+		logger.info("Will request by NFV Catalog to deploy NSD id= " + ddreq.getExperiment().getId()   );
+		
+		try {
+
+			Object response = template.requestBodyAndHeader( NFV_CATALOG_DEPLOY_NSD_REQ, toJsonString(ddreq), "id", ddreq.getExperiment().getId());
+
+			if ( !(response instanceof String)) {
+				logger.error("DeploymentDescriptor object is wrong.");
+				return null;
+			}
+			DeploymentDescriptor dd = toJsonObj( (String)response, DeploymentDescriptor.class); 
+			logger.debug("nfvoDeploymentRequestByNSDid response is: " + response);
+			return dd;
+			
+		}catch (Exception e) {
+			logger.error("Cannot retrieve DeploymentDescriptor details from NFV catalog. " + e.toString());
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	

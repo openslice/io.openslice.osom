@@ -21,6 +21,7 @@ package io.openslice.osom.management;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Date;
 
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.logging.Log;
@@ -31,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.openslice.model.DeploymentDescriptor;
+import io.openslice.model.ExperimentMetadata;
 import io.openslice.tmf.common.model.Any;
 import io.openslice.tmf.common.model.service.Characteristic;
 import io.openslice.tmf.common.model.service.Note;
@@ -40,6 +42,7 @@ import io.openslice.tmf.scm633.model.ServiceSpecCharacteristicValue;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
 import io.openslice.tmf.sim638.model.Service;
 import io.openslice.tmf.sim638.model.ServiceUpdate;
+import io.openslice.tmf.so641.model.ServiceOrder;
 
 
 @Component(value = "orchestrationService") //bean name
@@ -61,6 +64,7 @@ public class OrchestrationService implements JavaDelegate {
 		
 		if (execution.getVariable("serviceId") instanceof String) {
 
+			ServiceOrder sorder = serviceOrderManager.retrieveServiceOrder( execution.getVariable("orderid").toString() );
 			Service s = serviceOrderManager.retrieveService( (String) execution.getVariable("serviceId") );
 			logger.info("Service name:" + s.getName() );
 			logger.info("Service state:" + s.getState()  );			
@@ -94,7 +98,7 @@ public class OrchestrationService implements JavaDelegate {
 					Characteristic serviceCharacteristicItem = new Characteristic();
 										
 					
-					DeploymentDescriptor dd = createNewDeploymentRequest( NSDID );
+					DeploymentDescriptor dd = createNewDeploymentRequest( NSDID, sorder.getStartDate(), sorder.getCompletionDate() );
 										
 					serviceCharacteristicItem.setName( "DeploymentRequestID" );
 					serviceCharacteristicItem.setValue( new Any( dd.getId() + "" ));
@@ -128,9 +132,16 @@ public class OrchestrationService implements JavaDelegate {
 		
 	}
 
-	private DeploymentDescriptor createNewDeploymentRequest(String nsdId) {
-		
-		DeploymentDescriptor dd =serviceOrderManager.nfvoDeploymentRequestByNSDid( nsdId );
+	private DeploymentDescriptor createNewDeploymentRequest(String nsdId, OffsetDateTime startDate, OffsetDateTime endDate) {
+		DeploymentDescriptor ddreq = new DeploymentDescriptor();
+		ExperimentMetadata expReq = new ExperimentMetadata();
+		expReq.setId( Long.parseLong(nsdId));
+		ddreq.setExperiment( expReq  );
+		ddreq.setStartReqDate(  new Date(startDate.toInstant().toEpochMilli()) );
+		ddreq.setStartDate( new Date(startDate.toInstant().toEpochMilli()) );
+		ddreq.setEndReqDate( new Date(endDate.toInstant().toEpochMilli()) );
+		ddreq.setEndDate( new Date(endDate.toInstant().toEpochMilli()) );
+		DeploymentDescriptor dd =serviceOrderManager.nfvoDeploymentRequestByNSDid( ddreq );
 		
 		
 		return dd;
