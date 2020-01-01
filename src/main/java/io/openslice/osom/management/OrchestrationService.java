@@ -98,7 +98,7 @@ public class OrchestrationService implements JavaDelegate {
 					Characteristic serviceCharacteristicItem = new Characteristic();
 										
 					
-					DeploymentDescriptor dd = createNewDeploymentRequest( NSDID, sorder.getStartDate(), sorder.getCompletionDate() );
+					DeploymentDescriptor dd = createNewDeploymentRequest( NSDID, sorder.getStartDate(), sorder.getExpectedCompletionDate() );
 										
 					serviceCharacteristicItem.setName( "DeploymentRequestID" );
 					serviceCharacteristicItem.setValue( new Any( dd.getId() + "" ));
