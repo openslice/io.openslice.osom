@@ -6,15 +6,15 @@
   "@schemaLocation" : null,
   "@type" : "ResourceFacingServiceSpecification",
   "href" : null,
-  "name" : "A VINNI Service Example-Service Topology",
+  "name" : "cirros_2vnf_ns",
   "id" : "210553c3-359c-4843-a411-d9c3ee849d50",
   "category" : "ResourceFacingServiceSpecification",
-  "description" : "A Service for A VINNI Service Example-Service Topology",
+  "description" : "cirros_2vnf_ns",
   "hasStarted" : false,
   "isServiceEnabled" : false,
   "isStateful" : null,
   "serviceDate" : "2019-12-10T12:28:42.908Z",
-  "serviceType" : "A VINNI Service Example-Service Topology",
+  "serviceType" : "cirros_2vnf_ns",
   "startMode" : "1",
   "note" : [ {
     "uuid" : "daad782f-1a68-4cf9-8522-d07d9c8b3b63",
@@ -49,7 +49,7 @@
     "version" : null,
     "targetServiceSchema" : null,
     "@referredType" : null,
-    "id" : "c9d201b9-3edc-4cf5-b402-4779a9f3ec9d"
+    "id" : "c00446ac-c8af-47ad-ac94-518d4bdd4c13"
   },
   "state" : "reserved",
   "supportingResource" : [ ],

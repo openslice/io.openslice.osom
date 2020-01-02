@@ -3,6 +3,8 @@
   "orderDate": "2019-11-19T08:18:18.048Z",
   "requestedCompletionDate": "2019-11-19T08:18:17.989Z",
   "requestedStartDate": "2019-11-19T08:18:17.989Z",
+  "startDate": "2019-12-13T13:27:49Z",
+  "expectedCompletionDate": "2019-12-23T13:27:49Z",
   "@baseType": "BaseRootEntity",
   "@type": "ServiceOrder",
   "id": "b0661e27-020f-4026-84ab-5c265bac47e7",

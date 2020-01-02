@@ -142,6 +142,8 @@ public class AutomationCheck implements JavaDelegate {
 			execution.setVariable("servicesHandledAutomated", servicesHandledAutomated);
 
 
+			logger.debug("servicesHandledManual: " + servicesHandledManual.toString());
+			logger.debug("servicesHandledAutomated: " + servicesHandledAutomated.toString());
 			
 			/***
 			 * we can update now the serviceorder element in catalog

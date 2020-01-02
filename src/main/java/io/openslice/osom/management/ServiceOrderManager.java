@@ -399,7 +399,8 @@ public class ServiceOrderManager {
 		
 		try {
 
-			Object response = template.requestBodyAndHeader( NFV_CATALOG_DEPLOY_NSD_REQ, toJsonString(ddreq), "id", ddreq.getExperiment().getId());
+			String body = toJsonString(ddreq);
+			Object response = template.requestBodyAndHeader( NFV_CATALOG_DEPLOY_NSD_REQ, body , "id", ddreq.getExperiment().getId());
 
 			if ( !(response instanceof String)) {
 				logger.error("DeploymentDescriptor object is wrong.");

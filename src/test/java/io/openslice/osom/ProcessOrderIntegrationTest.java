@@ -66,6 +66,7 @@ import io.openslice.tmf.so641.model.ServiceOrder;
 	    "CATALOG_ADD_SERVICE = direct:get_mocked_add_service",
 	    "CATALOG_UPD_SERVICEORDER_BY_ID = direct:get_mocked_upd_order",
 	    "CATALOG_GET_SERVICE_BY_ID = direct:get_mocked_service_id",
+	    "CATALOG_UPD_SERVICE = direct:get_mocked_upd_service",
 	    "NFV_CATALOG_DEPLOY_NSD_REQ = direct:req_deploy_nsd",
 	    "uri.to   = mock:output" })
 @ActiveProfiles("testing")
@@ -85,9 +86,9 @@ public class ProcessOrderIntegrationTest {
     @Autowired
     private CamelContext camelContext;
     
-    @MockBean(name = "orchestrationService" )
-    @Autowired
-    private OrchestrationServiceMocked orchestrationServiceMocked;
+//    @MockBean(name = "orchestrationService" )
+//    @Autowired
+//    private OrchestrationServiceMocked orchestrationServiceMocked;
     
 
    
@@ -99,7 +100,7 @@ public class ProcessOrderIntegrationTest {
 	@Test
 	//@Deployment(resources = { "processes/ServiceOrder.bpmn" })
 	public void startProcess() throws Exception {
-		doCallRealMethod().when( orchestrationServiceMocked).execute( Mockito.any()  ) ;
+		//doCallRealMethod().when( orchestrationServiceMocked).execute( Mockito.any()  ) ;
 		
 		
 		
@@ -112,8 +113,10 @@ public class ProcessOrderIntegrationTest {
 		          from("direct:get_mocked_order").bean( SCMocked.class, "getOrderById");
 		          from("direct:get_mocked_spec").bean( SCMocked.class, "getSpecById");
 		          from("direct:get_mocked_add_service").bean( SCMocked.class, "getMockedService");
+		          from("direct:get_mocked_upd_service").bean( SCMocked.class, "getMockedService");		          
 		          from("direct:get_mocked_upd_order").bean( SCMocked.class, "updateServiceOrder");
 		          from("direct:get_mocked_service_id").bean( SCMocked.class, "getServiceById");
+		          from("direct:req_deploy_nsd").bean( SCMocked.class, "req_deploy_nsd");		          
 		          
 	        };
 		};
@@ -151,8 +154,8 @@ public class ProcessOrderIntegrationTest {
 
 
         
-		logger.info("waiting 2secs");
-        Thread.sleep( 2000 ); //wait
+		logger.info("waiting 1secs");
+        Thread.sleep( 1000 ); //wait
         
 
 	}

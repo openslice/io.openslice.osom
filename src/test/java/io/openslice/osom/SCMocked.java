@@ -31,6 +31,7 @@ import org.apache.commons.logging.LogFactory;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.openslice.model.DeploymentDescriptor;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
 import io.openslice.tmf.so641.model.ServiceOrder;
 
@@ -86,7 +87,13 @@ public class SCMocked {
 			File sspec = new File( "src/test/resources/TestServiceOrderDates.json" );
 			InputStream in = new FileInputStream( sspec );
 			sspectext = IOUtils.toString(in, "UTF-8");			
+		} else if ( id.equals( "c00446ac-c8af-47ad-ac94-518d4bdd4c13" )) {
+			File sspec = new File( "src/test/resources/TestServiceNSD.json" );
+			InputStream in = new FileInputStream( sspec );
+			sspectext = IOUtils.toString(in, "UTF-8");			
 		}
+		
+		
 		
 		return sspectext;
 	}
@@ -125,7 +132,20 @@ public class SCMocked {
 		return sspectext;		
 	}
 	
+	public String req_deploy_nsd( String ddreq )  throws IOException {
+
+		logger.info( "ddreq getExperiment = " + toJsonString(ddreq) );
+		
+		DeploymentDescriptor ddresp = toJsonObj( ddreq, DeploymentDescriptor.class);
+		ddresp.setId(123456789);
+		return toJsonString(ddresp);		
+	}
 	
+	 static String toJsonString(Object object) throws IOException {
+	        ObjectMapper mapper = new ObjectMapper();
+	        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+	        return mapper.writeValueAsString(object);
+	    }
 
 	static <T> T toJsonObj(String content, Class<T> valueType)  throws IOException {
         ObjectMapper mapper = new ObjectMapper();
