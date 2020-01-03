@@ -70,6 +70,7 @@ public class OrderCompleteService implements JavaDelegate {
 
 
 			boolean allCompletedItemsInOrder= true;
+			boolean allTerminatedItemsInOrder= true;
 			boolean updateServiceOrder= false;
 			
 			logger.info("ServiceOrder id:" + sOrder.getId());
@@ -129,18 +130,22 @@ public class OrderCompleteService implements JavaDelegate {
 				}
 				soi.getService().setState(sserviceState);	
 
-				allCompletedItemsInOrder = allCompletedItemsInOrder && soi.getState().equals( ServiceOrderStateType.COMPLETED );
+				allCompletedItemsInOrder = allCompletedItemsInOrder && soi.getService().getState().equals( ServiceStateType.ACTIVE  );
+				allTerminatedItemsInOrder = allTerminatedItemsInOrder && soi.getService().getState().equals( ServiceStateType.TERMINATED  );
+
+				logger.info("ServiceOrderItem state:" + sserviceState.toString() );
 			}
 			
 			   
-			if (allCompletedItemsInOrder) {
+			if (allCompletedItemsInOrder || allTerminatedItemsInOrder) {
 				updateServiceOrder = true;
 				sOrder.setState( ServiceOrderStateType.COMPLETED );				
 			}
 			
 			if ( updateServiceOrder ) {
+				logger.info("Will update ServiceOrder with state:" +  sOrder.getState() );
 				ServiceOrderUpdate serviceOrderUpd = new ServiceOrderUpdate();
-				serviceOrderUpd.setState( sOrder.getState());
+				serviceOrderUpd.setState( sOrder.getState() );
 				
 				for (ServiceOrderItem orderItemItem : sOrder.getOrderItem()) {
 					serviceOrderUpd.addOrderItemItem(orderItemItem);

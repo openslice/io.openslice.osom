@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.openslice.model.DeploymentDescriptor;
+import io.openslice.model.DeploymentDescriptorStatus;
 import io.openslice.model.ExperimentMetadata;
 import io.openslice.tmf.common.model.Any;
 import io.openslice.tmf.common.model.service.Characteristic;
@@ -89,20 +90,25 @@ public class OrchestrationService implements JavaDelegate {
 				}
 				
 				if ( NSDID != null) {
+
+					DeploymentDescriptor dd = createNewDeploymentRequest( NSDID, sorder.getStartDate(), sorder.getExpectedCompletionDate(), sorder.getId() );
+					
 					su.setState(ServiceStateType.RESERVED );
 					Note noteItem = new Note();
-					noteItem.setText("Request to NFVO for NSDID:" + NSDID);
+					noteItem.setText("Request to NFVO for NSDID: " + NSDID + ". Deployment Request id: " + dd.getId());
 					noteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
 					noteItem.setAuthor("OSOM");
 					su.addNoteItem( noteItem );
-					Characteristic serviceCharacteristicItem = new Characteristic();
-										
+					Characteristic serviceCharacteristicItem = new Characteristic();									
 					
-					DeploymentDescriptor dd = createNewDeploymentRequest( NSDID, sorder.getStartDate(), sorder.getExpectedCompletionDate() );
 										
 					serviceCharacteristicItem.setName( "DeploymentRequestID" );
 					serviceCharacteristicItem.setValue( new Any( dd.getId() + "" ));
 					su.addServiceCharacteristicItem(serviceCharacteristicItem);
+					
+					
+					
+					
 					
 					Service supd = serviceOrderManager.updateService(  execution.getVariable("serviceId").toString(), su);
 					logger.info("Request to NFVO for NSDID:" + NSDID + " done! Service: " + supd.getId() );
@@ -132,15 +138,18 @@ public class OrchestrationService implements JavaDelegate {
 		
 	}
 
-	private DeploymentDescriptor createNewDeploymentRequest(String nsdId, OffsetDateTime startDate, OffsetDateTime endDate) {
+	private DeploymentDescriptor createNewDeploymentRequest(String nsdId, OffsetDateTime startDate, OffsetDateTime endDate, String orderid) {
 		DeploymentDescriptor ddreq = new DeploymentDescriptor();
 		ExperimentMetadata expReq = new ExperimentMetadata();
 		expReq.setId( Long.parseLong(nsdId));
+		ddreq.setName("Service Order " + orderid);
+		ddreq.setDescription("Created automatically by OSOM for Service Order " + orderid);
 		ddreq.setExperiment( expReq  );
 		ddreq.setStartReqDate(  new Date(startDate.toInstant().toEpochMilli()) );
 		ddreq.setStartDate( new Date(startDate.toInstant().toEpochMilli()) );
 		ddreq.setEndReqDate( new Date(endDate.toInstant().toEpochMilli()) );
 		ddreq.setEndDate( new Date(endDate.toInstant().toEpochMilli()) );
+		ddreq.setStatus( DeploymentDescriptorStatus.SCHEDULED );
 		DeploymentDescriptor dd =serviceOrderManager.nfvoDeploymentRequestByNSDid( ddreq );
 		
 		
