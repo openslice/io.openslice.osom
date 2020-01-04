@@ -68,6 +68,7 @@ import io.openslice.tmf.so641.model.ServiceOrder;
 	    "CATALOG_GET_SERVICE_BY_ID = direct:get_mocked_service_id",
 	    "CATALOG_UPD_SERVICE = direct:get_mocked_upd_service",
 	    "NFV_CATALOG_DEPLOY_NSD_REQ = direct:req_deploy_nsd",
+	    "NFV_CATALOG_GET_DEPLOYMENT_BY_ID = direct:req_deployment_id",
 	    "uri.to   = mock:output" })
 @ActiveProfiles("testing")
 public class ProcessOrderIntegrationTest {

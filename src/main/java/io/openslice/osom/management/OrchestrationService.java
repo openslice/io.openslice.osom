@@ -66,14 +66,14 @@ public class OrchestrationService implements JavaDelegate {
 		if (execution.getVariable("serviceId") instanceof String) {
 
 			ServiceOrder sorder = serviceOrderManager.retrieveServiceOrder( execution.getVariable("orderid").toString() );
-			Service s = serviceOrderManager.retrieveService( (String) execution.getVariable("serviceId") );
-			logger.info("Service name:" + s.getName() );
-			logger.info("Service state:" + s.getState()  );			
-			logger.info("Request to NFVO for Service: " + s.getId() );
+			Service aService = serviceOrderManager.retrieveService( (String) execution.getVariable("serviceId") );
+			logger.info("Service name:" + aService.getName() );
+			logger.info("Service state:" + aService.getState()  );			
+			logger.info("Request to NFVO for Service: " + aService.getId() );
 			
 			//we need to retrieve here the Service Spec of the service
 			
-			ServiceSpecification spec = serviceOrderManager.retrieveServiceSpec( s.getServiceSpecificationRef().getId() );
+			ServiceSpecification spec = serviceOrderManager.retrieveServiceSpec( aService.getServiceSpecificationRef().getId() );
 			
 			if ( spec!=null ) {			
 				
@@ -91,29 +91,54 @@ public class OrchestrationService implements JavaDelegate {
 				
 				if ( NSDID != null) {
 
-					DeploymentDescriptor dd = createNewDeploymentRequest( NSDID, sorder.getStartDate(), sorder.getExpectedCompletionDate(), sorder.getId() );
+					try {
+						DeploymentDescriptor dd = createNewDeploymentRequest( NSDID, sorder.getStartDate(), sorder.getExpectedCompletionDate(), sorder.getId() );
+						
+						su.setState(ServiceStateType.RESERVED );
+						Note noteItem = new Note();
+						noteItem.setText("Request to NFVO for NSDID: " + NSDID + ". Deployment Request id: " + dd.getId());
+						noteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
+						noteItem.setAuthor("OSOM");
+						su.addNoteItem( noteItem );
+						Characteristic serviceCharacteristicItem = new Characteristic();
+						serviceCharacteristicItem.setName( "DeploymentRequestID" );
+						serviceCharacteristicItem.setValue( new Any( dd.getId() + "" ));
+						su.addServiceCharacteristicItem(serviceCharacteristicItem);
+						
+						serviceCharacteristicItem = new Characteristic();
+						serviceCharacteristicItem.setName( "Status" );
+						serviceCharacteristicItem.setValue( new Any( dd.getStatus() + "" ));
+						su.addServiceCharacteristicItem(serviceCharacteristicItem);
+
+						serviceCharacteristicItem = new Characteristic();
+						serviceCharacteristicItem.setName( "OperationalStatus" );
+						serviceCharacteristicItem.setValue( new Any( dd.getOperationalStatus() + "" ));
+						su.addServiceCharacteristicItem(serviceCharacteristicItem);
+
+						serviceCharacteristicItem = new Characteristic();
+						serviceCharacteristicItem.setName( "ConstituentVnfrIps" );
+						serviceCharacteristicItem.setValue( new Any( dd.getConstituentVnfrIps()  + "" ));
+						su.addServiceCharacteristicItem(serviceCharacteristicItem);
+						
+
+						serviceCharacteristicItem = new Characteristic();
+						serviceCharacteristicItem.setName( "ConfigStatus" );
+						serviceCharacteristicItem.setValue( new Any( dd.getConfigStatus() + "" ));
+						su.addServiceCharacteristicItem(serviceCharacteristicItem);
+												
+						Service supd = serviceOrderManager.updateService(  execution.getVariable("serviceId").toString(), su);
+						logger.info("Request to NFVO for NSDID:" + NSDID + " done! Service: " + supd.getId() );
+						
+						
+						waitForDeploymentStatus( dd.getId(), supd );
+						
+						
+						return;					
+					}finally {
+
+						logger.error( "Cannot createNewDeploymentRequest for service :" + spec.getId() );
+					}
 					
-					su.setState(ServiceStateType.RESERVED );
-					Note noteItem = new Note();
-					noteItem.setText("Request to NFVO for NSDID: " + NSDID + ". Deployment Request id: " + dd.getId());
-					noteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
-					noteItem.setAuthor("OSOM");
-					su.addNoteItem( noteItem );
-					Characteristic serviceCharacteristicItem = new Characteristic();									
-					
-										
-					serviceCharacteristicItem.setName( "DeploymentRequestID" );
-					serviceCharacteristicItem.setValue( new Any( dd.getId() + "" ));
-					su.addServiceCharacteristicItem(serviceCharacteristicItem);
-					
-					
-					
-					
-					
-					Service supd = serviceOrderManager.updateService(  execution.getVariable("serviceId").toString(), su);
-					logger.info("Request to NFVO for NSDID:" + NSDID + " done! Service: " + supd.getId() );
-					
-					return;					
 				} else {
 
 					logger.error( "Cannot retrieve NSDID from ServiceSpecification for service :" + spec.getId() );
@@ -138,6 +163,8 @@ public class OrchestrationService implements JavaDelegate {
 		
 	}
 
+
+
 	private DeploymentDescriptor createNewDeploymentRequest(String nsdId, OffsetDateTime startDate, OffsetDateTime endDate, String orderid) {
 		DeploymentDescriptor ddreq = new DeploymentDescriptor();
 		ExperimentMetadata expReq = new ExperimentMetadata();
@@ -156,4 +183,62 @@ public class OrchestrationService implements JavaDelegate {
 		return dd;
 	}
 
+	private void waitForDeploymentStatus(long deploymentId, Service aService) {
+		
+		int maxTry = 0;
+		while ( maxTry < 120) {
+			try {
+				//retrieve Status from NFVO (OSM?) scheduler
+				logger.info("Checking Deployment Status of deployment Request id: " + deploymentId );
+
+				DeploymentDescriptor dd =serviceOrderManager.retriveNFVODeploymentRequestById( deploymentId );
+				logger.info("Operational Status of deployment Request id: " + dd.getOperationalStatus() );
+				logger.info("Status of deployment Request id: " + dd.getStatus() );
+				ServiceUpdate supd = new ServiceUpdate();
+				for (Characteristic c : aService.getServiceCharacteristic()) {
+					if ( c.getName().equals("Status")) {
+						c.setValue( new Any( dd.getStatus() + "" ));
+					} else if ( c.getName().equals("OperationalStatus")) {
+						c.setValue( new Any( dd.getOperationalStatus() + "" ));
+					} else if ( c.getName().equals("ConstituentVnfrIps")) {
+						c.setValue( new Any( dd.getConstituentVnfrIps() + "" ));
+					} else if ( c.getName().equals("ConfigStatus")) {
+						c.setValue( new Any( dd.getConfigStatus() + "" ));
+					}
+					supd.addServiceCharacteristicItem( c );					
+				}
+				
+				if ( dd.getStatus().equals( DeploymentDescriptorStatus.RUNNING) ) {
+					supd.setState( ServiceStateType.ACTIVE);
+				} else if ( dd.getStatus().equals( DeploymentDescriptorStatus.REJECTED) 
+						|| dd.getStatus().equals( DeploymentDescriptorStatus.FAILED) 
+						|| dd.getStatus().equals( DeploymentDescriptorStatus.FAILED_OSM_REMOVED)
+						|| dd.getStatus().equals( DeploymentDescriptorStatus.COMPLETED)
+						|| dd.getStatus().equals( DeploymentDescriptorStatus.TERMINATED) 
+						|| dd.getStatus().equals( DeploymentDescriptorStatus.TERMINATION_FAILED) ) {
+					supd.setState( ServiceStateType.TERMINATED);
+				}
+				
+				Service serviceResult = serviceOrderManager.updateService( aService.getId(), supd );
+				
+				if ( serviceResult.getState().equals(ServiceStateType.ACTIVE)
+						|| serviceResult.getState().equals(ServiceStateType.TERMINATED)) {
+
+					logger.info("Deployment Status OK. Service state = " + serviceResult.getState() );
+					return;
+				}
+				logger.info("Wait For Deployment Status. ");
+				Thread.sleep( 30000 );
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}finally {
+				
+			}
+			maxTry++;
+		}
+		
+		
+	}
+	
+	
 }
