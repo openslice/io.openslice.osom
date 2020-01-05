@@ -419,7 +419,7 @@ public class ServiceOrderManager {
 		return null;
 	}
 
-	public DeploymentDescriptor retriveNFVODeploymentRequestById(long deploymentId) {
+	public DeploymentDescriptor retrieveNFVODeploymentRequestById(long deploymentId) {
 
 		logger.info("Will request by NFV Catalog detaile of DeploymentRequest= " + deploymentId );
 		

@@ -32,6 +32,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.openslice.model.DeploymentDescriptor;
+import io.openslice.model.DeploymentDescriptorStatus;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
 import io.openslice.tmf.so641.model.ServiceOrder;
 
@@ -138,6 +139,16 @@ public class SCMocked {
 		
 		DeploymentDescriptor ddresp = toJsonObj( ddreq, DeploymentDescriptor.class);
 		ddresp.setId(123456789);
+		return toJsonString(ddresp);		
+	}
+	
+	
+	public String req_deployment_id( String ddreq )  throws IOException {
+
+		logger.info( "ddreq getExperiment = " + toJsonString(ddreq) );
+		
+		DeploymentDescriptor ddresp = toJsonObj( ddreq, DeploymentDescriptor.class);
+		ddresp.setStatus( DeploymentDescriptorStatus.RUNNING );
 		return toJsonString(ddresp);		
 	}
 	

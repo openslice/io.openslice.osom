@@ -17,10 +17,25 @@
     <sequenceFlow id="flow5" sourceRef="stManualCompleteService" targetRef="parallelgateway2"></sequenceFlow>
     <sequenceFlow id="flow8" sourceRef="servicetask2" targetRef="endevent1"></sequenceFlow>
     <sequenceFlow id="flow9" sourceRef="parallelgateway2" targetRef="servicetask2"></sequenceFlow>
-    <sequenceFlow id="flow10" sourceRef="stNFVO_RFS" targetRef="parallelgateway2"></sequenceFlow>
     <serviceTask id="stManualCompleteService" name="User Task Manual Complete Service" activiti:delegateExpression="${userOrderCompleteService}">
       <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="servicesHandledManual" activiti:elementVariable="serviceId"></multiInstanceLoopCharacteristics>
     </serviceTask>
+    <serviceTask id="stCheckServiceDeployment" name="Check service deployment" activiti:delegateExpression="${orchestrationCheckDeploymentService}"></serviceTask>
+    <sequenceFlow id="flow10" sourceRef="stNFVO_RFS" targetRef="stCheckServiceDeployment"></sequenceFlow>
+    <exclusiveGateway id="exclusivegatewayCheckDeployment" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow11" sourceRef="stCheckServiceDeployment" targetRef="exclusivegatewayCheckDeployment"></sequenceFlow>
+    <sequenceFlow id="flowServiceDeploymentFinished" name="serviceDeployment Finished" sourceRef="exclusivegatewayCheckDeployment" targetRef="parallelgateway2">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[serviceDeploymentFinished]]></conditionExpression>
+    </sequenceFlow>
+    <startEvent id="timerstarteventAfter30secs" name="Timer start wait 30 secs">
+      <timerEventDefinition>
+        <timeDuration>PT30S</timeDuration>
+      </timerEventDefinition>
+    </startEvent>
+    <sequenceFlow id="flowserviceDeploymentNotFinished" name="serviceDeployment Not Finished" sourceRef="exclusivegatewayCheckDeployment" targetRef="timerstarteventAfter30secs">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[!serviceDeploymentFinished]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow14" sourceRef="timerstarteventAfter30secs" targetRef="stCheckServiceDeployment"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_StartOrderProcess">
     <bpmndi:BPMNPlane bpmnElement="StartOrderProcess" id="BPMNPlane_StartOrderProcess">
@@ -31,7 +46,7 @@
         <omgdc:Bounds height="55.0" width="105.0" x="310.0" y="130.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
-        <omgdc:Bounds height="35.0" width="35.0" x="1090.0" y="140.0"></omgdc:Bounds>
+        <omgdc:Bounds height="35.0" width="35.0" x="1380.0" y="147.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="stNFVO_RFS" id="BPMNShape_stNFVO_RFS">
         <omgdc:Bounds height="55.0" width="105.0" x="590.0" y="220.0"></omgdc:Bounds>
@@ -40,13 +55,22 @@
         <omgdc:Bounds height="40.0" width="40.0" x="480.0" y="137.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="parallelgateway2" id="BPMNShape_parallelgateway2">
-        <omgdc:Bounds height="40.0" width="40.0" x="770.0" y="137.0"></omgdc:Bounds>
+        <omgdc:Bounds height="40.0" width="40.0" x="1080.0" y="146.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="servicetask2" id="BPMNShape_servicetask2">
-        <omgdc:Bounds height="71.0" width="105.0" x="900.0" y="120.0"></omgdc:Bounds>
+        <omgdc:Bounds height="71.0" width="105.0" x="1200.0" y="129.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="stManualCompleteService" id="BPMNShape_stManualCompleteService">
         <omgdc:Bounds height="61.0" width="105.0" x="590.0" y="44.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="stCheckServiceDeployment" id="BPMNShape_stCheckServiceDeployment">
+        <omgdc:Bounds height="69.0" width="111.0" x="770.0" y="213.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegatewayCheckDeployment" id="BPMNShape_exclusivegatewayCheckDeployment">
+        <omgdc:Bounds height="40.0" width="40.0" x="970.0" y="227.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="timerstarteventAfter30secs" id="BPMNShape_timerstarteventAfter30secs">
+        <omgdc:Bounds height="35.0" width="35.0" x="882.0" y="320.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
         <omgdi:waypoint x="235.0" y="157.0"></omgdi:waypoint>
@@ -68,21 +92,45 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
         <omgdi:waypoint x="695.0" y="74.0"></omgdi:waypoint>
-        <omgdi:waypoint x="790.0" y="74.0"></omgdi:waypoint>
-        <omgdi:waypoint x="790.0" y="137.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1099.0" y="74.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1100.0" y="146.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
-        <omgdi:waypoint x="1005.0" y="155.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1090.0" y="157.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1305.0" y="164.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1380.0" y="164.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9">
-        <omgdi:waypoint x="810.0" y="157.0"></omgdi:waypoint>
-        <omgdi:waypoint x="900.0" y="155.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1120.0" y="166.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1200.0" y="164.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow10" id="BPMNEdge_flow10">
         <omgdi:waypoint x="695.0" y="247.0"></omgdi:waypoint>
-        <omgdi:waypoint x="790.0" y="247.0"></omgdi:waypoint>
-        <omgdi:waypoint x="790.0" y="177.0"></omgdi:waypoint>
+        <omgdi:waypoint x="770.0" y="247.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow11" id="BPMNEdge_flow11">
+        <omgdi:waypoint x="881.0" y="247.0"></omgdi:waypoint>
+        <omgdi:waypoint x="970.0" y="247.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flowServiceDeploymentFinished" id="BPMNEdge_flowServiceDeploymentFinished">
+        <omgdi:waypoint x="1010.0" y="247.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1100.0" y="247.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1100.0" y="186.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="42.0" width="100.0" x="1010.0" y="247.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flowserviceDeploymentNotFinished" id="BPMNEdge_flowserviceDeploymentNotFinished">
+        <omgdi:waypoint x="990.0" y="267.0"></omgdi:waypoint>
+        <omgdi:waypoint x="990.0" y="337.0"></omgdi:waypoint>
+        <omgdi:waypoint x="917.0" y="337.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="42.0" width="100.0" x="990.0" y="287.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow14" id="BPMNEdge_flow14">
+        <omgdi:waypoint x="882.0" y="337.0"></omgdi:waypoint>
+        <omgdi:waypoint x="825.0" y="337.0"></omgdi:waypoint>
+        <omgdi:waypoint x="825.0" y="282.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

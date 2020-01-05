@@ -78,16 +78,15 @@ public class OrchestrationService implements JavaDelegate {
 			if ( spec!=null ) {			
 				
 				String NSDID = null;
-				 
-				for (ServiceSpecCharacteristic c : spec.getServiceSpecCharacteristic() ) {
-					if (c.getName().equals("NSDID")) {
-						for (ServiceSpecCharacteristicValue val : c.getServiceSpecCharacteristicValue()) {
-							if (val.isIsDefault()) {
-								NSDID = val.getValue().getValue();
-							}
+				ServiceSpecCharacteristic c = spec.getServiceSpecCharacteristicByName( "NSDID" );				
+				if (c!=null) {
+					for (ServiceSpecCharacteristicValue val : c.getServiceSpecCharacteristicValue()) {
+						if (val.isIsDefault()) {
+							NSDID = val.getValue().getValue();
 						}
 					}
 				}
+				
 				
 				if ( NSDID != null) {
 
@@ -129,8 +128,7 @@ public class OrchestrationService implements JavaDelegate {
 						Service supd = serviceOrderManager.updateService(  execution.getVariable("serviceId").toString(), su);
 						logger.info("Request to NFVO for NSDID:" + NSDID + " done! Service: " + supd.getId() );
 						
-						
-						waitForDeploymentStatus( dd.getId(), supd );
+						execution.setVariable("deploymentId", dd.getId());
 						
 						
 						return;					
@@ -183,62 +181,7 @@ public class OrchestrationService implements JavaDelegate {
 		return dd;
 	}
 
-	private void waitForDeploymentStatus(long deploymentId, Service aService) {
-		
-		int maxTry = 0;
-		while ( maxTry < 120) {
-			try {
-				//retrieve Status from NFVO (OSM?) scheduler
-				logger.info("Checking Deployment Status of deployment Request id: " + deploymentId );
 
-				DeploymentDescriptor dd =serviceOrderManager.retriveNFVODeploymentRequestById( deploymentId );
-				logger.info("Operational Status of deployment Request id: " + dd.getOperationalStatus() );
-				logger.info("Status of deployment Request id: " + dd.getStatus() );
-				ServiceUpdate supd = new ServiceUpdate();
-				for (Characteristic c : aService.getServiceCharacteristic()) {
-					if ( c.getName().equals("Status")) {
-						c.setValue( new Any( dd.getStatus() + "" ));
-					} else if ( c.getName().equals("OperationalStatus")) {
-						c.setValue( new Any( dd.getOperationalStatus() + "" ));
-					} else if ( c.getName().equals("ConstituentVnfrIps")) {
-						c.setValue( new Any( dd.getConstituentVnfrIps() + "" ));
-					} else if ( c.getName().equals("ConfigStatus")) {
-						c.setValue( new Any( dd.getConfigStatus() + "" ));
-					}
-					supd.addServiceCharacteristicItem( c );					
-				}
-				
-				if ( dd.getStatus().equals( DeploymentDescriptorStatus.RUNNING) ) {
-					supd.setState( ServiceStateType.ACTIVE);
-				} else if ( dd.getStatus().equals( DeploymentDescriptorStatus.REJECTED) 
-						|| dd.getStatus().equals( DeploymentDescriptorStatus.FAILED) 
-						|| dd.getStatus().equals( DeploymentDescriptorStatus.FAILED_OSM_REMOVED)
-						|| dd.getStatus().equals( DeploymentDescriptorStatus.COMPLETED)
-						|| dd.getStatus().equals( DeploymentDescriptorStatus.TERMINATED) 
-						|| dd.getStatus().equals( DeploymentDescriptorStatus.TERMINATION_FAILED) ) {
-					supd.setState( ServiceStateType.TERMINATED);
-				}
-				
-				Service serviceResult = serviceOrderManager.updateService( aService.getId(), supd );
-				
-				if ( serviceResult.getState().equals(ServiceStateType.ACTIVE)
-						|| serviceResult.getState().equals(ServiceStateType.TERMINATED)) {
-
-					logger.info("Deployment Status OK. Service state = " + serviceResult.getState() );
-					return;
-				}
-				logger.info("Wait For Deployment Status. ");
-				Thread.sleep( 30000 );
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}finally {
-				
-			}
-			maxTry++;
-		}
-		
-		
-	}
 	
 	
 }

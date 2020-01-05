@@ -117,7 +117,8 @@ public class ProcessOrderIntegrationTest {
 		          from("direct:get_mocked_upd_service").bean( SCMocked.class, "getMockedService");		          
 		          from("direct:get_mocked_upd_order").bean( SCMocked.class, "updateServiceOrder");
 		          from("direct:get_mocked_service_id").bean( SCMocked.class, "getServiceById");
-		          from("direct:req_deploy_nsd").bean( SCMocked.class, "req_deploy_nsd");		          
+		          from("direct:req_deploy_nsd").bean( SCMocked.class, "req_deploy_nsd");		
+		          from("direct:req_deployment_id").bean( SCMocked.class, "req_deployment_id");		
 		          
 	        };
 		};
