@@ -69,17 +69,22 @@ public class OrchestrationCheckDeploymentService implements JavaDelegate {
 		logger.info("Operational Status of deployment Request id: " + dd.getOperationalStatus() );
 		logger.info("Status of deployment Request id: " + dd.getStatus() );
 		ServiceUpdate supd = new ServiceUpdate();
-		for (Characteristic c : aService.getServiceCharacteristic()) {
-			if ( c.getName().equals("Status")) {
-				c.setValue( new Any( dd.getStatus() + "" ));
-			} else if ( c.getName().equals("OperationalStatus")) {
-				c.setValue( new Any( dd.getOperationalStatus() + "" ));
-			} else if ( c.getName().equals("ConstituentVnfrIps")) {
-				c.setValue( new Any( dd.getConstituentVnfrIps() + "" ));
-			} else if ( c.getName().equals("ConfigStatus")) {
-				c.setValue( new Any( dd.getConfigStatus() + "" ));
-			}
-			supd.addServiceCharacteristicItem( c );					
+		if ( aService.getServiceCharacteristic() != null ) {
+			for (Characteristic c : aService.getServiceCharacteristic()) {
+				if ( c.getName().equals("Status")) {
+					c.setValue( new Any( dd.getStatus() + "" ));
+				} else if ( c.getName().equals("OperationalStatus")) {
+					c.setValue( new Any( dd.getOperationalStatus() + "" ));
+				} else if ( c.getName().equals("ConstituentVnfrIps")) {
+					c.setValue( new Any( dd.getConstituentVnfrIps() + "" ));
+				} else if ( c.getName().equals("ConfigStatus")) {
+					c.setValue( new Any( dd.getConfigStatus() + "" ));
+				}
+				supd.addServiceCharacteristicItem( c );					
+			} 
+		} else {
+			logger.error("Service has no characteristics!" );
+			
 		}
 		
 		if ( dd.getStatus().equals( DeploymentDescriptorStatus.RUNNING) ) {

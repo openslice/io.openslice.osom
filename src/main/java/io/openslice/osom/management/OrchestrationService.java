@@ -133,8 +133,7 @@ public class OrchestrationService implements JavaDelegate {
 						
 						return;					
 					}finally {
-
-						logger.error( "Cannot createNewDeploymentRequest for service :" + spec.getId() );
+						
 					}
 					
 				} else {
