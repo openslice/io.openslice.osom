@@ -17,7 +17,7 @@
     <serviceTask id="stManualCompleteService" name="User Task Manual Complete Service" activiti:delegateExpression="${userOrderCompleteService}">
       <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="servicesHandledManual" activiti:elementVariable="serviceId"></multiInstanceLoopCharacteristics>
     </serviceTask>
-    <callActivity id="parallelActivityNFVODeploymentReq" name="NFVO Deployment Request">
+    <callActivity id="parallelActivityNFVODeploymentReq" name="NFVO Deployment Request" activiti:async="true" calledElement="NFVODeploymentReq" activiti:inheritVariables="true">
       <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="servicesHandledAutomated" activiti:elementVariable="serviceId"></multiInstanceLoopCharacteristics>
     </callActivity>
     <sequenceFlow id="flow10" sourceRef="parallelActivityNFVODeploymentReq" targetRef="parallelgateway2"></sequenceFlow>

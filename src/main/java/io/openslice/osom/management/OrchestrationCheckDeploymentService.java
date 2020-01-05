@@ -63,7 +63,7 @@ public class OrchestrationCheckDeploymentService implements JavaDelegate {
 		
 		//retrieve Status from NFVO (OSM?) scheduler
 		logger.info("Checking Deployment Status of deployment Request id: " + deploymentId );
-		execution.setVariable("serviceDeploymentFinished", false);
+		execution.setVariable("serviceDeploymentFinished", new Boolean( false ));
 
 		DeploymentDescriptor dd =serviceOrderManager.retrieveNFVODeploymentRequestById( deploymentId );
 		logger.info("Operational Status of deployment Request id: " + dd.getOperationalStatus() );
@@ -104,7 +104,7 @@ public class OrchestrationCheckDeploymentService implements JavaDelegate {
 				|| serviceResult.getState().equals(ServiceStateType.TERMINATED)) {
 
 			logger.info("Deployment Status OK. Service state = " + serviceResult.getState() );
-			execution.setVariable("serviceDeploymentFinished", true);
+			execution.setVariable("serviceDeploymentFinished", new Boolean(true));
 			return;
 		}
 		logger.info("Wait For Deployment Status. ");

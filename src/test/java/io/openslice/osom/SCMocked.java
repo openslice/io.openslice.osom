@@ -143,11 +143,12 @@ public class SCMocked {
 	}
 	
 	
-	public String req_deployment_id( String ddreq )  throws IOException {
+	public String req_deployment_id( Long ddreqId )  throws IOException {
 
-		logger.info( "ddreq getExperiment = " + toJsonString(ddreq) );
+		logger.info( "ddreq get id = " + ddreqId );
 		
-		DeploymentDescriptor ddresp = toJsonObj( ddreq, DeploymentDescriptor.class);
+		DeploymentDescriptor ddresp = new DeploymentDescriptor();
+		ddresp.setId(ddreqId);
 		ddresp.setStatus( DeploymentDescriptorStatus.RUNNING );
 		return toJsonString(ddresp);		
 	}

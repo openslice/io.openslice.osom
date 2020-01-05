@@ -57,7 +57,7 @@ public class OrchestrationService implements JavaDelegate {
 	
 	public void execute(DelegateExecution execution) {
 
-		logger.info( execution.getVariableNames().toString() );
+		logger.info( "VariableNames:" + execution.getVariableNames().toString() );
 		logger.info("orderid:" + execution.getVariable("orderid").toString() );
 		logger.info("serviceId:" + execution.getVariable("serviceId").toString() );
 
