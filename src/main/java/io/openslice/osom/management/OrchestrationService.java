@@ -22,6 +22,7 @@ package io.openslice.osom.management;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Date;
+import java.util.Map;
 
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.logging.Log;
@@ -54,6 +55,9 @@ public class OrchestrationService implements JavaDelegate {
 
 	@Autowired
 	private ServiceOrderManager serviceOrderManager;
+
+	@Autowired
+	private DependencyRulesSolver aDependencyRulesSolver;
 	
 	public void execute(DelegateExecution execution) {
 
@@ -71,7 +75,7 @@ public class OrchestrationService implements JavaDelegate {
 			logger.info("Service state:" + aService.getState()  );			
 			logger.info("Request to NFVO for Service: " + aService.getId() );
 			
-			//we need to retrieve here the Service Spec of the service
+			//we need to retrieve here the Service Spec of this service that we send to the NFVO
 			
 			ServiceSpecification spec = serviceOrderManager.retrieveServiceSpec( aService.getServiceSpecificationRef().getId() );
 			
@@ -83,15 +87,25 @@ public class OrchestrationService implements JavaDelegate {
 					for (ServiceSpecCharacteristicValue val : c.getServiceSpecCharacteristicValue()) {
 						if (val.isIsDefault()) {
 							NSDID = val.getValue().getValue();
+							break;
 						}
 					}
 				}
 				
 				
 				if ( NSDID != null) {
+					/**
+					 * it is registered in our NFV catalog. Let's request an instnatiation of it
+					 */
 
 					try {
-						DeploymentDescriptor dd = createNewDeploymentRequest( NSDID, sorder.getStartDate(), sorder.getExpectedCompletionDate(), sorder.getId() );
+						Map<String, Object> configParams = aDependencyRulesSolver.get( sorder, spec );
+						
+						DeploymentDescriptor dd = createNewDeploymentRequest( NSDID, 
+								sorder.getStartDate(), 
+								sorder.getExpectedCompletionDate(), 
+								sorder.getId(),
+								configParams);
 						
 						su.setState(ServiceStateType.RESERVED );
 						Note noteItem = new Note();
@@ -162,7 +176,8 @@ public class OrchestrationService implements JavaDelegate {
 
 
 
-	private DeploymentDescriptor createNewDeploymentRequest(String nsdId, OffsetDateTime startDate, OffsetDateTime endDate, String orderid) {
+	private DeploymentDescriptor createNewDeploymentRequest(String nsdId, OffsetDateTime startDate, OffsetDateTime endDate, String orderid,
+			Map<String, Object> configParams) {
 		DeploymentDescriptor ddreq = new DeploymentDescriptor();
 		ExperimentMetadata expReq = new ExperimentMetadata();
 		expReq.setId( Long.parseLong(nsdId));
@@ -174,6 +189,9 @@ public class OrchestrationService implements JavaDelegate {
 		ddreq.setEndReqDate( new Date(endDate.toInstant().toEpochMilli()) );
 		ddreq.setEndDate( new Date(endDate.toInstant().toEpochMilli()) );
 		ddreq.setStatus( DeploymentDescriptorStatus.SCHEDULED );
+		if ( configParams!=null) {
+			ddreq.setConfigStatus( configParams.toString() );			
+		}
 		DeploymentDescriptor dd =serviceOrderManager.nfvoDeploymentRequestByNSDid( ddreq );
 		
 		

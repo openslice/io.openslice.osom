@@ -40,6 +40,9 @@ public class SCMocked {
 
 
 	private static final transient Log logger = LogFactory.getLog(SCMocked.class.getName());
+
+
+	private DeploymentDescriptor requeestedDescriptor;
 	
 	/**
 	 * get mocked service order by id from model via bus
@@ -55,6 +58,7 @@ public class SCMocked {
 		
 		return sspectext;
 	}
+
 	
 	
 	/**
@@ -139,6 +143,7 @@ public class SCMocked {
 		
 		DeploymentDescriptor ddresp = toJsonObj( ddreq, DeploymentDescriptor.class);
 		ddresp.setId(123456789);
+		setRequeestedDescriptor(ddresp);
 		return toJsonString(ddresp);		
 	}
 	
@@ -164,4 +169,16 @@ public class SCMocked {
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         return mapper.readValue( content, valueType);
     }
+
+
+
+	public DeploymentDescriptor getRequeestedDescriptor() {
+		return requeestedDescriptor;
+	}
+
+
+
+	public void setRequeestedDescriptor(DeploymentDescriptor requeestedDescriptor) {
+		this.requeestedDescriptor = requeestedDescriptor;
+	}
 }
