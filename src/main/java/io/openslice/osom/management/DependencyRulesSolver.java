@@ -69,7 +69,7 @@ public class DependencyRulesSolver {
 	public Map<String, Object> get(ServiceOrder sorder, ServiceSpecification specRequested) {
 		Map<String, Object> variables = new HashMap();
 		for (ServiceOrderItem soi : sorder.getOrderItem()) {
-			if ( soi.getService() != null ) {
+			if ( (soi.getService() != null) && ( soi.getService().getServiceCharacteristic() != null ) ) {
 				for (Characteristic c : soi.getService().getServiceCharacteristic()) {
 					variables.put(c.getName().replace(" ", "_").replace(":", "_") , c.getValue().getValue() );
 				}				
