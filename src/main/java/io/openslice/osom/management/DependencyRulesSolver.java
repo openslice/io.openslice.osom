@@ -104,9 +104,10 @@ public class DependencyRulesSolver {
 
 			Map<String, Object> result = ex.variables(variables).executeWithSingleResult();
 			
-			result.putAll( variables );			
-
-			return result;
+			if ( result!= null ) {
+				result.putAll( variables );
+				return result;				
+			}
 
 //		} catch (FileNotFoundException e) {
 //			e.printStackTrace();
