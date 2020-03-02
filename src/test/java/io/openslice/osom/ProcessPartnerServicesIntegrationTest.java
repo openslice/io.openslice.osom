@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.stream.XMLInputFactory;
@@ -77,6 +78,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.openslice.osom.management.ServiceOrderManager;
+import io.openslice.osom.partnerservices.PartnerOrganizationServicesManager;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
 import io.openslice.tmf.so641.model.ServiceOrder;
 
@@ -86,10 +88,12 @@ import io.openslice.tmf.so641.model.ServiceOrder;
 		"CATALOG_UPD_SERVICEORDER_BY_ID = direct:get_mocked_upd_order",
 		"CATALOG_GET_SERVICE_BY_ID = direct:get_mocked_service_id",
 		"CATALOG_UPD_SERVICE = direct:get_mocked_upd_service", "NFV_CATALOG_DEPLOY_NSD_REQ = direct:req_deploy_nsd",
-		"NFV_CATALOG_GET_DEPLOYMENT_BY_ID = direct:req_deployment_id", "uri.to   = mock:output" })
+		"NFV_CATALOG_GET_DEPLOYMENT_BY_ID = direct:req_deployment_id", 
+		 "CATALOG_GET_EXTERNAL_SERVICE_PARTNERS = direct:get_mocked_partners",
+		"uri.to   = mock:output" })
 @ActiveProfiles("testing")
-public class ProcessOrderIntegrationTest {
-	private static final transient Log logger = LogFactory.getLog(ProcessOrderIntegrationTest.class.getName());
+public class ProcessPartnerServicesIntegrationTest {
+	private static final transient Log logger = LogFactory.getLog(ProcessPartnerServicesIntegrationTest.class.getName());
 
 	@Autowired
 	RepositoryService repositoryService;
@@ -103,35 +107,25 @@ public class ProcessOrderIntegrationTest {
 	@Autowired
 	private CamelContext camelContext;
 
-//    @MockBean(name = "orchestrationService" )
-//    @Autowired
-//    private OrchestrationServiceMocked orchestrationServiceMocked;
-
 	@Autowired
-	private ServiceOrderManager serviceOrderManager;
+	private PartnerOrganizationServicesManager partnerOrganizationServicesManager;
 
-	SCMocked scmocked = new SCMocked();
+	SPMocked spmocked = new SPMocked();
 
 	@Test
 	// @Deployment(resources = { "processes/ServiceOrder.bpmn" })
 	public void startProcess() throws Exception {
-		// doCallRealMethod().when( orchestrationServiceMocked).execute( Mockito.any() )
-		// ;
 
+
+		repositoryService.suspendProcessDefinitionByKey("OrderSchedulerProcess"); // this is to stop the timer
+		
 		/**
 		 * configure here the mocked routes
 		 */
 		RoutesBuilder builder = new RouteBuilder() {
 			@Override
 			public void configure() {
-				from("direct:get_mocked_order").bean(scmocked, "getOrderById");
-				from("direct:get_mocked_spec").bean(scmocked, "getSpecById");
-				from("direct:get_mocked_add_service").bean(scmocked, "getMockedService");
-				from("direct:get_mocked_upd_service").bean(scmocked, "getMockedService");
-				from("direct:get_mocked_upd_order").bean(scmocked, "updateServiceOrder");
-				from("direct:get_mocked_service_id").bean(scmocked, "getServiceById");
-				from("direct:req_deploy_nsd").bean(scmocked, "req_deploy_nsd");
-				from("direct:req_deployment_id").bean(scmocked, "req_deployment_id");
+				from("direct:get_mocked_partners").bean(spmocked, "getPartners");
 
 			};
 		};
@@ -141,43 +135,12 @@ public class ProcessOrderIntegrationTest {
 		logger.info("waiting 1secs");
 		Thread.sleep(1000); // wait
 
-		assertThat(serviceOrderManager.retrieveServiceOrder("b0661e27-020f-4026-84ab-5c265bac47e7"))
-				.isInstanceOf(ServiceOrder.class);
-		assertThat(serviceOrderManager.retrieveServiceOrder("93b9928c-de35-4495-a157-1100f6e71c92"))
-				.isInstanceOf(ServiceOrder.class);
-		assertThat(serviceOrderManager.retrieveServiceSpec("59d08753-e1b1-418b-9e3e-d3a3bb573051"))
-				.isInstanceOf(ServiceSpecification.class);
-
-		assertThat(repositoryService.createProcessDefinitionQuery().count()).isEqualTo(5);
-		assertThat(taskService.createTaskQuery().count()).isEqualTo(0);
-
-		assertThat( scmocked.getRequeestedDescriptor() ).isNull();
 		
-		repositoryService.suspendProcessDefinitionByKey("OrderSchedulerProcess"); // this is to stop the timer
+		assertThat( partnerOrganizationServicesManager.retrievePartners() )
+				.isInstanceOf( List.class);
 
-		Map<String, Object> variables = new HashMap<>();
-		variables.put("orderid", "93b9928c-de35-4495-a157-1100f6e71c92");
-		runtimeService.startProcessInstanceByKey("StartOrderProcess", variables);
-		logger.info("waiting 1sec");
-		Thread.sleep(1000); // wait
-
-		for (ProcessInstance pi : runtimeService.createProcessInstanceQuery().list()) {
-			logger.info(" pi.id " + pi.toString());
-		}
-
-		for (Task task : taskService.createTaskQuery().list()) {
-			logger.info(" task.name " + task.getName());
-		}
-
-		assertThat( scmocked.getRequeestedDescriptor() ).isNotNull();
-		assertThat( scmocked.getRequeestedDescriptor().getId() ).isEqualTo( 123456789 );
-		assertThat( scmocked.getRequeestedDescriptor().getConfigStatus() ).contains("cirros_ue_uplink=192.0");
-		assertThat( scmocked.getRequeestedDescriptor().getConfigStatus() ).contains("cirros_slice_uplink=1024.0");
-
+		assertThat( partnerOrganizationServicesManager.retrievePartners() ).hasSize(1);
 		
-
-		assertThat(taskService.createTaskQuery().count()).isEqualTo(0);
-
 		logger.info("waiting 1secs");
 		Thread.sleep(1000); // wait
 
