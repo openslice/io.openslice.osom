@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import io.openslice.osom.management.ServiceOrderManager;
 import io.openslice.tmf.pm632.model.Organization;
+import io.openslice.tmf.scm633.model.ServiceSpecification;
 
 
 @Service
@@ -46,7 +47,7 @@ public class PartnerOrganizationServicesManager {
 
 			Class<List<Organization>> clazz = (Class) List.class;
 			List<Organization> organizations = mapJsonToObjectList( new Organization(), (String)response, Organization.class  ); 
-			logger.debug("retrieveSPs response is: " + response);
+			logger.info("retrieveSPs response is: " + response);
 			return organizations;
 			
 		}catch (Exception e) {
@@ -68,4 +69,20 @@ public class PartnerOrganizationServicesManager {
 //	      System.out.println(list.get(0).getClass());
 	      return list;
 	   }
+
+
+	public List<ServiceSpecification> fetchServiceSpecs(Organization org) {
+		logger.info("Will fetchServiceSpecs of organization: " + org.getName() );
+		List<ServiceSpecification> specs = new ArrayList<>();
+		return specs;
+	}
+
+
+	public void updateSpecInLocalCatalog(ServiceSpecification serviceSpecification) {
+		// TODO Auto-generated method stub
+		
+	}
+	 
+	 
+	 
 }

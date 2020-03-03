@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
@@ -56,6 +57,7 @@ public class SPMocked {
 
 		List<Organization> alist= new ArrayList<>();
 		Organization o = new Organization();
+		o.setUuid(UUID.randomUUID().toString());
 		o.setName("TESTA");
 		alist.add( o );
 		

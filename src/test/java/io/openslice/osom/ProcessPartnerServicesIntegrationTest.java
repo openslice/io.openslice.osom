@@ -58,10 +58,14 @@ import org.flowable.dmn.engine.test.DmnDeployment;
 import org.flowable.dmn.engine.test.FlowableDmnRule;
 import org.flowable.dmn.model.DmnDefinition;
 import org.flowable.dmn.xml.converter.DmnXMLConverter;
+import org.flowable.engine.ManagementService;
 import org.flowable.engine.RepositoryService;
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.TaskService;
+import org.flowable.engine.runtime.ActivityInstance;
+import org.flowable.engine.runtime.Execution;
 import org.flowable.engine.runtime.ProcessInstance;
+import org.flowable.job.api.Job;
 import org.flowable.spring.impl.test.FlowableSpringExtension;
 import org.flowable.task.api.Task;
 import org.junit.Rule;
@@ -79,6 +83,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.openslice.osom.management.ServiceOrderManager;
 import io.openslice.osom.partnerservices.PartnerOrganizationServicesManager;
+import io.openslice.tmf.pm632.model.Organization;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
 import io.openslice.tmf.so641.model.ServiceOrder;
 
@@ -101,6 +106,10 @@ public class ProcessPartnerServicesIntegrationTest {
 	@Autowired
 	private RuntimeService runtimeService;
 
+
+	@Autowired
+	private ManagementService managementService;
+	
 	@Autowired
 	private TaskService taskService;
 
@@ -118,6 +127,8 @@ public class ProcessPartnerServicesIntegrationTest {
 
 
 		repositoryService.suspendProcessDefinitionByKey("OrderSchedulerProcess"); // this is to stop the timer
+		repositoryService.suspendProcessDefinitionByKey("fetchInRpogressOrdersProcess"); // this is to stop the timer
+		//repositoryService.suspendProcessDefinitionByKey("fetchPartnerServicesProcess"); // this is to stop the timer
 		
 		/**
 		 * configure here the mocked routes
@@ -135,14 +146,65 @@ public class ProcessPartnerServicesIntegrationTest {
 		logger.info("waiting 1secs");
 		Thread.sleep(1000); // wait
 
+//		List<Organization> orgz = partnerOrganizationServicesManager.retrievePartners();
+//		assertThat( orgz ).isInstanceOf( List.class);
+//
+//		assertThat( orgz ).hasSize(1);
 		
-		assertThat( partnerOrganizationServicesManager.retrievePartners() )
-				.isInstanceOf( List.class);
+		
+		//Job timer = managementService.createTimerJobQuery().jobId("timerstarteventFetchPartnerServices").singleResult();
+		//repositoryService.activateProcessDefinitionByKey( "fetchPartnerServicesProcess" );
+		//runtimeService.startProcessInstanceById("fetchPartnerServicesProcess"  );
+		
+		
+		
+		List<Job> jobs = managementService.createTimerJobQuery().list();
+		logger.info( "jobs.size() " +   jobs.size());
+		for (Job timer : jobs) {
+			logger.info( "Timer getExecutionId " +   timer.getExecutionId() );
+			logger.info( "Timer getId " + timer.getId()  );
+			logger.info( "Timer getJobHandlerConfiguration " + timer.getJobHandlerConfiguration() );
+			logger.info( "Timer getElementName " + timer.getElementName()  );
+			if ( timer.getJobHandlerConfiguration().contains( "timerstarteventFetchPartnerServices" ) ) {
+				managementService.moveTimerToExecutableJob(timer.getId());
+				//managementService.executeJob(timer.getId());			
+				
+			}
+			//logger.info( "Timer details" + runtimeService.getActiveActivityIds( timer.getId() ));
+		}
+		
+		List<ProcessInstance> instnc = runtimeService.createProcessInstanceQuery().list();
+		for (ProcessInstance processInstance : instnc) {
+			logger.info( "processInstance getExecutionId " +   processInstance.getId() );
+			logger.info( "processInstance getExecutionId " +   processInstance.getName() );
+			runtimeService.suspendProcessInstanceById( processInstance.getId() );
+			
+		}
+		
+		List<ActivityInstance> acts = runtimeService.createActivityInstanceQuery().list();
+		for (ActivityInstance activityInstance : acts) {
+			logger.info( "activityInstance getExecutionId " +   activityInstance.getId() );
+			logger.info( "activityInstance getExecutionId " +   activityInstance.getActivityName() );
+			runtimeService.suspendProcessInstanceById(  activityInstance.getId() );
+			
+		}
+		
+		List<Execution> exq = runtimeService.createExecutionQuery().list();
+		for (Execution execution : exq) {
 
-		assertThat( partnerOrganizationServicesManager.retrievePartners() ).hasSize(1);
+			logger.info( "execution getExecutionId " +   execution.getId() );
+			logger.info( "execution getName " +   execution.getName() );
+		}
 		
-		logger.info("waiting 1secs");
-		Thread.sleep(1000); // wait
+		List<Task> ts = taskService.createTaskQuery().list();
+		for (Task task : ts) {
+			logger.info( "Task task : ts getExecutionId " +   task.getId() );
+			logger.info( "Task task : ts getExecutionId " +   task.getName() );
+			
+		}
+		
+		logger.info("waiting 2secs");
+		Thread.sleep(2000); // wait
 
 	}
 

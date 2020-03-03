@@ -75,6 +75,7 @@ public class OsomSpringBoot implements CommandLineRunner {
 		System.out
 				.println("Number of process definitions : " + repositoryService.createProcessDefinitionQuery().count());
 		System.out.println("Number of tasks : " + taskService.createTaskQuery().count());
+		System.out.println("Number of process instances : " + runtimeService.createProcessInstanceQuery().count() );
 		//runtimeService.startProcessInstanceByKey("oneTaskProcess");
 		//System.out.println("Number of tasks after process start: " + taskService.createTaskQuery().count());
 	}
