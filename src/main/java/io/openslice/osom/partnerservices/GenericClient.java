@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import javax.net.ssl.SSLException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
@@ -37,10 +38,14 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import io.netty.channel.ChannelOption;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
 import reactor.netty.http.client.HttpClient;
@@ -80,7 +85,7 @@ public class GenericClient  {
 		this.baseUrl = baseUrl;
 	}
 
-	public WebClient getWebClient(){
+	public WebClient createWebClient() throws SSLException{
 			
 
 		InMemoryClientRegistrationRepository clientRegistrations = (InMemoryClientRegistrationRepository) this.clientRegistrations() ;
@@ -100,19 +105,29 @@ public class GenericClient  {
 	
 	
 	//@Bean
-	public WebClient webClient(
+	private WebClient webClient(
 			ServletOAuth2AuthorizedClientExchangeFilterFunction servletOAuth2AuthorizedClientExchangeFilterFunction,
 			ClientHttpConnector clientHttpConnector) {
 
 		log.info("WebClientConfiguration.messageWebClient()");
 
-		return WebClient.builder().baseUrl( this.baseUrl ).clientConnector(clientHttpConnector)
+		return WebClient.builder()
+	        	 .exchangeStrategies( getExchangeStrategies() )
+				.baseUrl( this.baseUrl )
+				.clientConnector(clientHttpConnector)
 				.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 				.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-				.apply(servletOAuth2AuthorizedClientExchangeFilterFunction.oauth2Configuration()).filter(logRequest())
+				.apply(servletOAuth2AuthorizedClientExchangeFilterFunction.oauth2Configuration())
+				.filter(logRequest())
 				.build();
 	}
 	
+	private ExchangeStrategies getExchangeStrategies() {
+
+		ExchangeStrategies exchangeStrategies = ExchangeStrategies.builder()
+                .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(-1)).build(); //spring.codec.max-in-memory-size=-1 ?? if use autoconfiguration
+		return exchangeStrategies;
+	}
 	
 
 	private ExchangeFilterFunction logRequest() {
@@ -129,10 +144,14 @@ public class GenericClient  {
 
 		log.info("WebClientConfiguration.clientRegistrations()");
 
-		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId("authOpensliceProvider")
-				.clientId("osapiWebClientId").clientSecret("secret").scope("admin")
+		ClientRegistration clientRegistration = ClientRegistration
+				.withRegistrationId("authOpensliceProvider")
+				.clientId("osapiWebClientId")
+				.clientSecret("secret")
+				.scope("admin")
 				.authorizationGrantType(AuthorizationGrantType.PASSWORD)
-				.tokenUri("http://portal.openslice.io/osapi-oauth-server/oauth/token").build();
+				.tokenUri("http://portal.openslice.io/osapi-oauth-server/oauth/token")
+				.build();
 
 		return new InMemoryClientRegistrationRepository(clientRegistration);
 	}
@@ -156,15 +175,26 @@ public class GenericClient  {
 	}
 
 	    //@Bean
-	public ClientHttpConnector clientHttpConnector() {
+	public ClientHttpConnector clientHttpConnector() throws SSLException {
 
 		log.info("WebClientConfiguration.clientHttpConnector()");
+		
+		SslContext sslContext = SslContextBuilder
+				.forClient()
+				.trustManager()
+				.trustManager(InsecureTrustManagerFactory.INSTANCE)
+				.build();
 
-		TcpClient tcpClient = TcpClient.create().option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 2000)
-				.doOnConnected(connection -> connection.addHandlerLast(new ReadTimeoutHandler(1))
-						.addHandlerLast(new WriteTimeoutHandler(1)));
+		TcpClient tcpClient = TcpClient.create()
+				.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 2000)
+				.doOnConnected(connection -> connection.addHandlerLast
+						(new ReadTimeoutHandler(2)).addHandlerLast(new WriteTimeoutHandler(2))
+						);
 
-		return new ReactorClientHttpConnector(HttpClient.from(tcpClient));
+		return new ReactorClientHttpConnector(
+   			 HttpClient.from(tcpClient)
+   			 .secure( sslContextSpec -> sslContextSpec.sslContext(sslContext) )
+   			 );
 	}
 
 	    //@Bean

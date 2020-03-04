@@ -32,6 +32,9 @@ import org.flowable.task.api.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.openslice.tmf.pm632.model.Organization;
 import io.openslice.tmf.so641.model.ServiceOrderStateType;
 
@@ -45,17 +48,27 @@ public class FetchPartnerOrganizations implements JavaDelegate {
 
 	@Autowired
 	PartnerOrganizationServicesManager partnerOrganizationServicesManager;
-	
-	public void execute(DelegateExecution execution) {
-		logger.info("======================" + execution.getProcessDefinitionId()  + "======================================");
-		logger.info("FetchPartnerOrganizations by Repository");
 
-		
+	public void execute(DelegateExecution execution) {
+		logger.info("======================" + execution.getProcessDefinitionId() + "======================================");
+		logger.info("FetchPartnerOrganizations by Repository");
 
 		List<Organization> partnerList = partnerOrganizationServicesManager.retrievePartners();
 
-		execution.setVariable("partnerOrganizations", partnerList);
-		
-		
+		List<String> partnerListAsString = new ArrayList<>();
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			for (Organization organization : partnerList) {
+				String o = mapper.writeValueAsString(organization);
+				partnerListAsString.add(o);
+			}
+
+			execution.setVariable("partnerOrganizations", partnerListAsString);
+
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 }

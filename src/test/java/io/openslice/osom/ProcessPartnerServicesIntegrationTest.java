@@ -173,104 +173,13 @@ public class ProcessPartnerServicesIntegrationTest {
 			//logger.info( "Timer details" + runtimeService.getActiveActivityIds( timer.getId() ));
 		}
 		
-		List<ProcessInstance> instnc = runtimeService.createProcessInstanceQuery().list();
-		for (ProcessInstance processInstance : instnc) {
-			logger.info( "processInstance getExecutionId " +   processInstance.getId() );
-			logger.info( "processInstance getExecutionId " +   processInstance.getName() );
-			runtimeService.suspendProcessInstanceById( processInstance.getId() );
-			
-		}
 		
-		List<ActivityInstance> acts = runtimeService.createActivityInstanceQuery().list();
-		for (ActivityInstance activityInstance : acts) {
-			logger.info( "activityInstance getExecutionId " +   activityInstance.getId() );
-			logger.info( "activityInstance getExecutionId " +   activityInstance.getActivityName() );
-			runtimeService.suspendProcessInstanceById(  activityInstance.getId() );
-			
-		}
 		
-		List<Execution> exq = runtimeService.createExecutionQuery().list();
-		for (Execution execution : exq) {
-
-			logger.info( "execution getExecutionId " +   execution.getId() );
-			logger.info( "execution getName " +   execution.getName() );
-		}
-		
-		List<Task> ts = taskService.createTaskQuery().list();
-		for (Task task : ts) {
-			logger.info( "Task task : ts getExecutionId " +   task.getId() );
-			logger.info( "Task task : ts getExecutionId " +   task.getName() );
-			
-		}
-		
-		logger.info("waiting 2secs");
-		Thread.sleep(2000); // wait
+		logger.info("waiting 10secs");
+		Thread.sleep( 10000); // wait
 
 	}
 
-	@Autowired
-	private DmnEngine dmnEngine;
 
-	@Autowired
-	private DmnRuleService ruleService;
-
-//	@Autowired
-//	@Rule
-//	public FlowableDmnRule flowableSpringRule;
-
-	@Test
-	@DmnDeployment(resources = "dmn/genericdecisions.dmn")
-	public void uniqueHitPolicy() {
-//		DmnEngine admnEngine = flowableSpringRule.getDmnEngine();
-		DmnRuleService dmnRuleService = dmnEngine.getDmnRuleService();
-
-		ExecuteDecisionBuilder ex = ruleService.createExecuteDecisionBuilder().decisionKey("decisionKJ");
-
-		Map<String, Object> result = ex.variable("Uplink_throughput_per_UE__Guaranteed_uplink_throughput", 8).executeWithSingleResult();
-
-		assertEquals(64.0, result.get("cirros_ue_uplink"));
-		assertEquals(512.0, result.get("cirros_slice_uplink"));
-	}
-
-	@Test
-	public void programmaticallyCreate() throws XMLStreamException, FileNotFoundException {
-
-		try {
-
-			File initialFile = new File("src/test/resources/ondemand_decisions.dmn");
-			InputStream targetStream = new FileInputStream(initialFile);
-
-			XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-			XMLStreamReader xtr = inputFactory.createXMLStreamReader(targetStream);
-			DmnDefinition dmnDefinition = new DmnXMLConverter().convertToDmnModel(xtr);
-
-			DmnRepositoryService dmnRepositoryService = dmnEngine.getDmnRepositoryService();
-			org.flowable.dmn.api.DmnDeployment dmnDeployment = dmnRepositoryService.createDeployment()
-					.name("decision_ONDEMAND").tenantId("abcd").addDmnModel("ondemand_decisions.dmn", dmnDefinition).deploy();
-			
-//			DmnDecisionTable dmnt = dmnRepositoryService.getDecisionTable( "decision_ONDEMAND" );			
-//			assertNotNull(dmnt);
-			
-			ExecuteDecisionBuilder ex = ruleService.createExecuteDecisionBuilder().decisionKey("decision_ONDEMAND").tenantId("abcd");
-
-			Map<String, Object> variables = new HashMap<>();
-			variables.put("cameras", 3);
-			variables.put("video_definition", 3);
-			Map<String, Object> result = ex.variables(variables).executeWithSingleResult();
-			assertEquals("1024", result.get("uplink"));
-			assertEquals( 2048.0, result.get("slice_uplink"));
-			
-			variables = new HashMap<>();
-			variables.put("cameras", 3);
-			variables.put("video_definition", 2);
-			result = ex.variables(variables).executeWithSingleResult();
-			assertEquals("256", result.get("uplink"));
-			assertEquals( 1024.0, result.get("slice_uplink"));
-			
-			
-		} finally {
-
-		}
-	}
 
 }

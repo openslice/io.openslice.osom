@@ -73,6 +73,11 @@ public class PartnerOrganizationServicesManager {
 
 	public List<ServiceSpecification> fetchServiceSpecs(Organization org) {
 		logger.info("Will fetchServiceSpecs of organization: " + org.getName() );
+		
+		/**
+		 * will create or fetch existing web client for this organization
+		 */
+		
 		List<ServiceSpecification> specs = new ArrayList<>();
 		return specs;
 	}
