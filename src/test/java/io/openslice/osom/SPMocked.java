@@ -24,7 +24,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
@@ -36,6 +38,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.openslice.model.DeploymentDescriptor;
 import io.openslice.model.DeploymentDescriptorStatus;
+import io.openslice.tmf.common.model.Any;
+import io.openslice.tmf.pm632.model.Characteristic;
+import io.openslice.tmf.pm632.model.ContactMedium;
 import io.openslice.tmf.pm632.model.Organization;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
 import io.openslice.tmf.so641.model.ServiceOrder;
@@ -45,6 +50,7 @@ public class SPMocked {
 	private static final transient Log logger = LogFactory.getLog(SPMocked.class.getName());
 
 
+	private List<ServiceSpecification> updatedSpecs = new ArrayList<>();
 	/**
 	 * get mocked service order by id from model via bus
 	 * 
@@ -59,9 +65,44 @@ public class SPMocked {
 		Organization o = new Organization();
 		o.setUuid(UUID.randomUUID().toString());
 		o.setName("TESTA");
-		alist.add( o );
 		
+		Characteristic partyCharacteristicItem =  new Characteristic();
+		partyCharacteristicItem.setName( "EXTERNAL_TMFAPI" );
+		
+		Any value = new Any();
+		
+		Map<String, Object> apiparams = new HashMap<>();
+		String[] scopes = {"admin" , "read"};
+		
+
+		apiparams.put( "CLIENTREGISTRATIONID", "authOpensliceProvider");
+		apiparams.put( "OAUTH2CLIENTID", "osapiWebClientId");
+		apiparams.put( "OAUTH2CLIENTSECRET", "secret");
+		apiparams.put( "OAUTH2SCOPES", scopes);
+		apiparams.put( "OAUTH2TOKENURI", "http://portal.openslice.io/osapi-oauth-server/oauth/token");
+		apiparams.put( "USERNAME", "admin");
+		apiparams.put( "PASSWORD", "openslice");
+		apiparams.put( "BASEURL", "http://portal.openslice.io");
+
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+		String strinparams = mapper.writeValueAsString( apiparams );
+		value.setValue( strinparams );
+		
+		partyCharacteristicItem.setValue( value );
+		o.addPartyCharacteristicItem(partyCharacteristicItem );
+		
+		
+		alist.add( o );				
 		return toJsonString(alist);
+	}
+	
+	public String updateExternalSpecs( String s) throws IOException {
+		ServiceSpecification spec = toJsonObj(s, ServiceSpecification.class );
+		logger.info("updateExternalSpecs spec id= " + spec.getId() );
+		updatedSpecs.add( spec );
+		return toJsonString( spec );
+		
 	}
 
 	static String toJsonString(Object object) throws IOException {
@@ -74,6 +115,14 @@ public class SPMocked {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 		return mapper.readValue(content, valueType);
+	}
+
+	public List<ServiceSpecification> getUpdatedSpecs() {
+		return updatedSpecs;
+	}
+
+	public void setUpdatedSpecs(List<ServiceSpecification> updatedSpecs) {
+		this.updatedSpecs = updatedSpecs;
 	}
 
 

@@ -30,6 +30,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -95,6 +96,8 @@ import io.openslice.tmf.so641.model.ServiceOrder;
 		"CATALOG_UPD_SERVICE = direct:get_mocked_upd_service", "NFV_CATALOG_DEPLOY_NSD_REQ = direct:req_deploy_nsd",
 		"NFV_CATALOG_GET_DEPLOYMENT_BY_ID = direct:req_deployment_id", 
 		 "CATALOG_GET_EXTERNAL_SERVICE_PARTNERS = direct:get_mocked_partners",
+		 "CATALOG_UPD_EXTERNAL_SERVICESPEC = direct:upd_external_specs",
+		 
 		"uri.to   = mock:output" })
 @ActiveProfiles("testing")
 public class ProcessPartnerServicesIntegrationTest {
@@ -137,7 +140,8 @@ public class ProcessPartnerServicesIntegrationTest {
 			@Override
 			public void configure() {
 				from("direct:get_mocked_partners").bean(spmocked, "getPartners");
-
+				from("direct:upd_external_specs").bean(spmocked, "updateExternalSpecs");
+				
 			};
 		};
 
@@ -146,11 +150,25 @@ public class ProcessPartnerServicesIntegrationTest {
 		logger.info("waiting 1secs");
 		Thread.sleep(1000); // wait
 
-//		List<Organization> orgz = partnerOrganizationServicesManager.retrievePartners();
-//		assertThat( orgz ).isInstanceOf( List.class);
-//
-//		assertThat( orgz ).hasSize(1);
+		List<Organization> orgz = partnerOrganizationServicesManager.retrievePartners();
+		assertThat( orgz ).isInstanceOf( List.class);
+
+		assertThat( orgz ).hasSize(1);
+		assertThat( orgz.get(0).getPartyCharacteristic() ).hasSize(1);
+		assertThat( orgz.get(0).getPartyCharacteristic().stream().findFirst().get().getName() ).isEqualTo( "EXTERNAL_TMFAPI" );
 		
+		
+		//{"OAUTH2CLIENTSECRET":"secret","OAUTH2TOKENURI":"http://portal.openslice.io/osapi-oauth-server/oauth/token","OAUTH2SCOPES":["admin","read"],"PASSWORD":"openslice","BASEURL":"http://portal.openslice.io","USERNAME":"admin","CLIENTREGISTRATIONID":"authOpensliceProvider","OAUTH2CLIENTID":"osapiWebClientId"}
+		String strapiparams = orgz.get(0).getPartyCharacteristic().stream().findFirst().get().getValue().getValue();
+		
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+		Map<String, Object> apiparams = mapper.readValue(strapiparams, Map.class);
+		
+		assertThat( apiparams ).hasSize( 8 );
+		assertThat( apiparams.get("CLIENTREGISTRATIONID")).isEqualTo("authOpensliceProvider");
+		assertThat(  apiparams.get("OAUTH2SCOPES")).isInstanceOf( ArrayList.class ); 
+		assertThat(  (ArrayList) apiparams.get("OAUTH2SCOPES")).hasSize( 2 );
 		
 		//Job timer = managementService.createTimerJobQuery().jobId("timerstarteventFetchPartnerServices").singleResult();
 		//repositoryService.activateProcessDefinitionByKey( "fetchPartnerServicesProcess" );
@@ -176,8 +194,9 @@ public class ProcessPartnerServicesIntegrationTest {
 		
 		
 		logger.info("waiting 10secs");
-		Thread.sleep( 10000); // wait
+		Thread.sleep( 10000 ); // wait
 
+		assertThat( spmocked.getUpdatedSpecs() ).hasSize(25);
 	}
 
 

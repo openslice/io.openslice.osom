@@ -48,6 +48,7 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
+import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.tcp.TcpClient;
 
@@ -64,25 +65,53 @@ public class GenericClient  {
 	private static final transient Log log = LogFactory.getLog(GenericClient.class.getName());
 	private String username;
 	private String password;
-	private String clientRegistrationId;
 	
 	
-	OAuth2AuthorizedClientService clientService;
 	private String baseUrl;
+	private String oauth2TokenURI;
+	private String webClientRegistrationId;
+	private String oauth2ClientId;
+	private String oauth2ClientSecret;
+	private String[] oauth2Scopes;
+	private AuthorizationGrantType authorizationGrantType;
 	
 	/**
 	 * Note: the constructor might change to support the instantiation of multiple clientRegistrations
-	 * 
+	 *
+	 * @param clientRegistrationId
+	 * @param oauth2ClientId
+	 * @param oauth2ClientSecret
+	 * @param oauth2Scopes
+	 * @param oauth2TokenURI
 	 * @param username
 	 * @param password
-	 * @param clientRegistrationId
+	 * @param baseUrl
 	 */
-	public GenericClient(String username, String password, String clientRegistrationId, String baseUrl) {
+	public GenericClient(
+			String clientRegistrationId, 
+			String oauth2ClientId, 
+			String oauth2ClientSecret, 
+			String[] oauth2Scopes, 
+			String oauth2TokenURI,
+			String username, 
+			String password, 
+			String baseUrl) {
 		super();
+
+		this.webClientRegistrationId = clientRegistrationId;
+
+		this.oauth2ClientId = oauth2ClientId;
+		this.oauth2ClientSecret = oauth2ClientSecret;
+		this.oauth2Scopes = oauth2Scopes;
+		this.oauth2TokenURI = oauth2TokenURI;
+		
+		
 		this.username = username;
 		this.password = password;
-		this.clientRegistrationId = clientRegistrationId;
 		this.baseUrl = baseUrl;
+
+		
+		this.authorizationGrantType = AuthorizationGrantType.PASSWORD;
 	}
 
 	public WebClient createWebClient() throws SSLException{
@@ -91,7 +120,7 @@ public class GenericClient  {
 		InMemoryClientRegistrationRepository clientRegistrations = (InMemoryClientRegistrationRepository) this.clientRegistrations() ;
 		OAuth2AuthorizedClientService clientService = new InMemoryOAuth2AuthorizedClientService(clientRegistrations);
 		OAuth2AuthorizedClientManager authorizedClientManager = this.authorizedClientManager(clientRegistrations, clientService);
-				
+
 		
 		ServletOAuth2AuthorizedClientExchangeFilterFunction servletOAuth2AuthorizedClientExchangeFilterFunction =
 				this.servletOAuth2AuthorizedClientExchangeFilterFunction(
@@ -104,12 +133,10 @@ public class GenericClient  {
 	}
 	
 	
-	//@Bean
 	private WebClient webClient(
 			ServletOAuth2AuthorizedClientExchangeFilterFunction servletOAuth2AuthorizedClientExchangeFilterFunction,
 			ClientHttpConnector clientHttpConnector) {
 
-		log.info("WebClientConfiguration.messageWebClient()");
 
 		return WebClient.builder()
 	        	 .exchangeStrategies( getExchangeStrategies() )
@@ -119,6 +146,7 @@ public class GenericClient  {
 				.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
 				.apply(servletOAuth2AuthorizedClientExchangeFilterFunction.oauth2Configuration())
 				.filter(logRequest())
+				.filter(logResponse())
 				.build();
 	}
 	
@@ -132,12 +160,21 @@ public class GenericClient  {
 
 	private ExchangeFilterFunction logRequest() {
 		return (clientRequest, next) -> {
-			log.info("Request: " + clientRequest.method() + ", " + clientRequest.url());
+			log.debug("Request: " + clientRequest.method() + ", " + clientRequest.url());
 			clientRequest.headers()
-					.forEach((name, values) -> values.forEach(value -> log.info("{" + name + "}={" + value + "}")));
+					.forEach((name, values) -> values.forEach(value -> log.debug("{" + name + "}={" + value + "}")));
 			return next.exchange(clientRequest);
 		};
 	}
+	
+	private ExchangeFilterFunction logResponse() {
+	    return ExchangeFilterFunction.ofResponseProcessor(clientResponse -> {
+	      log.debug("Response: " + clientResponse.statusCode());
+	      clientResponse.headers().asHttpHeaders()
+			.forEach((name, values) -> values.forEach(value -> log.debug("{" + name + "}={" + value + "}")));
+	      return Mono.just(clientResponse);
+	    });
+	  }
 
 	//@Bean
 	public ClientRegistrationRepository clientRegistrations() {
@@ -145,12 +182,12 @@ public class GenericClient  {
 		log.info("WebClientConfiguration.clientRegistrations()");
 
 		ClientRegistration clientRegistration = ClientRegistration
-				.withRegistrationId("authOpensliceProvider")
-				.clientId("osapiWebClientId")
-				.clientSecret("secret")
-				.scope("admin")
-				.authorizationGrantType(AuthorizationGrantType.PASSWORD)
-				.tokenUri("http://portal.openslice.io/osapi-oauth-server/oauth/token")
+				.withRegistrationId( webClientRegistrationId ) //"authOpensliceProvider"
+				.clientId( oauth2ClientId ) //"osapiWebClientId"
+				.clientSecret( oauth2ClientSecret ) //"secret"
+				.scope( oauth2Scopes ) //"admin"
+				.authorizationGrantType( authorizationGrantType) //AuthorizationGrantType.PASSWORD
+				.tokenUri( oauth2TokenURI )//"http://portal.openslice.io/osapi-oauth-server/oauth/token"
 				.build();
 
 		return new InMemoryClientRegistrationRepository(clientRegistration);
@@ -167,7 +204,7 @@ public class GenericClient  {
 
 		// oauth.setDefaultOAuth2AuthorizedClient(true);
 		//oauth.setDefaultClientRegistrationId("authOpensliceProvider");
-		oauth.setDefaultClientRegistrationId( this.clientRegistrationId );
+		oauth.setDefaultClientRegistrationId( this.webClientRegistrationId );
 		
 		// oauth.setAccessTokenExpiresSkew(Duration.ofSeconds(30));
 
@@ -261,4 +298,64 @@ public class GenericClient  {
 		this.password = password;
 	}
 
+	/**
+	 * @return the oauth2TokenURI
+	 */
+	public String getOauth2TokenURI() {
+		return oauth2TokenURI;
+	}
+
+	/**
+	 * @param oauth2TokenURI the oauth2TokenURI to set
+	 */
+	public void setOauth2TokenURI(String oauth2TokenURI) {
+		this.oauth2TokenURI = oauth2TokenURI;
+	}
+
+	/**
+	 * @return the webClientRegistrationId
+	 */
+	public String getWebClientRegistrationId() {
+		return webClientRegistrationId;
+	}
+
+	/**
+	 * @param webClientRegistrationId the webClientRegistrationId to set
+	 */
+	public void setWebClientRegistrationId(String webClientRegistrationId) {
+		this.webClientRegistrationId = webClientRegistrationId;
+	}
+
+	/**
+	 * @return the oauth2ClientId
+	 */
+	public String getOauth2ClientId() {
+		return oauth2ClientId;
+	}
+
+	/**
+	 * @param oauth2ClientId the oauth2ClientId to set
+	 */
+	public void setOauth2ClientId(String oauth2ClientId) {
+		this.oauth2ClientId = oauth2ClientId;
+	}
+
+	/**
+	 * @return the oauth2ClientSecret
+	 */
+	public String getOauth2ClientSecret() {
+		return oauth2ClientSecret;
+	}
+
+	/**
+	 * @param oauth2ClientSecret the oauth2ClientSecret to set
+	 */
+	public void setOauth2ClientSecret(String oauth2ClientSecret) {
+		this.oauth2ClientSecret = oauth2ClientSecret;
+	}
+
+	
+
+	
+	
 }
