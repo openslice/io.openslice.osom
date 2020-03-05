@@ -11,7 +11,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.openslice.tmf.common.model.UserPartRoleType;
 import io.openslice.tmf.pm632.model.Organization;
+import io.openslice.tmf.prm669.model.RelatedParty;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
 
 @Component(value = "fetchUpdateExternalPartnerServices") // bean name
@@ -47,6 +49,13 @@ public class FetchUpdateExternalPartnerServices  implements JavaDelegate {
 				/**
 				 * add to the spec, the organization as related party
 				 */
+
+				RelatedParty relatedPartyItem = new RelatedParty();
+				relatedPartyItem.name( org.getName() );
+				relatedPartyItem.setRole( UserPartRoleType.ORGANIZATION.getValue() );
+				relatedPartyItem.setExtendedInfo(serviceSpecification.getId());				
+				serviceSpecification.addRelatedPartyItem(relatedPartyItem );
+				
 				partnerOrganizationServicesManager.updateSpecInLocalCatalog( serviceSpecification );				
 			}
 			
