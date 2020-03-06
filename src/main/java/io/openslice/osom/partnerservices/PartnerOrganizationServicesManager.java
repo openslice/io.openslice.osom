@@ -172,12 +172,13 @@ public class PartnerOrganizationServicesManager {
 		return null;
 	}
 
-	public ServiceSpecification updateSpecInLocalCatalog(ServiceSpecification serviceSpecification) {
+	public ServiceSpecification updateSpecInLocalCatalog(String orgid, ServiceSpecification serviceSpecification) {
 		logger.info("Will UpdateSpecInLocalCatalog serviceSpecification name: " + serviceSpecification.getName() + ", id: " + serviceSpecification.getId());
 
 		try {
 			Map<String, Object> map = new HashMap<>();
 			map.put("servicespecid", serviceSpecification.getId() );
+			map.put("orgid", orgid );
 			Object response = template.requestBodyAndHeaders( CATALOG_UPD_EXTERNAL_SERVICESPEC, toJsonString( serviceSpecification ), map);
 
 			if ( !(response instanceof String)) {
