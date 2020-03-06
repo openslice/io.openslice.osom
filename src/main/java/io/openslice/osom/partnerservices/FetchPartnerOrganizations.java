@@ -58,9 +58,11 @@ public class FetchPartnerOrganizations implements JavaDelegate {
 		List<String> partnerListAsString = new ArrayList<>();
 		ObjectMapper mapper = new ObjectMapper();
 		try {
-			for (Organization organization : partnerList) {
-				String o = mapper.writeValueAsString(organization);
-				partnerListAsString.add(o);
+			if ( partnerList!=null) {			
+				for (Organization organization : partnerList) {
+					String o = mapper.writeValueAsString(organization);
+					partnerListAsString.add(o);
+				}	
 			}
 
 			execution.setVariable("partnerOrganizations", partnerListAsString);
