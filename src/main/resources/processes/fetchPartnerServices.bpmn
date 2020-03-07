@@ -3,7 +3,7 @@
   <process id="fetchPartnerServicesProcess" name="My process" isExecutable="true">
     <startEvent id="timerstarteventFetchPartnerServices" name="Timer start">
       <timerEventDefinition>
-        <timeCycle>0 0/1 * * * ?</timeCycle>
+        <timeCycle>0 0/10 * * * ?</timeCycle>
       </timerEventDefinition>
     </startEvent>
     <serviceTask id="FetchPartnerOrganizationsTask" name="Fetch Partner Organizations Task" activiti:delegateExpression="${fetchPartnerOrganizations}"></serviceTask>
