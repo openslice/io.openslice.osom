@@ -47,10 +47,10 @@ import io.openslice.tmf.sim638.model.ServiceUpdate;
 import io.openslice.tmf.so641.model.ServiceOrder;
 
 
-@Component(value = "orchestrationService") //bean name
-public class OrchestrationService implements JavaDelegate {
+@Component(value = "nfvOrchestrationService") //bean name
+public class NFVOrchestrationService implements JavaDelegate {
 
-	private static final transient Log logger = LogFactory.getLog(OrchestrationService.class.getName());
+	private static final transient Log logger = LogFactory.getLog(NFVOrchestrationService.class.getName());
 
 
 	@Autowired
@@ -61,6 +61,7 @@ public class OrchestrationService implements JavaDelegate {
 	
 	public void execute(DelegateExecution execution) {
 
+		logger.info( "NFVOrchestrationService" );
 		logger.info( "VariableNames:" + execution.getVariableNames().toString() );
 		logger.info("orderid:" + execution.getVariable("orderid").toString() );
 		logger.info("serviceId:" + execution.getVariable("serviceId").toString() );

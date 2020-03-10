@@ -1,6 +1,8 @@
 package io.openslice.osom.partnerservices;
 
 import java.io.IOException;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +19,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -26,9 +29,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import io.openslice.osom.management.ServiceOrderManager;
+import io.openslice.tmf.common.model.service.Note;
+import io.openslice.tmf.common.model.service.ServiceSpecificationRef;
 import io.openslice.tmf.pm632.model.Organization;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
 import io.openslice.tmf.so641.model.ServiceOrder;
+import io.openslice.tmf.so641.model.ServiceOrderCreate;
+import io.openslice.tmf.so641.model.ServiceOrderItem;
+import io.openslice.tmf.so641.model.ServiceOrderStateType;
+import io.openslice.tmf.so641.model.ServiceRestriction;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -45,6 +54,10 @@ public class PartnerOrganizationServicesManager {
 
 	@Value("${CATALOG_UPD_EXTERNAL_SERVICESPEC}")
 	private String CATALOG_UPD_EXTERNAL_SERVICESPEC = "";
+	
+
+	@Value("${THIS_PARTNER_NAME}")
+	private String THIS_PARTNER_NAME = "";
 	
 	Map<String, WebClient> webclients = new HashMap<>();
 
@@ -208,5 +221,69 @@ public class PartnerOrganizationServicesManager {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 		return mapper.writeValueAsString(object);
+	}
+
+	public ServiceOrder makeExternalServiceOrder(Organization org, String remoteServiceSpecID) {
+		logger.info("Will makeExternalServiceOrder to organization: " + org.getName() + ", id: " + org.getId());
+
+		/**
+		 * will create or fetch existing web client for this organization
+		 */
+		WebClient webclient = this.getOrganizationWebClient(org);
+
+		ServiceOrderCreate servOrder = new ServiceOrderCreate();
+		servOrder.setCategory("Automated order");
+		servOrder.setDescription("Automatically created by partner " + THIS_PARTNER_NAME);
+		servOrder.setRequestedStartDate(OffsetDateTime.now(ZoneOffset.UTC).toString());
+		servOrder.setRequestedCompletionDate(OffsetDateTime.now(ZoneOffset.UTC).toString());
+
+		Note noteItem = new Note();
+		noteItem.text("Automatically created by partner " + THIS_PARTNER_NAME);
+		servOrder.addNoteItem(noteItem);
+
+		ServiceOrderItem soi = new ServiceOrderItem();
+		servOrder.getOrderItem().add(soi);
+		soi.setState(ServiceOrderStateType.ACKNOWLEDGED);
+
+		ServiceRestriction serviceRestriction = new ServiceRestriction();
+		ServiceSpecificationRef aServiceSpecificationRef = new ServiceSpecificationRef();
+		aServiceSpecificationRef.setId( remoteServiceSpecID );
+
+		serviceRestriction.setServiceSpecification(aServiceSpecificationRef);
+		soi.setService(serviceRestriction);
+		
+		
+		ServiceOrder specs = new ServiceOrder();
+		
+		if ( webclient!=null ) {
+			
+			
+			specs = webclient.post()
+					.uri("/tmf-api/serviceOrdering/v4/serviceOrder")
+				      //.header("Authorization", "Basic " + encodedClientData)
+				      .bodyValue( servOrder ) 
+						//.attributes( ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId("authOpensliceProvider"))
+						.retrieve()
+						.onStatus(HttpStatus::is4xxClientError, response -> {
+							logger.error("4xx eror");
+					        return Mono.error(new RuntimeException("4xx"));
+					      })
+					      .onStatus(HttpStatus::is5xxServerError, response -> {
+					    	  logger.error("5xx eror");
+					        return Mono.error(new RuntimeException("5xx"));
+					      })
+					  .bodyToMono( new ParameterizedTypeReference<ServiceOrder>() {})
+					  .block();
+		
+
+			 
+			 
+		} else  {
+			logger.error("WebClient is null. Cannot be created.");
+		}
+
+		
+
+		return specs;
 	}
 }

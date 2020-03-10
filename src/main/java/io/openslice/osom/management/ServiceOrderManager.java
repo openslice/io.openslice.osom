@@ -42,6 +42,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.openslice.model.DeploymentDescriptor;
 import io.openslice.osom.configuration.OSOMRouteBuilder;
+import io.openslice.tmf.pm632.model.Organization;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
 import io.openslice.tmf.sim638.model.ServiceCreate;
 import io.openslice.tmf.sim638.model.ServiceUpdate;
@@ -89,7 +90,6 @@ public class ServiceOrderManager {
 	@Value("${CATALOG_UPD_SERVICEORDER_BY_ID}")
 	private String CATALOG_UPD_SERVICEORDER_BY_ID = "";
 	
-
 	@Value("${CATALOG_ADD_SERVICE}")
 	private String CATALOG_ADD_SERVICE = "";
 
@@ -105,6 +105,10 @@ public class ServiceOrderManager {
 
 	@Value("${NFV_CATALOG_GET_DEPLOYMENT_BY_ID}")
 	private String NFV_CATALOG_GET_DEPLOYMENT_BY_ID = "";
+	
+
+	@Value("${CATALOG_GET_PARTNER_ORGANIZATON_BY_ID}")
+	private String CATALOG_GET_PARTNER_ORGANIZATON_BY_ID = "";
 	
 	
 	@Transactional
@@ -438,6 +442,28 @@ public class ServiceOrderManager {
 		}catch (Exception e) {
 			logger.error("Cannot retrieve DeploymentDescriptor details from NFV catalog. " + e.toString());
 			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public Organization getExternalPartnerOrganization(String partnerId) {
+		
+		logger.info("will retrieve External Partner from catalog partnerId=" + partnerId   );
+		
+		try {
+			Object response = template.
+					requestBody( CATALOG_GET_PARTNER_ORGANIZATON_BY_ID, partnerId);
+
+			if ( !(response instanceof String)) {
+				logger.error("External Partner  object is wrong.");
+				return null;
+			}
+			Organization orgz = toJsonObj( (String)response, Organization.class); 
+			//logger.debug("retrieveSpec response is: " + response);
+			return orgz;
+			
+		}catch (Exception e) {
+			logger.error("Cannot retrieve External Partner details from catalog. " + e.toString());
 		}
 		return null;
 	}

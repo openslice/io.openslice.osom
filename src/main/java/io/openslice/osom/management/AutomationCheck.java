@@ -41,6 +41,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.openslice.tmf.common.model.Any;
+import io.openslice.tmf.common.model.UserPartRoleType;
 import io.openslice.tmf.common.model.service.Characteristic;
 import io.openslice.tmf.common.model.service.Note;
 import io.openslice.tmf.common.model.service.ServiceRef;
@@ -90,6 +91,8 @@ public class AutomationCheck implements JavaDelegate {
 			logger.debug("Examin service items");
 			List<String> servicesHandledManual = new ArrayList<>();
 			List<String> servicesHandledAutomated = new ArrayList<>();
+			List<String> servicesHandledByExternalSP = new ArrayList<>();
+			
 
 			for (ServiceOrderItem soi : sor.getOrderItem()) {
 				logger.debug("Service Item ID:" + soi.getId());
@@ -111,25 +114,41 @@ public class AutomationCheck implements JavaDelegate {
 					ServiceSpecification specrel = serviceOrderManager.retrieveServiceSpec(specRels.getId());
 					logger.debug("\tService spec name :" + specrel.getName());
 					logger.debug("\tService spec type :" + specrel.getType());
-					if (specrel.getType().equals("CustomerFacingServiceSpecification")) {
-						Service createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.MANUALLY_BY_SERVICE_PROVIDER);
-						servicesHandledManual.add(createdServ.getId()); 
-						//createdServices.add(createdServ);
-						ServiceRef supportingServiceItem = new ServiceRef();
-						supportingServiceItem.setId( createdServ.getId() );
-						supportingServiceItem.setReferredType( createdServ.getName() );
-						supportingServiceItem.setName(  createdServ.getName()  );
-						soi.getService().addSupportingServiceItem(supportingServiceItem );
+					
+					Service createdServ = null;
+					RelatedParty partnerOrg = fromPartnerOrganization( specrel );
+					
+					if ( partnerOrg != null  ) {
+						createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.AUTOMATICALLY_MANAGED);
+						if ( createdServ!=null ) {
+							servicesHandledByExternalSP.add(createdServ.getId());		
+							
+						}				
+						
+					} else if (specrel.getType().equals("CustomerFacingServiceSpecification")) {
+						createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.MANUALLY_BY_SERVICE_PROVIDER);
+						if ( createdServ!=null ) {
+							servicesHandledManual.add(createdServ.getId());						
+						}
+						
 					} else {
-						Service createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.AUTOMATICALLY_MANAGED);
-						servicesHandledAutomated.add(createdServ.getId()); 
-						//createdServices.add(createdServ);
+						createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.AUTOMATICALLY_MANAGED);
+						if ( createdServ!=null ) {
+							servicesHandledAutomated.add(createdServ.getId());							
+						}
+					}					
+					//add now the serviceRef
+					if ( createdServ!=null ) {
 						ServiceRef supportingServiceItem = new ServiceRef();
 						supportingServiceItem.setId( createdServ.getId() );
 						supportingServiceItem.setReferredType( createdServ.getName() );
 						supportingServiceItem.setName(  createdServ.getName()  );
-						soi.getService().addSupportingServiceItem(supportingServiceItem );
+						soi.getService().addSupportingServiceItem(supportingServiceItem );						
+					} else {
+						logger.error("Service was not created for spec: " + specrel.getName());
 					}
+					
+					
 
 				}
 				logger.debug("<--------------- /related specs -------------->");
@@ -140,10 +159,13 @@ public class AutomationCheck implements JavaDelegate {
 
 			execution.setVariable("servicesHandledManual", servicesHandledManual);
 			execution.setVariable("servicesHandledAutomated", servicesHandledAutomated);
+			execution.setVariable("servicesHandledByExternalSP", servicesHandledByExternalSP);
+			
 
 
 			logger.debug("servicesHandledManual: " + servicesHandledManual.toString());
 			logger.debug("servicesHandledAutomated: " + servicesHandledAutomated.toString());
+			logger.debug("servicesHandledByExternalSP: " + servicesHandledByExternalSP.toString());
 			
 			/***
 			 * we can update now the serviceorder element in catalog
@@ -162,6 +184,17 @@ public class AutomationCheck implements JavaDelegate {
 			
 			
 		}
+	}
+
+	private RelatedParty fromPartnerOrganization(ServiceSpecification specrel) {
+		if ( specrel.getRelatedParty() != null ) {
+			for (RelatedParty rp : specrel.getRelatedParty()) {
+				if ( rp.getRole().equals( UserPartRoleType.ORGANIZATION.getValue() )) {
+					return rp;					
+				}				
+			}			
+		}
+		return null;
 	}
 
 	/**
@@ -200,6 +233,7 @@ public class AutomationCheck implements JavaDelegate {
 		
 		s.setServiceType( spec.getName());
 		s.setState( ServiceStateType.RESERVED );
+		
 		
 		if (spec.getRelatedParty()!=null) {
 			for (RelatedParty rp : spec.getRelatedParty()) {

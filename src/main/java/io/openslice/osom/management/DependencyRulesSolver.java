@@ -53,7 +53,7 @@ import io.openslice.tmf.so641.model.ServiceOrderItem;
 @Component(value = "dependencyRulesSolver") // bean name
 public class DependencyRulesSolver {
 
-	private static final transient Log logger = LogFactory.getLog(OrchestrationService.class.getName());
+	private static final transient Log logger = LogFactory.getLog(NFVOrchestrationService.class.getName());
 
 	@Autowired
 	private DmnEngine dmnEngine;

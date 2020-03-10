@@ -3,8 +3,8 @@
   <process id="NFVODeploymentReq" name="NFVODeploymentReq process" isExecutable="true">
     <startEvent id="startevent1" name="Start"></startEvent>
     <sequenceFlow id="flow1" sourceRef="startevent1" targetRef="stNFVO_RFS"></sequenceFlow>
-    <serviceTask id="stNFVO_RFS" name="NFVO RFS Task" activiti:delegateExpression="${orchestrationService}"></serviceTask>
-    <serviceTask id="stCheckServiceDeployment" name="Check service deployment" activiti:delegateExpression="${orchestrationCheckDeploymentService}"></serviceTask>
+    <serviceTask id="stNFVO_RFS" name="NFVO RFS Task" activiti:delegateExpression="${nfvOrchestrationService}"></serviceTask>
+    <serviceTask id="stCheckServiceDeployment" name="Check service deployment" activiti:delegateExpression="${nfvOrchestrationCheckDeploymentService}"></serviceTask>
     <sequenceFlow id="flow10" sourceRef="stNFVO_RFS" targetRef="stCheckServiceDeployment"></sequenceFlow>
     <sequenceFlow id="flow11" sourceRef="stCheckServiceDeployment" targetRef="exclusivegatewayCheckDeployment"></sequenceFlow>
     <sequenceFlow id="flowServiceDeploymentFinished" name="serviceDeployment Finished" sourceRef="exclusivegatewayCheckDeployment" targetRef="endevent1">

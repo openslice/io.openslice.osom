@@ -54,14 +54,6 @@ public class FetchUpdateExternalPartnerServices  implements JavaDelegate {
 				serviceSpecification.getAttachment().clear();
 				
 
-//				RelatedParty relatedPartyItem = new RelatedParty();
-//				relatedPartyItem.name( org.getName() );
-//				relatedPartyItem.setRole( UserPartRoleType.ORGANIZATION.getValue() );
-//				/**
-//				 * Note: the following Extended Info will be used to identify the Service Spec in our local catalog
-//				 */
-//				relatedPartyItem.setExtendedInfo(serviceSpecification.getId());				
-//				serviceSpecification.addRelatedPartyItem(relatedPartyItem );
 				
 				partnerOrganizationServicesManager.updateSpecInLocalCatalog(org.getId(),  serviceSpecification );				
 			}
