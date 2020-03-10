@@ -50,7 +50,7 @@ public class FetchPartnerOrganizations implements JavaDelegate {
 	PartnerOrganizationServicesManager partnerOrganizationServicesManager;
 
 	public void execute(DelegateExecution execution) {
-		logger.info("======================" + execution.getProcessDefinitionId() + "======================================");
+		logger.info("=========== FetchPartnerOrganizations by Repository " + execution.getProcessDefinitionId() + "======================================");
 		logger.info("FetchPartnerOrganizations by Repository");
 
 		List<Organization> partnerList = partnerOrganizationServicesManager.retrievePartners();

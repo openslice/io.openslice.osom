@@ -193,8 +193,8 @@ public class ProcessPartnerServicesIntegrationTest {
 		
 		
 		
-		logger.info("waiting 10secs");
-		Thread.sleep( 10000 ); // wait
+		logger.info("waiting 20secs");
+		Thread.sleep( 20000 ); // wait
 
 		assertThat( spmocked.getUpdatedSpecs() ).hasSize(25);
 	}
