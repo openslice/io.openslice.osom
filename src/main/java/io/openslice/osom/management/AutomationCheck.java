@@ -247,6 +247,7 @@ public class AutomationCheck implements JavaDelegate {
 		
 		if (spec.getRelatedParty()!=null) {
 			for (RelatedParty rp : spec.getRelatedParty()) {
+				rp.setUuid(null); 
 				s.addRelatedPartyItem(rp);
 			}			
 		}
