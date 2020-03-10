@@ -40,7 +40,7 @@ spring:
 logging:
   level:
     root: INFO
-    io.openslice.osom: INFO
+    io.openslice.osom: DEBUG
     org.springframework: INFO
     org.apache.camel: INFO 
   pattern:

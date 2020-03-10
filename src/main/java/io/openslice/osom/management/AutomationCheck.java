@@ -105,6 +105,16 @@ public class AutomationCheck implements JavaDelegate {
 				
 				logger.debug("Retrieved Service ID:" + spec.getId());
 				logger.debug("Retrieved Service Name:" + spec.getName());
+				
+				RelatedParty partnerOrgMainServiceSpec = fromPartnerOrganization( spec );
+				if ( partnerOrgMainServiceSpec != null  ) {
+					Service createdServ = createServiceByServiceSpec(sor, soi, spec, EServiceStartMode.AUTOMATICALLY_MANAGED);
+					if ( createdServ!=null ) {
+						servicesHandledByExternalSP.add(createdServ.getId());		
+						
+					}
+				}
+				
 
 				//List<Service> createdServices = new ArrayList<>();
 				
