@@ -9,6 +9,7 @@ import org.apache.commons.logging.LogFactory;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import io.openslice.model.DeploymentDescriptor;
@@ -17,6 +18,7 @@ import io.openslice.tmf.common.model.Any;
 import io.openslice.tmf.common.model.UserPartRoleType;
 import io.openslice.tmf.common.model.service.Characteristic;
 import io.openslice.tmf.common.model.service.Note;
+import io.openslice.tmf.common.model.service.ServiceSpecificationRef;
 import io.openslice.tmf.common.model.service.ServiceStateType;
 import io.openslice.tmf.pm632.model.Organization;
 import io.openslice.tmf.prm669.model.RelatedParty;
@@ -26,6 +28,10 @@ import io.openslice.tmf.scm633.model.ServiceSpecification;
 import io.openslice.tmf.sim638.model.Service;
 import io.openslice.tmf.sim638.model.ServiceUpdate;
 import io.openslice.tmf.so641.model.ServiceOrder;
+import io.openslice.tmf.so641.model.ServiceOrderCreate;
+import io.openslice.tmf.so641.model.ServiceOrderItem;
+import io.openslice.tmf.so641.model.ServiceOrderStateType;
+import io.openslice.tmf.so641.model.ServiceRestriction;
 
 @Component(value = "externalPartnerSubmitOrderService") //bean name
 public class ExternalPartnerSubmitOrderService  implements JavaDelegate {
@@ -39,6 +45,9 @@ public class ExternalPartnerSubmitOrderService  implements JavaDelegate {
 	
 	@Autowired
 	private PartnerOrganizationServicesManager partnerOrganizationServicesManager;
+
+	@Value("${THIS_PARTNER_NAME}")
+	private String THIS_PARTNER_NAME = "";
 	
 	@Override
 	public void execute(DelegateExecution execution) {
@@ -76,14 +85,46 @@ public class ExternalPartnerSubmitOrderService  implements JavaDelegate {
 				Organization orgz = serviceOrderManager.getExternalPartnerOrganization( rpOrg.getId() );
 				
 				if ( orgz!=null ) {
-					logger.info("External partner organization:" + orgz.getName()  );					
+					logger.info("External partner organization:" + orgz.getName() + ". Preparing Service Order." );					
 					
-					ServiceOrder externalSOrder = partnerOrganizationServicesManager.makeExternalServiceOrder( orgz, remoteServiceSpecID );
+					ServiceOrderCreate servOrder = new ServiceOrderCreate();
+					servOrder.setCategory("Automated order");
+					servOrder.setDescription("Automatically created by partner " + THIS_PARTNER_NAME);
+					servOrder.setRequestedStartDate( sorder.getStartDate() );
+					servOrder.setRequestedCompletionDate( sorder.getRequestedCompletionDate() );
+					
+
+					Note noteItemOrder = new Note();
+					noteItemOrder.text("Automatically created by partner " + THIS_PARTNER_NAME);
+					noteItemOrder.setAuthor(THIS_PARTNER_NAME);
+					servOrder.addNoteItem( noteItemOrder );
+
+					ServiceOrderItem soi = new ServiceOrderItem();
+					servOrder.getOrderItem().add(soi);
+					soi.setState(ServiceOrderStateType.ACKNOWLEDGED);
+
+					ServiceRestriction serviceRestriction = new ServiceRestriction();
+					ServiceSpecificationRef aServiceSpecificationRef = new ServiceSpecificationRef();
+					aServiceSpecificationRef.setId( remoteServiceSpecID );
+					aServiceSpecificationRef.setName( spec.getName() );
+					aServiceSpecificationRef.setVersion(spec.getVersion());
+
+					serviceRestriction.setServiceSpecification(aServiceSpecificationRef);
+					
+					for (Characteristic servChar : aService.getServiceCharacteristic()) {
+						servChar.setUuid(null);
+						serviceRestriction.addServiceCharacteristicItem(servChar);
+					}
+					
+					soi.setService(serviceRestriction);
+					
+					
+					ServiceOrder externalSOrder = partnerOrganizationServicesManager.makeExternalServiceOrder( servOrder, orgz, remoteServiceSpecID );
 					
 					if ( externalSOrder != null ) {
 						execution.setVariable("externalServiceOrderId", externalSOrder.getId());
 
-						su.setState(ServiceStateType.RESERVED );
+						su.setState(ServiceStateType.FEASIBILITYCHECKED );
 						Note noteItem = new Note();
 						noteItem.setText( "Request to partner " + orgz.getName() + " for spec:" + spec.getName()  + " done!  ServiceOrder id: " + externalSOrder.getId());
 						noteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );

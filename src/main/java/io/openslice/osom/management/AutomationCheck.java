@@ -111,7 +111,11 @@ public class AutomationCheck implements JavaDelegate {
 					Service createdServ = createServiceByServiceSpec(sor, soi, spec, EServiceStartMode.AUTOMATICALLY_MANAGED);
 					if ( createdServ!=null ) {
 						servicesHandledByExternalSP.add(createdServ.getId());		
-						
+						ServiceRef supportingServiceItem = new ServiceRef();
+						supportingServiceItem.setId( createdServ.getId() );
+						supportingServiceItem.setReferredType( createdServ.getName() );
+						supportingServiceItem.setName( partnerOrgMainServiceSpec.getName() + "::" +  createdServ.getName()  );
+						soi.getService().addSupportingServiceItem(supportingServiceItem );					
 					}
 				}
 				
@@ -152,7 +156,11 @@ public class AutomationCheck implements JavaDelegate {
 						ServiceRef supportingServiceItem = new ServiceRef();
 						supportingServiceItem.setId( createdServ.getId() );
 						supportingServiceItem.setReferredType( createdServ.getName() );
-						supportingServiceItem.setName(  createdServ.getName()  );
+						if ( partnerOrg != null  ) { //make prefix with external org name
+							supportingServiceItem.setName( partnerOrgMainServiceSpec.getName() + "::" +  createdServ.getName()  );							
+						} else {
+							supportingServiceItem.setName(  createdServ.getName()  );
+						}
 						soi.getService().addSupportingServiceItem(supportingServiceItem );						
 					} else {
 						logger.error("Service was not created for spec: " + specrel.getName());

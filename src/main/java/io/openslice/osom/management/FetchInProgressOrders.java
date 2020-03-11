@@ -48,10 +48,7 @@ public class FetchInProgressOrders implements JavaDelegate {
 
 	
 	public void execute(DelegateExecution execution) {
-		logger.info("======================" + execution.getProcessDefinitionId()  + "======================================");
-		logger.info("FetchInProgressOrders by Service Order Repository");
-
-		
+		logger.info("======================Fetch InProgressOrders from Service Order Repository, procid:" + execution.getProcessDefinitionId()  + "======================================");		
 
 		List<String> orderlist = serviceOrderManager.retrieveOrdersByState( ServiceOrderStateType.INPROGRESS );
 		ArrayList<String> ordersToBeProcessed = new ArrayList<>();

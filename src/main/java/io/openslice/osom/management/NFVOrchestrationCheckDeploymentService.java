@@ -90,13 +90,14 @@ public class NFVOrchestrationCheckDeploymentService implements JavaDelegate {
 		
 		if ( dd.getStatus().equals( DeploymentDescriptorStatus.RUNNING) ) {
 			supd.setState( ServiceStateType.ACTIVE);
+		} else if ( dd.getStatus().equals( DeploymentDescriptorStatus.FAILED) ) {
+			supd.setState( ServiceStateType.INACTIVE );
 		} else if ( dd.getStatus().equals( DeploymentDescriptorStatus.REJECTED) 
-				|| dd.getStatus().equals( DeploymentDescriptorStatus.FAILED) 
 				|| dd.getStatus().equals( DeploymentDescriptorStatus.FAILED_OSM_REMOVED)
 				|| dd.getStatus().equals( DeploymentDescriptorStatus.COMPLETED)
 				|| dd.getStatus().equals( DeploymentDescriptorStatus.TERMINATED) 
 				|| dd.getStatus().equals( DeploymentDescriptorStatus.TERMINATION_FAILED) ) {
-			supd.setState( ServiceStateType.TERMINATED);
+			supd.setState( ServiceStateType.TERMINATED );
 		}
 		
 		Service serviceResult = serviceOrderManager.updateService( aService.getId(), supd );

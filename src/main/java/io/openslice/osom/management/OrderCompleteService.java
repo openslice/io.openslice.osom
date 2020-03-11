@@ -71,6 +71,7 @@ public class OrderCompleteService implements JavaDelegate {
 
 			boolean allCompletedItemsInOrder= true;
 			boolean allTerminatedItemsInOrder= true;
+			boolean existsInactiveInORder= false;
 			boolean updateServiceOrder= false;
 			
 			logger.info("ServiceOrder id:" + sOrder.getId());
@@ -114,7 +115,8 @@ public class OrderCompleteService implements JavaDelegate {
 					sserviceState = ServiceStateType.TERMINATED;					
 				} else if (existsInactive) {
 					sserviceState = ServiceStateType.INACTIVE;		
-					soi.setState( ServiceOrderStateType.INPROGRESS );				
+					soi.setState( ServiceOrderStateType.PARTIAL );			
+					existsInactiveInORder = true;
 				} else if (existsDesigned) {
 					sserviceState = ServiceStateType.DESIGNED;	
 					soi.setState( ServiceOrderStateType.INPROGRESS );					
@@ -140,6 +142,8 @@ public class OrderCompleteService implements JavaDelegate {
 			if (allCompletedItemsInOrder || allTerminatedItemsInOrder) {
 				updateServiceOrder = true;
 				sOrder.setState( ServiceOrderStateType.COMPLETED );				
+			} else if ( existsInactiveInORder ) {
+				sOrder.setState( ServiceOrderStateType.PARTIAL );		
 			}
 			
 			if ( updateServiceOrder ) {

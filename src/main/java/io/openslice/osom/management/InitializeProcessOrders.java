@@ -46,7 +46,7 @@ public class InitializeProcessOrders implements JavaDelegate {
 
 	public void execute(DelegateExecution execution) {
 
-		logger.info("Check to Push Process Orders for Orchestration: " + execution.getVariables().toString());
+		logger.info("Check if there are new Service Orders for Orchestration: " + execution.getVariables().toString());
 
 		if (execution.getVariable("orderid") instanceof String) {
 			logger.info("Task has available orderid = " + execution.getVariable("orderid"));

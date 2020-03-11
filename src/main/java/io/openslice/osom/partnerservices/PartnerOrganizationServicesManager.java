@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.SSLException;
+import javax.validation.constraints.NotNull;
 
 import org.apache.camel.ProducerTemplate;
 import org.apache.commons.logging.Log;
@@ -56,8 +57,6 @@ public class PartnerOrganizationServicesManager {
 	private String CATALOG_UPD_EXTERNAL_SERVICESPEC = "";
 	
 
-	@Value("${THIS_PARTNER_NAME}")
-	private String THIS_PARTNER_NAME = "";
 	
 	Map<String, WebClient> webclients = new HashMap<>();
 
@@ -223,7 +222,7 @@ public class PartnerOrganizationServicesManager {
 		return mapper.writeValueAsString(object);
 	}
 
-	public ServiceOrder makeExternalServiceOrder(Organization org, String remoteServiceSpecID) {
+	public ServiceOrder makeExternalServiceOrder(ServiceOrderCreate servOrder, Organization org, String remoteServiceSpecID) {
 		logger.info("Will makeExternalServiceOrder to organization: " + org.getName() + ", id: " + org.getId());
 
 		/**
@@ -231,34 +230,15 @@ public class PartnerOrganizationServicesManager {
 		 */
 		WebClient webclient = this.getOrganizationWebClient(org);
 
-		ServiceOrderCreate servOrder = new ServiceOrderCreate();
-		servOrder.setCategory("Automated order");
-		servOrder.setDescription("Automatically created by partner " + THIS_PARTNER_NAME);
-		servOrder.setRequestedStartDate(OffsetDateTime.now(ZoneOffset.UTC).toString());
-		servOrder.setRequestedCompletionDate(OffsetDateTime.now(ZoneOffset.UTC).toString());
 
-		Note noteItem = new Note();
-		noteItem.text("Automatically created by partner " + THIS_PARTNER_NAME);
-		servOrder.addNoteItem(noteItem);
-
-		ServiceOrderItem soi = new ServiceOrderItem();
-		servOrder.getOrderItem().add(soi);
-		soi.setState(ServiceOrderStateType.ACKNOWLEDGED);
-
-		ServiceRestriction serviceRestriction = new ServiceRestriction();
-		ServiceSpecificationRef aServiceSpecificationRef = new ServiceSpecificationRef();
-		aServiceSpecificationRef.setId( remoteServiceSpecID );
-
-		serviceRestriction.setServiceSpecification(aServiceSpecificationRef);
-		soi.setService(serviceRestriction);
 		
 		
-		ServiceOrder specs = new ServiceOrder();
+		ServiceOrder sorder = new ServiceOrder();
 		
 		if ( webclient!=null ) {
 			
 			
-			specs = webclient.post()
+			sorder = webclient.post()
 					.uri("/tmf-api/serviceOrdering/v4/serviceOrder")
 				      //.header("Authorization", "Basic " + encodedClientData)
 				      .bodyValue( servOrder ) 
@@ -284,6 +264,94 @@ public class PartnerOrganizationServicesManager {
 
 		
 
-		return specs;
+		return sorder;
 	}
+
+	public ServiceOrder retrieveServiceOrder(Organization org, String externalServiceOrderId) {
+
+		logger.info("Will retrieveServiceOrder from organization: " + org.getName() + ", id: " + org.getId());
+
+		/**
+		 * will create or fetch existing web client for this organization
+		 */
+		WebClient webclient = this.getOrganizationWebClient(org);
+
+		
+		
+
+		ServiceOrder sorder = new ServiceOrder();
+		if ( webclient!=null ) {
+			
+			
+			sorder = webclient.get()
+					.uri("/tmf-api/serviceOrdering/v4/serviceOrder/{id}", externalServiceOrderId)
+				      //.header("Authorization", "Basic " + encodedClientData)
+						//.attributes( ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId("authOpensliceProvider"))
+						.retrieve()
+						.onStatus(HttpStatus::is4xxClientError, response -> {
+							logger.error("4xx eror");
+					        return Mono.error(new RuntimeException("4xx"));
+					      })
+					      .onStatus(HttpStatus::is5xxServerError, response -> {
+					    	  logger.error("5xx eror");
+					        return Mono.error(new RuntimeException("5xx"));
+					      })
+					  .bodyToMono( new ParameterizedTypeReference<ServiceOrder>() {})
+					  .block();
+		
+
+			 
+			 
+			
+		} else  {
+			logger.error("WebClient is null. Cannot be created.");
+		}
+
+		
+
+		return sorder;
+	}
+
+	public io.openslice.tmf.sim638.model.Service retrieveServiceFromInventory(@NotNull Organization org, @NotNull String externalServiceId) {
+	
+		logger.info("Will retrieveServiceFromInventory from organization: " + org.getName() + ", id: " + org.getId());
+
+		/**
+		 * will create or fetch existing web client for this organization
+		 */
+		WebClient webclient = this.getOrganizationWebClient(org);
+		
+
+		io.openslice.tmf.sim638.model.Service srvc = new io.openslice.tmf.sim638.model.Service();
+		if ( webclient!=null ) {
+			
+			
+			srvc = webclient.get()
+					.uri("/tmf-api/serviceInventory/v4/service/{id}", externalServiceId)
+				      //.header("Authorization", "Basic " + encodedClientData)
+						//.attributes( ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId("authOpensliceProvider"))
+						.retrieve()
+						.onStatus(HttpStatus::is4xxClientError, response -> {
+							logger.error("4xx eror");
+					        return Mono.error(new RuntimeException("4xx"));
+					      })
+					      .onStatus(HttpStatus::is5xxServerError, response -> {
+					    	  logger.error("5xx eror");
+					        return Mono.error(new RuntimeException("5xx"));
+					      })
+					  .bodyToMono( new ParameterizedTypeReference<io.openslice.tmf.sim638.model.Service>() {})
+					  .block();
+		
+
+			 
+			 
+			
+		} else  {
+			logger.error("WebClient is null. Cannot be created.");
+		}
+		
+
+		return srvc;
+	}
+
 }
