@@ -108,13 +108,13 @@ public class AutomationCheck implements JavaDelegate {
 				
 				RelatedParty partnerOrgMainServiceSpec = fromPartnerOrganization( spec );
 				if ( partnerOrgMainServiceSpec != null  ) {
-					Service createdServ = createServiceByServiceSpec(sor, soi, spec, EServiceStartMode.AUTOMATICALLY_MANAGED);
+					Service createdServ = createServiceByServiceSpec(sor, soi, spec, EServiceStartMode.AUTOMATICALLY_MANAGED, partnerOrgMainServiceSpec);
 					if ( createdServ!=null ) {
 						servicesHandledByExternalSP.add(createdServ.getId());		
 						ServiceRef supportingServiceItem = new ServiceRef();
 						supportingServiceItem.setId( createdServ.getId() );
 						supportingServiceItem.setReferredType( createdServ.getName() );
-						supportingServiceItem.setName( partnerOrgMainServiceSpec.getName() + "::" +  createdServ.getName()  );
+						supportingServiceItem.setName( createdServ.getName()  );
 						soi.getService().addSupportingServiceItem(supportingServiceItem );					
 					}
 				}
@@ -133,20 +133,20 @@ public class AutomationCheck implements JavaDelegate {
 					RelatedParty partnerOrg = fromPartnerOrganization( specrel );
 					
 					if ( partnerOrg != null  ) {
-						createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.AUTOMATICALLY_MANAGED);
+						createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.AUTOMATICALLY_MANAGED, partnerOrg);
 						if ( createdServ!=null ) {
 							servicesHandledByExternalSP.add(createdServ.getId());		
 							
 						}				
 						
 					} else if (specrel.getType().equals("CustomerFacingServiceSpecification")) {
-						createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.MANUALLY_BY_SERVICE_PROVIDER);
+						createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.MANUALLY_BY_SERVICE_PROVIDER, null);
 						if ( createdServ!=null ) {
 							servicesHandledManual.add(createdServ.getId());						
 						}
 						
 					} else {
-						createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.AUTOMATICALLY_MANAGED);
+						createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.AUTOMATICALLY_MANAGED, null);
 						if ( createdServ!=null ) {
 							servicesHandledAutomated.add(createdServ.getId());							
 						}
@@ -157,7 +157,7 @@ public class AutomationCheck implements JavaDelegate {
 						supportingServiceItem.setId( createdServ.getId() );
 						supportingServiceItem.setReferredType( createdServ.getName() );
 						if ( partnerOrg != null  ) { //make prefix with external org name
-							supportingServiceItem.setName( partnerOrgMainServiceSpec.getName() + "::" +  createdServ.getName()  );							
+							supportingServiceItem.setName( createdServ.getName()  );							
 						} else {
 							supportingServiceItem.setName(  createdServ.getName()  );
 						}
@@ -222,16 +222,23 @@ public class AutomationCheck implements JavaDelegate {
 	 * @return 
 	 */
 	private Service createServiceByServiceSpec(ServiceOrder sor, ServiceOrderItem soi,
-			ServiceSpecification spec, EServiceStartMode startMode) {
+			ServiceSpecification spec, EServiceStartMode startMode, RelatedParty partnerOrg) {
+
 		ServiceCreate s = new ServiceCreate();
+		String servicename = spec.getName();
+		s.setDescription("A Service for " + spec.getName());
+		if ( partnerOrg!= null ) {
+			servicename = partnerOrg.getName() + "::" +  servicename;
+			s.setDescription("A Service for " + spec.getName() + " offered by external partner: " + partnerOrg.getName());
+		}
+
+		s.setName( servicename );
 		s.setCategory(spec.getType());
 		s.setType(spec.getType());
-		s.setDescription("A Service for " + spec.getName());
 		s.setServiceDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
 		s.setStartDate( OffsetDateTime.now(ZoneOffset.UTC).toString()  );
 		s.hasStarted(false);
 		s.setIsServiceEnabled(false);
-		s.setName(spec.getName());
 		s.setStartMode( startMode.getValue() );
 		
 		Note noteItem = new Note();
@@ -264,7 +271,8 @@ public class AutomationCheck implements JavaDelegate {
 			for (ServiceSpecCharacteristic c : spec.getServiceSpecCharacteristic()) {
 				
 				for (Characteristic orderCharacteristic : soi.getService().getServiceCharacteristic()) {
-					if ( orderCharacteristic.getName().equals( c.getName()) ) { //copy only characteristics that are related from the order
+					if ( orderCharacteristic.getName().equals( c.getName()) ||
+							orderCharacteristic.getName().contains( spec.getName() + "::" +c.getName() )) { //copy only characteristics that are related from the order
 						Characteristic serviceCharacteristicItem =  new Characteristic();
 						serviceCharacteristicItem.setName( c.getName() );
 						serviceCharacteristicItem.setValueType( c.getValueType() );
