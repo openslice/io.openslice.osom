@@ -106,18 +106,20 @@ public class AutomationCheck implements JavaDelegate {
 				logger.debug("Retrieved Service ID:" + spec.getId());
 				logger.debug("Retrieved Service Name:" + spec.getName());
 				
-				RelatedParty partnerOrgMainServiceSpec = fromPartnerOrganization( spec );
-				if ( partnerOrgMainServiceSpec != null  ) {
-					Service createdServ = createServiceByServiceSpec(sor, soi, spec, EServiceStartMode.AUTOMATICALLY_MANAGED, partnerOrgMainServiceSpec);
-					if ( createdServ!=null ) {
-						servicesHandledByExternalSP.add(createdServ.getId());		
-						ServiceRef supportingServiceItem = new ServiceRef();
-						supportingServiceItem.setId( createdServ.getId() );
-						supportingServiceItem.setReferredType( createdServ.getName() );
-						supportingServiceItem.setName( createdServ.getName()  );
-						soi.getService().addSupportingServiceItem(supportingServiceItem );					
-					}
-				}
+//				RelatedParty partnerOrgMainServiceSpec = fromPartnerOrganization( spec );
+//				if ( partnerOrgMainServiceSpec != null  ) {
+//					Service createdServ = createServiceByServiceSpec(sor, soi, spec, EServiceStartMode.AUTOMATICALLY_MANAGED, partnerOrgMainServiceSpec);
+//					if ( createdServ!=null ) {
+//						servicesHandledByExternalSP.add(createdServ.getId());		
+//						ServiceRef supportingServiceItem = new ServiceRef();
+//						supportingServiceItem.setId( createdServ.getId() );
+//						supportingServiceItem.setReferredType( createdServ.getName() );
+//						supportingServiceItem.setName( createdServ.getName()  );
+//						soi.getService().addSupportingServiceItem(supportingServiceItem );					
+//					}
+//				}
+
+				addServicesToVariables( spec, sor, soi, servicesHandledByExternalSP, servicesHandledManual, servicesHandledAutomated );
 				
 
 				//List<Service> createdServices = new ArrayList<>();
@@ -125,46 +127,9 @@ public class AutomationCheck implements JavaDelegate {
 				logger.debug("<--------------- related specs -------------->");
 				for (ServiceSpecRelationship specRels : spec.getServiceSpecRelationship()) {
 					logger.debug("\tService specRelsId:" + specRels.getId());
+					
 					ServiceSpecification specrel = serviceOrderManager.retrieveServiceSpec(specRels.getId());
-					logger.debug("\tService spec name :" + specrel.getName());
-					logger.debug("\tService spec type :" + specrel.getType());
-					
-					Service createdServ = null;
-					RelatedParty partnerOrg = fromPartnerOrganization( specrel );
-					
-					if ( partnerOrg != null  ) {
-						createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.AUTOMATICALLY_MANAGED, partnerOrg);
-						if ( createdServ!=null ) {
-							servicesHandledByExternalSP.add(createdServ.getId());		
-							
-						}				
-						
-					} else if (specrel.getType().equals("CustomerFacingServiceSpecification")) {
-						createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.MANUALLY_BY_SERVICE_PROVIDER, null);
-						if ( createdServ!=null ) {
-							servicesHandledManual.add(createdServ.getId());						
-						}
-						
-					} else {
-						createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.AUTOMATICALLY_MANAGED, null);
-						if ( createdServ!=null ) {
-							servicesHandledAutomated.add(createdServ.getId());							
-						}
-					}					
-					//add now the serviceRef
-					if ( createdServ!=null ) {
-						ServiceRef supportingServiceItem = new ServiceRef();
-						supportingServiceItem.setId( createdServ.getId() );
-						supportingServiceItem.setReferredType( createdServ.getName() );
-						if ( partnerOrg != null  ) { //make prefix with external org name
-							supportingServiceItem.setName( createdServ.getName()  );							
-						} else {
-							supportingServiceItem.setName(  createdServ.getName()  );
-						}
-						soi.getService().addSupportingServiceItem(supportingServiceItem );						
-					} else {
-						logger.error("Service was not created for spec: " + specrel.getName());
-					}
+					addServicesToVariables(specrel, sor, soi, servicesHandledByExternalSP, servicesHandledManual, servicesHandledAutomated );
 					
 					
 
@@ -175,9 +140,9 @@ public class AutomationCheck implements JavaDelegate {
 
 			}
 
+			execution.setVariable("servicesHandledByExternalSP", servicesHandledByExternalSP);
 			execution.setVariable("servicesHandledManual", servicesHandledManual);
 			execution.setVariable("servicesHandledAutomated", servicesHandledAutomated);
-			execution.setVariable("servicesHandledByExternalSP", servicesHandledByExternalSP);
 			
 
 
@@ -201,6 +166,50 @@ public class AutomationCheck implements JavaDelegate {
 			serviceOrderManager.updateServiceOrderOrder( sor.getId(), serviceOrderUpd );
 			
 			
+		}
+	}
+	
+	
+	
+	private void addServicesToVariables(ServiceSpecification specrel, 
+			ServiceOrder sor, ServiceOrderItem soi, 
+			List<String> servicesHandledByExternalSP,
+			List<String> servicesHandledManual,
+			List<String> servicesHandledAutomated) {
+		logger.debug("\tService spec name :" + specrel.getName());
+		logger.debug("\tService spec type :" + specrel.getType());
+		
+		Service createdServ = null;
+		RelatedParty partnerOrg = fromPartnerOrganization( specrel );
+		
+		if ( partnerOrg != null  ) {
+			createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.AUTOMATICALLY_MANAGED, partnerOrg);
+			if ( createdServ!=null ) {
+				servicesHandledByExternalSP.add(createdServ.getId());		
+				
+			}				
+			
+		} else if (specrel.getType().equals("CustomerFacingServiceSpecification")) {
+			createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.MANUALLY_BY_SERVICE_PROVIDER, null);
+			if ( createdServ!=null ) {
+				servicesHandledManual.add(createdServ.getId());						
+			}
+			
+		} else {
+			createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.AUTOMATICALLY_MANAGED, null);
+			if ( createdServ!=null ) {
+				servicesHandledAutomated.add(createdServ.getId());							
+			}
+		}					
+		//add now the serviceRef
+		if ( createdServ!=null ) {
+			ServiceRef supportingServiceItem = new ServiceRef();
+			supportingServiceItem.setId( createdServ.getId() );
+			supportingServiceItem.setReferredType( createdServ.getName() );
+			supportingServiceItem.setName( createdServ.getName()  );
+			soi.getService().addSupportingServiceItem(supportingServiceItem );						
+		} else {
+			logger.error("Service was not created for spec: " + specrel.getName());
 		}
 	}
 

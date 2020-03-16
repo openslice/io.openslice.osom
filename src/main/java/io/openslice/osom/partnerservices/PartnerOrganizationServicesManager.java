@@ -102,27 +102,35 @@ public class PartnerOrganizationServicesManager {
 
 		List<ServiceSpecification> specs = new ArrayList<>();
 		
-		if ( webclient!=null ) {
+		try
+		{
 			
-			specs = webclient.get()
-					.uri("/tmf-api/serviceCatalogManagement/v4/serviceSpecification")
-						//.attributes( ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId("authOpensliceProvider"))
-						.retrieve()
-						.onStatus(HttpStatus::is4xxClientError, response -> {
-							logger.error("4xx eror");
-					        return Mono.error(new RuntimeException("4xx"));
-					      })
-					      .onStatus(HttpStatus::is5xxServerError, response -> {
-					    	  logger.error("5xx eror");
-					        return Mono.error(new RuntimeException("5xx"));
-					      })
-					  .bodyToMono( new ParameterizedTypeReference<List<ServiceSpecification>>() {})
-					  .block();
-			
-		} else  {
-			logger.error("WebClient is null. Cannot be created.");
-		}
+		
+			if ( webclient!=null ) {
+				
+				specs = webclient.get()
+						.uri("/tmf-api/serviceCatalogManagement/v4/serviceSpecification")
+							//.attributes( ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId("authOpensliceProvider"))
+							.retrieve()
+							.onStatus(HttpStatus::is4xxClientError, response -> {
+								logger.error("4xx eror");
+						        return Mono.error(new RuntimeException("4xx"));
+						      })
+						      .onStatus(HttpStatus::is5xxServerError, response -> {
+						    	  logger.error("5xx eror");
+						        return Mono.error(new RuntimeException("5xx"));
+						      })
+						  .bodyToMono( new ParameterizedTypeReference<List<ServiceSpecification>>() {})
+						  .block();
+				
+			} else  {
+				logger.error("WebClient is null. Cannot be created.");
+			}
 
+		}catch (Exception e) {
+			logger.error("fetchServiceSpecs error on web client request");
+		}
+		
 		/**
 		 * will create or fetch existing web client for this organization
 		 */
