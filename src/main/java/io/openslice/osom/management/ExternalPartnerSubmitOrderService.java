@@ -91,8 +91,8 @@ public class ExternalPartnerSubmitOrderService  implements JavaDelegate {
 					servOrder.setCategory("Automated order");
 					servOrder.setDescription("Automatically created by partner " + THIS_PARTNER_NAME);
 					servOrder.setRequestedStartDate( sorder.getStartDate() );
-					servOrder.setRequestedCompletionDate( sorder.getRequestedCompletionDate() );					
-
+					servOrder.setRequestedCompletionDate( sorder.getExpectedCompletionDate()  );					
+					
 					Note noteItemOrder = new Note();
 					noteItemOrder.text("Automatically created by partner " + THIS_PARTNER_NAME);
 					noteItemOrder.setAuthor(THIS_PARTNER_NAME);

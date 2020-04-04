@@ -62,38 +62,87 @@ public class SPMocked {
 		logger.info("getPartners id ");
 
 		List<Organization> alist= new ArrayList<>();
-		Organization o = new Organization();
-		o.setUuid(UUID.randomUUID().toString());
-		o.setName("TESTA");
+		Organization oc = new Organization();
+		oc.setUuid(UUID.randomUUID().toString());
+		oc.setName("TESTA");
 		
-		Characteristic partyCharacteristicItem =  new Characteristic();
-		partyCharacteristicItem.setName( "EXTERNAL_TMFAPI" );
+//		Characteristic partyCharacteristicItem =  new Characteristic();
+//		partyCharacteristicItem.setName( "EXTERNAL_TMFAPI" );
+//		
+//		Any value = new Any();
+//		
+//		Map<String, Object> apiparams = new HashMap<>();
+//		String[] scopes = {"admin" , "read"};
+//		
+//
+//		apiparams.put( "CLIENTREGISTRATIONID", "authOpensliceProvider");
+//		apiparams.put( "OAUTH2CLIENTID", "osapiWebClientId");
+//		apiparams.put( "OAUTH2CLIENTSECRET", "secret");
+//		apiparams.put( "OAUTH2SCOPES", scopes);
+//		apiparams.put( "OAUTH2TOKENURI", "http://portal.openslice.io/osapi-oauth-server/oauth/token");
+//		apiparams.put( "USERNAME", "admin");
+//		apiparams.put( "PASSWORD", "openslice");
+//		apiparams.put( "BASEURL", "http://portal.openslice.io");
+//
+//		ObjectMapper mapper = new ObjectMapper();
+//		mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+//		String strinparams = mapper.writeValueAsString( apiparams );
+//		value.setValue( strinparams );
+//		
+//		partyCharacteristicItem.setValue( value );
+//		o.addPartyCharacteristicItem(partyCharacteristicItem );
 		
-		Any value = new Any();
+		Characteristic partyCharacteristicItem = new Characteristic();
+		partyCharacteristicItem.setName("EXTERNAL_TMFAPI_BASEURL");
+		partyCharacteristicItem.value( new Any(  "http://portal.openslice.io" ));
+		oc.addPartyCharacteristicItem(partyCharacteristicItem );
 		
-		Map<String, Object> apiparams = new HashMap<>();
-		String[] scopes = {"admin" , "read"};
-		
+		partyCharacteristicItem = new Characteristic();
+		partyCharacteristicItem.setName("EXTERNAL_TMFAPI_CLIENTREGISTRATIONID");
+		partyCharacteristicItem.value( new Any(  "authOpensliceProvider" ));
+		oc.addPartyCharacteristicItem(partyCharacteristicItem );
+				
+		partyCharacteristicItem = new Characteristic();
+		partyCharacteristicItem.setName("EXTERNAL_TMFAPI_OAUTH2CLIENTID");
+		partyCharacteristicItem.value( new Any(  "osapiWebClientId" ));
+		oc.addPartyCharacteristicItem(partyCharacteristicItem );
+				
+		partyCharacteristicItem = new Characteristic();
+		partyCharacteristicItem.setName("EXTERNAL_TMFAPI_OAUTH2CLIENTSECRET");
+		partyCharacteristicItem.value( new Any(  "secret" ));
+		oc.addPartyCharacteristicItem(partyCharacteristicItem );
 
-		apiparams.put( "CLIENTREGISTRATIONID", "authOpensliceProvider");
-		apiparams.put( "OAUTH2CLIENTID", "osapiWebClientId");
-		apiparams.put( "OAUTH2CLIENTSECRET", "secret");
-		apiparams.put( "OAUTH2SCOPES", scopes);
-		apiparams.put( "OAUTH2TOKENURI", "http://portal.openslice.io/osapi-oauth-server/oauth/token");
-		apiparams.put( "USERNAME", "admin");
-		apiparams.put( "PASSWORD", "openslice");
-		apiparams.put( "BASEURL", "http://portal.openslice.io");
+		partyCharacteristicItem = new Characteristic();
+		partyCharacteristicItem.setName("EXTERNAL_TMFAPI_OAUTH2SCOPES");
+		partyCharacteristicItem.value( new Any(  "admin;read" ));
+		oc.addPartyCharacteristicItem(partyCharacteristicItem );
+		
+		partyCharacteristicItem = new Characteristic();
+		partyCharacteristicItem.setName("EXTERNAL_TMFAPI_OAUTH2TOKENURI");
+		partyCharacteristicItem.value( new Any(  "http://portal.openslice.io/osapi-oauth-server/oauth/token" ));
+		oc.addPartyCharacteristicItem(partyCharacteristicItem );
 
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-		String strinparams = mapper.writeValueAsString( apiparams );
-		value.setValue( strinparams );
+		partyCharacteristicItem = new Characteristic();
+		partyCharacteristicItem.setName("EXTERNAL_TMFAPI_USERNAME");
+		partyCharacteristicItem.value( new Any(  "admin" ));
+		oc.addPartyCharacteristicItem(partyCharacteristicItem );
+
+		partyCharacteristicItem = new Characteristic();
+		partyCharacteristicItem.setName("EXTERNAL_TMFAPI_PASSWORD");
+		partyCharacteristicItem.value( new Any(  "openslice" ));
+		oc.addPartyCharacteristicItem(partyCharacteristicItem );
+
+		partyCharacteristicItem = new Characteristic();
+		partyCharacteristicItem.setName("EXTERNAL_TMFAPI_SERVICE_CATALOG_URLS");
+		partyCharacteristicItem.value( new Any(  "" ));
+		oc.addPartyCharacteristicItem(partyCharacteristicItem );
+		partyCharacteristicItem = new Characteristic();
+		partyCharacteristicItem.setName("EXTERNAL_TMFAPI_SERVICE_ORDER_URLS");
+		partyCharacteristicItem.value( new Any(  "" ));
+		oc.addPartyCharacteristicItem(partyCharacteristicItem );
 		
-		partyCharacteristicItem.setValue( value );
-		o.addPartyCharacteristicItem(partyCharacteristicItem );
 		
-		
-		alist.add( o );				
+		alist.add( oc );				
 		return toJsonString(alist);
 	}
 	

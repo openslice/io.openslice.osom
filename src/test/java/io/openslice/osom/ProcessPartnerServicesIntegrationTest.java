@@ -114,21 +114,21 @@ public class ProcessPartnerServicesIntegrationTest {
 		assertThat( orgz ).isInstanceOf( List.class);
 
 		assertThat( orgz ).hasSize(1);
-		assertThat( orgz.get(0).getPartyCharacteristic() ).hasSize(1);
-		assertThat( orgz.get(0).getPartyCharacteristic().stream().findFirst().get().getName() ).isEqualTo( "EXTERNAL_TMFAPI" );
+		assertThat( orgz.get(0).getPartyCharacteristic() ).hasSize(10);
+		assertThat( orgz.get(0).findPartyCharacteristic("EXTERNAL_TMFAPI_BASEURL").getValue().getValue() ).isEqualTo( "http://portal.openslice.io" );
 		
 		
 		//{"OAUTH2CLIENTSECRET":"secret","OAUTH2TOKENURI":"http://portal.openslice.io/osapi-oauth-server/oauth/token","OAUTH2SCOPES":["admin","read"],"PASSWORD":"openslice","BASEURL":"http://portal.openslice.io","USERNAME":"admin","CLIENTREGISTRATIONID":"authOpensliceProvider","OAUTH2CLIENTID":"osapiWebClientId"}
-		String strapiparams = orgz.get(0).getPartyCharacteristic().stream().findFirst().get().getValue().getValue();
-		
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-		Map<String, Object> apiparams = mapper.readValue(strapiparams, Map.class);
-		
-		assertThat( apiparams ).hasSize( 8 );
-		assertThat( apiparams.get("CLIENTREGISTRATIONID")).isEqualTo("authOpensliceProvider");
-		assertThat(  apiparams.get("OAUTH2SCOPES")).isInstanceOf( ArrayList.class ); 
-		assertThat(  (ArrayList) apiparams.get("OAUTH2SCOPES")).hasSize( 2 );
+//		String strapiparams = orgz.get(0).getPartyCharacteristic().stream().findFirst().get().getValue().getValue();
+//		
+//		ObjectMapper mapper = new ObjectMapper();
+//		mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+//		Map<String, Object> apiparams = mapper.readValue(strapiparams, Map.class);
+//		
+//		assertThat( apiparams ).hasSize( 8 );
+//		assertThat( apiparams.get("CLIENTREGISTRATIONID")).isEqualTo("authOpensliceProvider");
+//		assertThat(  apiparams.get("OAUTH2SCOPES")).isInstanceOf( ArrayList.class ); 
+//		assertThat(  (ArrayList) apiparams.get("OAUTH2SCOPES")).hasSize( 2 );
 		
 		//Job timer = managementService.createTimerJobQuery().jobId("timerstarteventFetchPartnerServices").singleResult();
 		//repositoryService.activateProcessDefinitionByKey( "fetchPartnerServicesProcess" );
@@ -156,6 +156,10 @@ public class ProcessPartnerServicesIntegrationTest {
 		logger.info("waiting 20secs");
 		Thread.sleep( 20000 ); // wait
 
+		/**
+		 * this one needs to be online.. not fully mocked yet
+		 */
+		
 		assertThat( spmocked.getUpdatedSpecs() ).hasSize(25);
 	}
 

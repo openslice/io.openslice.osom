@@ -192,7 +192,13 @@ public class AutomationCheck implements JavaDelegate {
 		} else if (specrel.getType().equals("CustomerFacingServiceSpecification")) {
 			createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.MANUALLY_BY_SERVICE_PROVIDER, null);
 			if ( createdServ!=null ) {
-				servicesHandledManual.add(createdServ.getId());						
+				
+				if ( specrel.isIsBundle()  ) { //if it is a bundle the service status is managed from the aggregate service relationships 
+					servicesHandledAutomated.add(createdServ.getId());							
+				}else {
+					servicesHandledManual.add(createdServ.getId());					
+				}
+										
 			}
 			
 		} else {

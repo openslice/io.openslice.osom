@@ -144,7 +144,6 @@ public class PartnerOrganizationServicesManager {
 			return webclients.get( org.getId() );
 		} else {
 			
-			String[] scopes = {"admin" , "read"};
 //			GenericClient oac = new GenericClient(
 //					"authOpensliceProvider", 
 //					"osapiWebClientId",
@@ -156,23 +155,54 @@ public class PartnerOrganizationServicesManager {
 //					"http://portal.openslice.io" );
 
 			try {
+				String[] scopes = new String[0];
+				String clientRegId = "";
+				String aOAUTH2CLIENTID = "";
+				String aOAUTHSECRET="";
+				String aTOKEURI="";
+				String aUSERNAME="";
+				String aPASSWORD="";
+				String aBASEURL="";
+				
+				if ( org.findPartyCharacteristic("EXTERNAL_TMFAPI_OAUTH2SCOPES")!=null ) {
+					scopes = org.findPartyCharacteristic("EXTERNAL_TMFAPI_OAUTH2SCOPES").getValue().getValue().split(";");
+				}
+				if ( org.findPartyCharacteristic("EXTERNAL_TMFAPI_CLIENTREGISTRATIONID") !=null ) {
+					clientRegId = org.findPartyCharacteristic("EXTERNAL_TMFAPI_CLIENTREGISTRATIONID").getValue().getValue();
+				}
+				if ( org.findPartyCharacteristic("EXTERNAL_TMFAPI_OAUTH2CLIENTID") !=null ) {
+					aOAUTH2CLIENTID = org.findPartyCharacteristic("EXTERNAL_TMFAPI_OAUTH2CLIENTID").getValue().getValue();
+				}
+				if ( org.findPartyCharacteristic("EXTERNAL_TMFAPI_OAUTH2CLIENTSECRET") !=null ) {
+					aOAUTHSECRET = org.findPartyCharacteristic("EXTERNAL_TMFAPI_OAUTH2CLIENTSECRET").getValue().getValue();
+				}
 
-				String strapiparams = org.getPartyCharacteristic().stream().findFirst().get().getValue().getValue();
-			ObjectMapper mapper = new ObjectMapper();
-			mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-			Map<String, Object> apiparams = mapper.readValue(strapiparams, Map.class);
+
+				if ( org.findPartyCharacteristic("EXTERNAL_TMFAPI_OAUTH2TOKENURI") !=null ) {
+					aTOKEURI = org.findPartyCharacteristic("EXTERNAL_TMFAPI_OAUTH2TOKENURI").getValue().getValue();
+				}
+				if ( org.findPartyCharacteristic("EXTERNAL_TMFAPI_USERNAME") !=null ) {
+					aTOKEURI = org.findPartyCharacteristic("EXTERNAL_TMFAPI_USERNAME").getValue().getValue();
+				}
+				if ( org.findPartyCharacteristic("EXTERNAL_TMFAPI_PASSWORD") !=null ) {
+					aPASSWORD = org.findPartyCharacteristic("EXTERNAL_TMFAPI_PASSWORD").getValue().getValue();
+				}
+				if ( org.findPartyCharacteristic("EXTERNAL_TMFAPI_BASEURL") !=null ) {
+					aBASEURL = org.findPartyCharacteristic("EXTERNAL_TMFAPI_BASEURL").getValue().getValue();
+				}
 			
 			
 			
 			GenericClient oac = new GenericClient(
-					(String) apiparams.get("CLIENTREGISTRATIONID"), 
-					(String) apiparams.get("OAUTH2CLIENTID"), 
-					(String) apiparams.get("OAUTH2CLIENTSECRET"), 
-					((ArrayList<String>) apiparams.get("OAUTH2SCOPES")).toArray( new String[0]), 
-					(String) apiparams.get("OAUTH2TOKENURI"), 
-					(String) apiparams.get("USERNAME"), 
-					(String) apiparams.get("PASSWORD"), 
-					(String) apiparams.get("BASEURL") );
+					
+					clientRegId, 
+					aOAUTH2CLIENTID, 
+					aOAUTHSECRET, 
+					scopes, 
+					aTOKEURI, 
+					aUSERNAME, 
+					aPASSWORD, 
+					aBASEURL );
 			
 			WebClient webClient;
 				webClient = oac.createWebClient();
@@ -181,13 +211,8 @@ public class PartnerOrganizationServicesManager {
 			} catch (SSLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			} catch (JsonMappingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (JsonProcessingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} 
+			}
+			
 		}
 		return null;
 	}
