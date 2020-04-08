@@ -163,6 +163,7 @@ public class GenericClient  {
 			log.debug("Request: " + clientRequest.method() + ", " + clientRequest.url());
 			clientRequest.headers()
 					.forEach((name, values) -> values.forEach(value -> log.debug("{" + name + "}={" + value + "}")));
+
 			return next.exchange(clientRequest);
 		};
 	}
@@ -223,13 +224,16 @@ public class GenericClient  {
 				.build();
 
 		TcpClient tcpClient = TcpClient.create()
+				//.wiretap(true) //logging on reactor.netty.tcp.TcpClient level to DEBUG 
 				.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 2000)
 				.doOnConnected(connection -> connection.addHandlerLast
 						(new ReadTimeoutHandler(2)).addHandlerLast(new WriteTimeoutHandler(2))
 						);
 
 		return new ReactorClientHttpConnector(
-   			 HttpClient.from(tcpClient)
+   			 HttpClient
+   			 .from(tcpClient)
+   			 .wiretap(true)//To enable it, you must set the logger reactor.netty.http.client.HttpClient level to DEBUG 
    			 .secure( sslContextSpec -> sslContextSpec.sslContext(sslContext) )
    			 );
 	}

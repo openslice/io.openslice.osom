@@ -127,7 +127,7 @@ public class ExternalPartnerCheckDeploymentService  implements JavaDelegate {
 				for (Note note : externalSOrder.getNote()) {
 					partnerNotes += note.getText() + ".";
 				}
-				partnerNotes = " Notes from external parnter order: " + partnerNotes;
+				partnerNotes = " Notes from external partner order: " + partnerNotes;
 			}			
 			
 			Note noteItem = new Note();

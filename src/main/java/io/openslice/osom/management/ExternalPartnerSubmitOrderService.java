@@ -131,7 +131,10 @@ public class ExternalPartnerSubmitOrderService  implements JavaDelegate {
 						su.addNoteItem( noteItem );
 						Characteristic serviceCharacteristicItem = new Characteristic();
 						serviceCharacteristicItem.setName( "externalServiceOrderId" );
-						serviceCharacteristicItem.setValue( new Any( externalSOrder.getId() + "" ));
+						
+						String vals = externalSOrder.getId() + "";
+						Any any = new Any( vals );
+						serviceCharacteristicItem.setValue( any );
 						su.addServiceCharacteristicItem(serviceCharacteristicItem);
 						
 						Service supd = serviceOrderManager.updateService(  execution.getVariable("serviceId").toString(), su);
