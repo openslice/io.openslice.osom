@@ -148,7 +148,12 @@ public class NFVOrchestrationService implements JavaDelegate {
 						
 						
 						return;					
-					}finally {
+					} catch (Exception e) {
+						logger.error("Cannot create DeploymentDescriptor request");	
+						e.printStackTrace();					
+					}
+					
+					finally {
 						
 					}
 					
@@ -231,7 +236,10 @@ public class NFVOrchestrationService implements JavaDelegate {
 		
 		DeploymentDescriptor dd =serviceOrderManager.nfvoDeploymentRequestByNSDid( ddreq );
 		
-		
+		if ( dd == null ) {
+			logger.error("DeploymentDescriptor is NULL");
+			
+		}
 		return dd;
 	}
 

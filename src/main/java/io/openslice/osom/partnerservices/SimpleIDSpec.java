@@ -1,5 +1,6 @@
 package io.openslice.osom.partnerservices;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -33,6 +34,7 @@ public class SimpleIDSpec extends ServiceSpecification{
 		this.id = id;
 	}
 
+	@JsonIgnore
 	public String getIntAsString() {
 		return id + "";
 	}
