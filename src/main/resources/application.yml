@@ -43,8 +43,8 @@ logging:
     io.openslice.osom: DEBUG
     org.springframework: INFO
     org.apache.camel: INFO 
-    reactor.netty.tcp.TcpClient: DEBUG 
-    reactor.netty.http.client.HttpClient: DEBUG 
+    reactor.netty.tcp.TcpClient: INFO 
+    reactor.netty.http.client.HttpClient: INFO 
   pattern:
     console: "%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"
     file: "%d %p %c{1.} [%t] %m%n"

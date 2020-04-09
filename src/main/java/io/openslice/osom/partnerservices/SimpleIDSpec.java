@@ -3,6 +3,8 @@ package io.openslice.osom.partnerservices;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import io.openslice.tmf.scm633.model.ServiceSpecification;
+
 
 
 /**
@@ -10,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  */
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class SimpleIDSpec{
+public class SimpleIDSpec extends ServiceSpecification{
 
 
 	@JsonProperty("id")
@@ -19,15 +21,20 @@ public class SimpleIDSpec{
 	/**
 	 * @return the id
 	 */
-	public long getId() {
-		return id;
-	}
+//	@Override
+//	public long getId() {
+//		return id;
+//	}
 
 	/**
 	 * @param id the id to set
 	 */
 	public void setId(long id) {
 		this.id = id;
+	}
+
+	public String getIntAsString() {
+		return id + "";
 	}
 	
 	

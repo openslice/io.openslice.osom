@@ -166,7 +166,7 @@ public class PartnerOrganizationServicesManager {
 				/**
 				 * first fetch only id since it is a Long
 				 */
-				String aspecsID = webclient.get()
+				List<SimpleIDSpec> aspecsIDs = webclient.get()
 						.uri( org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_CATALOG_URLS").getValue().getValue()  )
 							//.attributes( ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId("authOpensliceProvider"))
 							.retrieve()
@@ -178,26 +178,30 @@ public class PartnerOrganizationServicesManager {
 						    	  logger.error("5xx eror");
 						        return Mono.error(new RuntimeException("5xx"));
 						      })
-						  .bodyToMono( new ParameterizedTypeReference< String>() {})
+						  .bodyToMono( new ParameterizedTypeReference< List<SimpleIDSpec>>() {})
 						  .block();
 				
 				
 				/**
 				 * then fetch the sp
 				 */
-				SimpleIDSpec aspecId = toJsonObj(aspecsID, SimpleIDSpec.class);
-				
-				ServiceSpecification aspecs = toJsonObj(aspecsID, ServiceSpecification.class);
-				aspecs.setUuid( ""+aspecId.getId() );
-				if ( aspecs.getDescription() == null ) {
-					aspecs.setDescription( "Service from Organization: " + org.getName() + ", id: " + org.getId() );					
+				for (SimpleIDSpec aspecID : aspecsIDs) {
+					//SimpleIDSpec aspecId = toJsonObj(aspecsID, SimpleIDSpec.class);
+					String s = toJsonString( aspecID );
+					ServiceSpecification aspec = aspecID;// toJsonObj(s, ServiceSpecification.class);
+					aspec.setUuid( ""+ aspecID.getIntAsString() );
+					if ( aspec.getDescription() == null ) {
+						aspec.setDescription( "Service from Organization: " + org.getName() + ", id: " + org.getId() );					
+					}
+					
+					for (ServiceSpecCharacteristic characts : aspec.getServiceSpecCharacteristic()) {
+						characts.setConfigurable(true); //this is a hack for FlowOne
+					}
+
+					logger.info("Will add FlowOne serviceSpecification name: " + aspec.getName() + ", id: " + aspec.getId());
+					specs.add(aspec);
 				}
 				
-				for (ServiceSpecCharacteristic characts : aspecs.getServiceSpecCharacteristic()) {
-					characts.setConfigurable(true); //this is a hack for FlowOne
-				}
-				
-				specs.add(aspecs);
 				
 				
 				

@@ -23,6 +23,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.logging.Log;
@@ -96,13 +97,13 @@ public class NFVOrchestrationService implements JavaDelegate {
 				
 				if ( NSDID != null) {
 					/**
-					 * it is registered in our NFV catalog. Let's request an instnatiation of it
+					 * it is registered in our NFV catalog. Let's request an instantiation of it
 					 */
 
 					try {
 						Map<String, Object> configParams = aDependencyRulesSolver.get( sorder, spec );
 						
-						DeploymentDescriptor dd = createNewDeploymentRequest( NSDID, 
+						DeploymentDescriptor dd = createNewDeploymentRequest( aService, NSDID, 
 								sorder.getStartDate(), 
 								sorder.getExpectedCompletionDate(), 
 								sorder.getId(),
@@ -177,7 +178,8 @@ public class NFVOrchestrationService implements JavaDelegate {
 
 
 
-	private DeploymentDescriptor createNewDeploymentRequest(String nsdId, OffsetDateTime startDate, OffsetDateTime endDate, String orderid,
+	private DeploymentDescriptor createNewDeploymentRequest(Service aService, 
+			String nsdId, OffsetDateTime startDate, OffsetDateTime endDate, String orderid,
 			Map<String, Object> configParams) {
 		DeploymentDescriptor ddreq = new DeploymentDescriptor();
 		ExperimentMetadata expReq = new ExperimentMetadata();
@@ -190,9 +192,43 @@ public class NFVOrchestrationService implements JavaDelegate {
 		ddreq.setEndReqDate( new Date(endDate.toInstant().toEpochMilli()) );
 		ddreq.setEndDate( new Date(endDate.toInstant().toEpochMilli()) );
 		ddreq.setStatus( DeploymentDescriptorStatus.SCHEDULED );
-		if ( configParams!=null) {
-			ddreq.setConfigStatus( configParams.toString() );			
+		
+
+		String instantiationconfig = "{}";
+		Characteristic c = aService.getServiceCharacteristicByName( "CONFIG" );
+		if ( (c!=null) &&
+				(c.getValue()  != null) &&
+				(c.getValue().getValue() != null)) {
+			try {
+				instantiationconfig = c.getValue().getValue();
+			}catch (Exception e) {
+				logger.error("cannot extract CONFIG");
+				e.printStackTrace();
+			}
 		}
+		
+		Characteristic sshk= aService.getServiceCharacteristicByName( "SSHKEY" );
+		if ( (sshk!=null) && 
+				( sshk.getValue()!=null ) && 
+				( sshk.getValue().getValue() !=null ) ) {
+			try {
+				String sshval = sshk.getValue().getValue();
+				if ( sshval!=null ) {
+					instantiationconfig = instantiationconfig.replaceFirst( Pattern.quote("{") , "{ \"ssh_keys\": [\"" + sshval + "\"],");					
+				}
+			}catch (Exception e) {
+				logger.error("cannot extract SSHKEY");
+				e.printStackTrace();
+			}
+		}
+
+		instantiationconfig = instantiationconfig.replaceFirst( Pattern.quote("{") , "{\"nsName\": \"" + "Service_Order_" + orderid + "\",");		
+		ddreq.setInstantiationconfig(instantiationconfig);
+		
+//		if ( configParams!=null) {
+//			ddreq.setConfigStatus( configParams.toString() );			
+//		}
+		
 		DeploymentDescriptor dd =serviceOrderManager.nfvoDeploymentRequestByNSDid( ddreq );
 		
 		
