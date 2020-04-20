@@ -88,17 +88,19 @@ public class AutomationCheck implements JavaDelegate {
 			}
 
 			logger.debug("ServiceOrder id:" + sor.getId());
-			logger.debug("Examin service items");
+			logger.debug("Examine service items");
 			List<String> servicesHandledManual = new ArrayList<>();
-			List<String> servicesHandledAutomated = new ArrayList<>();
+			List<String> servicesHandledByNFVOAutomated = new ArrayList<>();
 			List<String> servicesHandledByExternalSP = new ArrayList<>();
+			List<String> servicesLocallyAutomated = new ArrayList<>();
+			
 			
 
 			for (ServiceOrderItem soi : sor.getOrderItem()) {
 				logger.debug("Service Item ID:" + soi.getId());
 				logger.debug("Service spec ID:" + soi.getService().getServiceSpecification().getId());
 
-				// get service spec by id from model via bus, find if bundle and analyse its
+				// get service spec by id from model via bus, find if bundle and analyze its
 				// related services
 				ServiceSpecification spec = serviceOrderManager
 						.retrieveServiceSpec(soi.getService().getServiceSpecification().getId());
@@ -106,20 +108,8 @@ public class AutomationCheck implements JavaDelegate {
 				logger.debug("Retrieved Service ID:" + spec.getId());
 				logger.debug("Retrieved Service Name:" + spec.getName());
 				
-//				RelatedParty partnerOrgMainServiceSpec = fromPartnerOrganization( spec );
-//				if ( partnerOrgMainServiceSpec != null  ) {
-//					Service createdServ = createServiceByServiceSpec(sor, soi, spec, EServiceStartMode.AUTOMATICALLY_MANAGED, partnerOrgMainServiceSpec);
-//					if ( createdServ!=null ) {
-//						servicesHandledByExternalSP.add(createdServ.getId());		
-//						ServiceRef supportingServiceItem = new ServiceRef();
-//						supportingServiceItem.setId( createdServ.getId() );
-//						supportingServiceItem.setReferredType( createdServ.getName() );
-//						supportingServiceItem.setName( createdServ.getName()  );
-//						soi.getService().addSupportingServiceItem(supportingServiceItem );					
-//					}
-//				}
 
-				addServicesToVariables( spec, sor, soi, servicesHandledByExternalSP, servicesHandledManual, servicesHandledAutomated );
+//				addServicesToVariables( spec, sor, soi, servicesHandledByExternalSP, servicesHandledManual, servicesHandledByNFVOAutomated );
 				
 
 				//List<Service> createdServices = new ArrayList<>();
@@ -129,7 +119,7 @@ public class AutomationCheck implements JavaDelegate {
 					logger.debug("\tService specRelsId:" + specRels.getId());
 					
 					ServiceSpecification specrel = serviceOrderManager.retrieveServiceSpec(specRels.getId());
-					addServicesToVariables(specrel, sor, soi, servicesHandledByExternalSP, servicesHandledManual, servicesHandledAutomated );
+					addServicesToVariables(specrel, sor, soi, servicesHandledByExternalSP, servicesHandledManual, servicesHandledByNFVOAutomated, servicesLocallyAutomated );
 					
 					
 
@@ -142,13 +132,16 @@ public class AutomationCheck implements JavaDelegate {
 
 			execution.setVariable("servicesHandledByExternalSP", servicesHandledByExternalSP);
 			execution.setVariable("servicesHandledManual", servicesHandledManual);
-			execution.setVariable("servicesHandledAutomated", servicesHandledAutomated);
+			execution.setVariable("servicesHandledByNFVOAutomated", servicesHandledByNFVOAutomated);
+			execution.setVariable("servicesLocallyAutomated", servicesLocallyAutomated);
+			
+			
 			
 
-
 			logger.debug("servicesHandledManual: " + servicesHandledManual.toString());
-			logger.debug("servicesHandledAutomated: " + servicesHandledAutomated.toString());
+			logger.debug("servicesHandledByNFVOAutomated: " + servicesHandledByNFVOAutomated.toString());
 			logger.debug("servicesHandledByExternalSP: " + servicesHandledByExternalSP.toString());
+			logger.debug("servicesLocallyAutomated: " + servicesLocallyAutomated.toString());
 			
 			/***
 			 * we can update now the serviceorder element in catalog
@@ -171,42 +164,67 @@ public class AutomationCheck implements JavaDelegate {
 	
 	
 	
+	/**
+	 * 
+	 * This method decides the kind of Automation to be applied for a requested Service 
+	 * e.g. Manual, Automated, Handled by NFVO, Handled by External partner.
+	 * It creates an underlying service definition that needs to be managed next by various Activities/Processes 
+	 * 
+	 * 
+	 * @param specrel
+	 * @param sor
+	 * @param soi
+	 * @param servicesHandledByExternalSP
+	 * @param servicesHandledManual
+	 * @param servicesHandledByNFVOAutomated
+	 * @param servicesLocallyAutomated
+	 */
 	private void addServicesToVariables(ServiceSpecification specrel, 
 			ServiceOrder sor, ServiceOrderItem soi, 
 			List<String> servicesHandledByExternalSP,
 			List<String> servicesHandledManual,
-			List<String> servicesHandledAutomated) {
+			List<String> servicesHandledByNFVOAutomated,
+			List<String> servicesLocallyAutomated) {
 		logger.debug("\tService spec name :" + specrel.getName());
 		logger.debug("\tService spec type :" + specrel.getType());
 		
 		Service createdServ = null;
 		RelatedParty partnerOrg = fromPartnerOrganization( specrel );
 		
+		
 		if ( partnerOrg != null  ) {
 			createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.AUTOMATICALLY_MANAGED, partnerOrg);
 			if ( createdServ!=null ) {
-				servicesHandledByExternalSP.add(createdServ.getId());		
-				
+				servicesHandledByExternalSP.add(createdServ.getId());
 			}				
 			
-		} else if (specrel.getType().equals("CustomerFacingServiceSpecification")) {
-			createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.MANUALLY_BY_SERVICE_PROVIDER, null);
+		} else if ( specrel.getType().equals("CustomerFacingServiceSpecification") && specrel.isIsBundle()  ) {
+			createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.AUTOMATICALLY_MANAGED, null);			
 			if ( createdServ!=null ) {
-				
-				if ( specrel.isIsBundle()  ) { //if it is a bundle the service status is managed from the aggregate service relationships 
-					servicesHandledAutomated.add(createdServ.getId());							
-				}else {
-					servicesHandledManual.add(createdServ.getId());					
-				}
-										
+				servicesLocallyAutomated.add(createdServ.getId());
 			}
-			
-		} else {
+		}		
+		else if (specrel.getType().equals("ResourceFacingServiceSpecification")) {
 			createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.AUTOMATICALLY_MANAGED, null);
 			if ( createdServ!=null ) {
-				servicesHandledAutomated.add(createdServ.getId());							
+				if ( specrel.findSpecCharacteristicByName( "NSDID" ) != null ){
+					servicesHandledByNFVOAutomated.add(createdServ.getId());						
+				} else {
+					servicesLocallyAutomated.add(createdServ.getId());
+				}
+				
 			}
-		}					
+		}		
+		else {
+			createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.MANUALLY_BY_SERVICE_PROVIDER, null);
+			if ( createdServ!=null ) {
+				servicesHandledManual.add(createdServ.getId());							
+			}
+		}		
+		
+		
+		
+		
 		//add now the serviceRef
 		if ( createdServ!=null ) {
 			ServiceRef supportingServiceItem = new ServiceRef();

@@ -18,7 +18,7 @@
       <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="servicesHandledManual" activiti:elementVariable="serviceId"></multiInstanceLoopCharacteristics>
     </serviceTask>
     <callActivity id="parallelActivityNFVODeploymentReq" name="NFVO Deployment Request" activiti:async="true" calledElement="NFVODeploymentReq" activiti:inheritVariables="true">
-      <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="servicesHandledAutomated" activiti:elementVariable="serviceId"></multiInstanceLoopCharacteristics>
+      <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="servicesHandledByNFVOAutomated" activiti:elementVariable="serviceId"></multiInstanceLoopCharacteristics>
     </callActivity>
     <sequenceFlow id="flow10" sourceRef="parallelActivityNFVODeploymentReq" targetRef="parallelgateway2"></sequenceFlow>
     <callActivity id="parallelExternalSPDeploymentReqProcess" name="External Service Provider Deployment Request" activiti:async="true" calledElement="externalSPDeploymentReqProcess" activiti:inheritVariables="true">
@@ -26,6 +26,11 @@
     </callActivity>
     <sequenceFlow id="flow11" sourceRef="parallelgateway1" targetRef="parallelExternalSPDeploymentReqProcess"></sequenceFlow>
     <sequenceFlow id="flow12" sourceRef="parallelExternalSPDeploymentReqProcess" targetRef="parallelgateway2"></sequenceFlow>
+    <callActivity id="parallelActivityLocalServiceOrchestration" name="Local Service Orchestration" activiti:async="true" calledElement="localServiceOrchestrationProcess" activiti:inheritVariables="true">
+      <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="servicesLocallyAutomated" activiti:elementVariable="serviceId"></multiInstanceLoopCharacteristics>
+    </callActivity>
+    <sequenceFlow id="flow13" sourceRef="parallelgateway1" targetRef="parallelActivityLocalServiceOrchestration"></sequenceFlow>
+    <sequenceFlow id="flow14" sourceRef="parallelActivityLocalServiceOrchestration" targetRef="parallelgateway2"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_StartOrderProcess">
     <bpmndi:BPMNPlane bpmnElement="StartOrderProcess" id="BPMNPlane_StartOrderProcess">
@@ -55,6 +60,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="parallelExternalSPDeploymentReqProcess" id="BPMNShape_parallelExternalSPDeploymentReqProcess">
         <omgdc:Bounds height="91.0" width="131.0" x="580.0" y="360.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="parallelActivityLocalServiceOrchestration" id="BPMNShape_parallelActivityLocalServiceOrchestration">
+        <omgdc:Bounds height="81.0" width="128.0" x="582.0" y="510.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
         <omgdi:waypoint x="235.0" y="157.0"></omgdi:waypoint>
@@ -100,6 +108,16 @@
       <bpmndi:BPMNEdge bpmnElement="flow12" id="BPMNEdge_flow12">
         <omgdi:waypoint x="711.0" y="405.0"></omgdi:waypoint>
         <omgdi:waypoint x="820.0" y="405.0"></omgdi:waypoint>
+        <omgdi:waypoint x="820.0" y="173.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow13" id="BPMNEdge_flow13">
+        <omgdi:waypoint x="500.0" y="177.0"></omgdi:waypoint>
+        <omgdi:waypoint x="500.0" y="550.0"></omgdi:waypoint>
+        <omgdi:waypoint x="582.0" y="550.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow14" id="BPMNEdge_flow14">
+        <omgdi:waypoint x="710.0" y="550.0"></omgdi:waypoint>
+        <omgdi:waypoint x="820.0" y="550.0"></omgdi:waypoint>
         <omgdi:waypoint x="820.0" y="173.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
