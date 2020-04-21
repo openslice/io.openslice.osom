@@ -52,7 +52,12 @@ public class FetchUpdateExternalPartnerServices  implements JavaDelegate {
 
 				serviceSpecification.getRelatedParty().clear();//clear all related parties if any
 				serviceSpecification.getAttachment().clear();
-				
+				if ( serviceSpecification.getDescription() == null ) {
+					serviceSpecification.setDescription( "Service from Organization: " + org.getName() + ", id: " + org.getId() );					
+				} else {
+					serviceSpecification.setDescription( "Service from Organization: " + org.getName() + ", id: " + org.getId() + ". " + serviceSpecification.getDescription());			
+					
+				}
 
 				
 				partnerOrganizationServicesManager.updateSpecInLocalCatalog(org.getId(),  serviceSpecification );				

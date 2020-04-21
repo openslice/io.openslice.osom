@@ -99,6 +99,7 @@ public class AutomationCheck implements JavaDelegate {
 			for (ServiceOrderItem soi : sor.getOrderItem()) {
 				logger.debug("Service Item ID:" + soi.getId());
 				logger.debug("Service spec ID:" + soi.getService().getServiceSpecification().getId());
+				logger.debug("Service Item Action:" + soi.getAction().toString() );
 
 				// get service spec by id from model via bus, find if bundle and analyze its
 				// related services
@@ -109,7 +110,8 @@ public class AutomationCheck implements JavaDelegate {
 				logger.debug("Retrieved Service Name:" + spec.getName());
 				
 
-//				addServicesToVariables( spec, sor, soi, servicesHandledByExternalSP, servicesHandledManual, servicesHandledByNFVOAutomated );
+				//this is a main underlying service for the requested service (restriction)
+				addServicesToVariables( spec, sor, soi, servicesHandledByExternalSP, servicesHandledManual, servicesHandledByNFVOAutomated, servicesLocallyAutomated );
 				
 
 				//List<Service> createdServices = new ArrayList<>();
@@ -198,12 +200,17 @@ public class AutomationCheck implements JavaDelegate {
 				servicesHandledByExternalSP.add(createdServ.getId());
 			}				
 			
-		} else if ( specrel.getType().equals("CustomerFacingServiceSpecification") && specrel.isIsBundle()  ) {
+		} else if ( specrel.getType().equals("CustomerFacingServiceSpecification") && (specrel.isIsBundle()!=null) && specrel.isIsBundle() ) {
 			createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.AUTOMATICALLY_MANAGED, null);			
 			if ( createdServ!=null ) {
 				servicesLocallyAutomated.add(createdServ.getId());
 			}
-		}		
+		} else if ( specrel.getType().equals("CustomerFacingServiceSpecification") && (specrel.findSpecCharacteristicByName("OSAUTOMATED") != null )  ) {
+			createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.AUTOMATICALLY_MANAGED, null);			
+			if ( createdServ!=null ) {
+				servicesLocallyAutomated.add(createdServ.getId());
+			}
+		}	
 		else if (specrel.getType().equals("ResourceFacingServiceSpecification")) {
 			createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.AUTOMATICALLY_MANAGED, null);
 			if ( createdServ!=null ) {

@@ -62,7 +62,7 @@ public class LocalSOCheckDeployment  implements JavaDelegate {
 		supd.setState( ServiceStateType.ACTIVE);
 		
 		
-		if  (spec.getName().equals("DUMMYSERVICE") ) {
+		if  (spec.getName().contains("DUMMYSERVICE") ) {
 			logger.info("DUMMYSERVICE status" );
 			ServiceSpecCharacteristic charc = spec.findSpecCharacteristicByName( "FINALSTATUS" );
 			if ( (charc!=null ) && ( charc.getServiceSpecCharacteristicValue() !=null ) ) {

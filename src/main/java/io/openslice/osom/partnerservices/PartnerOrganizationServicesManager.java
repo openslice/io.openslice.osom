@@ -190,9 +190,7 @@ public class PartnerOrganizationServicesManager {
 					String s = toJsonString( aspecID );
 					ServiceSpecification aspec = aspecID;// toJsonObj(s, ServiceSpecification.class);
 					aspec.setUuid( ""+ aspecID.getIntAsString() );
-					if ( aspec.getDescription() == null ) {
-						aspec.setDescription( "Service from Organization: " + org.getName() + ", id: " + org.getId() );					
-					}
+					
 					
 					for (ServiceSpecCharacteristic characts : aspec.getServiceSpecCharacteristic()) {
 						characts.setConfigurable(true); //this is a hack for FlowOne
