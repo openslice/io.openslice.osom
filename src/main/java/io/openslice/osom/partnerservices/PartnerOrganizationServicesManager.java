@@ -119,11 +119,20 @@ public class PartnerOrganizationServicesManager {
 		try
 		{
 			
+			String url = "/tmf-api/serviceCatalogManagement/v4/serviceSpecification";
+			
+			if ( ( org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_CATALOG_URLS") != null) &&
+					(org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_CATALOG_URLS").getValue() != null)) {
+				url = org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_CATALOG_URLS").getValue().getValue();
+			}
+			
+			logger.info("Will fetchServiceSpecs of organization: " + org.getName() + " from: " + url );
+						
 		
 			if ( webclient!=null ) {
 				
 				specs = webclient.get()
-						.uri("/tmf-api/serviceCatalogManagement/v4/serviceSpecification")
+						.uri( url )
 							//.attributes( ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId("authOpensliceProvider"))
 							.retrieve()
 							.onStatus(HttpStatus::is4xxClientError, response -> {

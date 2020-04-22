@@ -58,7 +58,8 @@ public class FetchUpdateExternalPartnerServices  implements JavaDelegate {
 					serviceSpecification.setDescription( "Service from Organization: " + org.getName() + ", id: " + org.getId() + ". " + serviceSpecification.getDescription());			
 					
 				}
-
+				
+				
 				
 				partnerOrganizationServicesManager.updateSpecInLocalCatalog(org.getId(),  serviceSpecification );				
 			}
