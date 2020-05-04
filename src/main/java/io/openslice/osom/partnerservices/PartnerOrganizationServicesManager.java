@@ -133,7 +133,7 @@ public class PartnerOrganizationServicesManager {
 
 		WebClient webclient = this.getOrganizationWebClient(org);
 
-		List<ServiceSpecification> specs = new ArrayList<>();		
+		List<ServiceSpecification> specsList = new ArrayList<>();		
 		
 		try
 		{
@@ -150,7 +150,7 @@ public class PartnerOrganizationServicesManager {
 		
 			if ( webclient!=null ) {
 				
-				specs = webclient.get()
+				specsList = webclient.get()
 						.uri( url )
 							//.attributes( ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId("authOpensliceProvider"))
 							.retrieve()
@@ -174,10 +174,39 @@ public class PartnerOrganizationServicesManager {
 		}
 		
 		/**
-		 * will create or fetch existing web client for this organization
+		 * will  fetch each spec details from API
 		 */
+		
 
-		return specs;
+		List<ServiceSpecification> fullSpecsResult = new ArrayList<>();		
+		String urlfullspec = "/tmf-api/serviceCatalogManagement/v4/serviceSpecification";
+		
+		if ( ( org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_SPEC") != null) &&
+				(org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_SPEC").getValue() != null)) {
+			urlfullspec = org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_SPEC").getValue().getValue();
+		}
+		
+		for (ServiceSpecification specsrc : specsList) {
+			ServiceSpecification fullspec = webclient.get()
+					.uri( urlfullspec + "/" + specsrc.getId() )
+					.retrieve()
+					.onStatus(HttpStatus::is4xxClientError, response -> {
+						logger.error("4xx eror");
+				        return Mono.error(new RuntimeException("4xx"));
+				      })
+				      .onStatus(HttpStatus::is5xxServerError, response -> {
+				    	  logger.error("5xx eror");
+				        return Mono.error(new RuntimeException("5xx"));
+				      })
+				  .bodyToMono( new ParameterizedTypeReference< ServiceSpecification>() {})
+				  .block();
+			logger.info("Will add from " + org.getName() + " serviceSpecification name: " + fullspec.getName() + ", id: " + fullspec.getId());
+			fullSpecsResult.add( fullspec );
+		}
+		
+		
+
+		return fullSpecsResult;
 	}
 
 	private List<ServiceSpecification> fetchServiceSpecsFlowOne(Organization org) {
