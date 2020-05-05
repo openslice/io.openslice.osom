@@ -141,7 +141,8 @@ public class PartnerOrganizationServicesManager {
 			String url = "/tmf-api/serviceCatalogManagement/v4/serviceSpecification";
 			
 			if ( ( org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_CATALOG_URLS") != null) &&
-					(org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_CATALOG_URLS").getValue() != null)) {
+					(org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_CATALOG_URLS").getValue() != null) &&
+					(!org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_CATALOG_URLS").getValue().getValue().equals("") )) {
 				url = org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_CATALOG_URLS").getValue().getValue();
 			}
 			
@@ -182,7 +183,8 @@ public class PartnerOrganizationServicesManager {
 		String urlfullspec = "/tmf-api/serviceCatalogManagement/v4/serviceSpecification";
 		
 		if ( ( org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_SPEC") != null) &&
-				(org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_SPEC").getValue() != null)) {
+				(org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_SPEC").getValue() != null) &&
+				(!org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_SPEC").getValue().getValue().equals(""))) {
 			urlfullspec = org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_SPEC").getValue().getValue();
 		}
 		
@@ -409,7 +411,14 @@ public class PartnerOrganizationServicesManager {
 		WebClient webclient = this.getOrganizationWebClient(org);
 
 
+		//EXTERNAL_TMFAPI_SERVICE_ORDER_URLS
+		String url = "/tmf-api/serviceOrdering/v4/serviceOrder";
 		
+		if ( ( org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_ORDER_URLS") != null) &&
+				(org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_ORDER_URLS").getValue() != null) &&
+				(!org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_ORDER_URLS").getValue().getValue().equals("") )) {
+			url = org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_ORDER_URLS").getValue().getValue();
+		}
 		
 		ServiceOrder sorder = new ServiceOrder();
 		
@@ -417,7 +426,7 @@ public class PartnerOrganizationServicesManager {
 			
 			
 			sorder = webclient.post()
-					.uri("/tmf-api/serviceOrdering/v4/serviceOrder")
+					.uri(url)
 				      //.header("Authorization", "Basic " + encodedClientData)
 				      .bodyValue( servOrder ) 
 						//.attributes( ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId("authOpensliceProvider"))
