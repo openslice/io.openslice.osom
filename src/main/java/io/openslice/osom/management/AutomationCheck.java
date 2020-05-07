@@ -58,9 +58,11 @@ import io.openslice.tmf.sim638.model.Service;
 import io.openslice.tmf.sim638.model.ServiceCreate;
 import io.openslice.tmf.sim638.model.ServiceOrderRef;
 import io.openslice.tmf.so641.model.ServiceOrder;
+import io.openslice.tmf.so641.model.ServiceOrderActionType;
 import io.openslice.tmf.so641.model.ServiceOrderItem;
 import io.openslice.tmf.so641.model.ServiceOrderStateType;
 import io.openslice.tmf.so641.model.ServiceOrderUpdate;
+import liquibase.change.core.AddAutoIncrementChange;
 
 /**
  * @author ctranoris
@@ -100,36 +102,39 @@ public class AutomationCheck implements JavaDelegate {
 				logger.debug("Service Item ID:" + soi.getId());
 				logger.debug("Service spec ID:" + soi.getService().getServiceSpecification().getId());
 				logger.debug("Service Item Action:" + soi.getAction().toString() );
-
-				// get service spec by id from model via bus, find if bundle and analyze its
-				// related services
-				ServiceSpecification spec = serviceOrderManager
-						.retrieveServiceSpec(soi.getService().getServiceSpecification().getId());
 				
-				logger.debug("Retrieved Service ID:" + spec.getId());
-				logger.debug("Retrieved Service Name:" + spec.getName());
-				
-
-				//this is a main underlying service for the requested service (restriction)
-				addServicesToVariables( spec, sor, soi, servicesHandledByExternalSP, servicesHandledManual, servicesHandledByNFVOAutomated, servicesLocallyAutomated );
-				
-
-				//List<Service> createdServices = new ArrayList<>();
-				
-				logger.debug("<--------------- related specs -------------->");
-				for (ServiceSpecRelationship specRels : spec.getServiceSpecRelationship()) {
-					logger.debug("\tService specRelsId:" + specRels.getId());
+				if ( soi.getAction().equals(  ServiceOrderActionType.ADD   ) ) {					
+					// get service spec by id from model via bus, find if bundle and analyze its
+					// related services
+					ServiceSpecification spec = serviceOrderManager
+							.retrieveServiceSpec(soi.getService().getServiceSpecification().getId());
 					
-					ServiceSpecification specrel = serviceOrderManager.retrieveServiceSpec(specRels.getId());
-					addServicesToVariables(specrel, sor, soi, servicesHandledByExternalSP, servicesHandledManual, servicesHandledByNFVOAutomated, servicesLocallyAutomated );
-					
+					logger.debug("Retrieved Service ID:" + spec.getId());
+					logger.debug("Retrieved Service Name:" + spec.getName());
 					
 
+					//this is a main underlying service for the requested service (restriction)
+					if ( soi.getAction().equals(  ServiceOrderActionType.ADD   ) ) {
+						addServicesToVariables( spec, sor, soi, servicesHandledByExternalSP, servicesHandledManual, servicesHandledByNFVOAutomated, servicesLocallyAutomated );
+					}
+					
+					//List<Service> createdServices = new ArrayList<>();
+					
+					logger.debug("<--------------- related specs -------------->");
+					for (ServiceSpecRelationship specRels : spec.getServiceSpecRelationship()) {
+						logger.debug("\tService specRelsId:" + specRels.getId());
+						
+						ServiceSpecification specrel = serviceOrderManager.retrieveServiceSpec(specRels.getId());
+
+						if ( soi.getAction().equals(  ServiceOrderActionType.ADD   ) ) {
+							addServicesToVariables(specrel, sor, soi, servicesHandledByExternalSP, servicesHandledManual, servicesHandledByNFVOAutomated, servicesLocallyAutomated );							
+						}
+						
+						
+
+					}
+					logger.debug("<--------------- /related specs -------------->");					
 				}
-				logger.debug("<--------------- /related specs -------------->");
-				
-				
-
 			}
 
 			execution.setVariable("servicesHandledByExternalSP", servicesHandledByExternalSP);
@@ -156,6 +161,8 @@ public class AutomationCheck implements JavaDelegate {
 				orderItemItem.getService().setName( orderItemItem.getService().getServiceSpecification().getName() );
 				orderItemItem.getService().setCategory( orderItemItem.getService().getServiceSpecification().getType() );
 				orderItemItem.getService().setState( ServiceStateType.RESERVED );
+				
+				orderItemItem.setAction( ServiceOrderActionType.NOCHANGE ); //reset the action to NOCHANGE				
 				serviceOrderUpd.addOrderItemItem(orderItemItem);
 			}
 			serviceOrderManager.updateServiceOrderOrder( sor.getId(), serviceOrderUpd );

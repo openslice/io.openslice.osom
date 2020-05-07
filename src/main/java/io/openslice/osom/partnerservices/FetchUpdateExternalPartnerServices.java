@@ -62,26 +62,48 @@ public class FetchUpdateExternalPartnerServices  implements JavaDelegate {
 			/**
 			 * Fetch partner service specs. For now there is no criteria and we fetch all in one json...
 			 */
-			List<ServiceSpecification> specs = partnerOrganizationServicesManager.fetchServiceSpecs( org );
-			
-			for (ServiceSpecification serviceSpecification : specs) {
-				/**
-				 * add to the spec, the organization as related party
-				 */
+			if ( 
+					( org.findPartyCharacteristic("EXTERNAL_TMFAPI_CLIENTREGISTRATIONID")!=null ) &&
+					( org.findPartyCharacteristic("EXTERNAL_TMFAPI_OAUTH2TOKENURI")!=null ) &&
+					( org.findPartyCharacteristic("EXTERNAL_TMFAPI_USERNAME")!=null ) &&
+					( org.findPartyCharacteristic("EXTERNAL_TMFAPI_BASEURL") != null) &&
+					( org.findPartyCharacteristic("EXTERNAL_TMFAPI_CLIENTREGISTRATIONID").getValue() != null) &&
+					( org.findPartyCharacteristic("EXTERNAL_TMFAPI_OAUTH2TOKENURI").getValue() != null) &&
+					( org.findPartyCharacteristic("EXTERNAL_TMFAPI_USERNAME").getValue() != null) &&
+					( org.findPartyCharacteristic("EXTERNAL_TMFAPI_BASEURL").getValue() != null) &&
+					(!org.findPartyCharacteristic("EXTERNAL_TMFAPI_CLIENTREGISTRATIONID").getValue().getValue().equals("") ) &&
+					(!org.findPartyCharacteristic("EXTERNAL_TMFAPI_OAUTH2TOKENURI").getValue().getValue().equals("") ) &&
+					(!org.findPartyCharacteristic("EXTERNAL_TMFAPI_USERNAME").getValue().getValue().equals("") ) &&
+					(!org.findPartyCharacteristic("EXTERNAL_TMFAPI_BASEURL").getValue().getValue().equals("") )
+					) {
+				
+				
+				
+				List<ServiceSpecification> specs = partnerOrganizationServicesManager.fetchServiceSpecs( org );
+				
+				for (ServiceSpecification serviceSpecification : specs) {
+					/**
+					 * add to the spec, the organization as related party
+					 */
 
-				serviceSpecification.getRelatedParty().clear();//clear all related parties if any
-				serviceSpecification.getAttachment().clear();
-				if ( serviceSpecification.getDescription() == null ) {
-					serviceSpecification.setDescription( "Service from Organization: " + org.getName() + ", id: " + org.getId() );					
-				} else {
-					serviceSpecification.setDescription( "Service from Organization: " + org.getName() + ", id: " + org.getId() + ". " + serviceSpecification.getDescription());			
+					serviceSpecification.getRelatedParty().clear();//clear all related parties if any
+					serviceSpecification.getAttachment().clear();
+					if ( serviceSpecification.getDescription() == null ) {
+						serviceSpecification.setDescription( "Service from Organization: " + org.getName() + ", id: " + org.getId() );					
+					} else {
+						serviceSpecification.setDescription( "Service from Organization: " + org.getName() + ", id: " + org.getId() + ". " + serviceSpecification.getDescription());			
+						
+					}
 					
+					
+					
+					partnerOrganizationServicesManager.updateSpecInLocalCatalog(org.getId(),  serviceSpecification );				
 				}
 				
 				
-				
-				partnerOrganizationServicesManager.updateSpecInLocalCatalog(org.getId(),  serviceSpecification );				
 			}
+			
+
 			
 			
 		}

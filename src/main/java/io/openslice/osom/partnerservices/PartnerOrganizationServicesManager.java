@@ -54,6 +54,7 @@ import io.openslice.tmf.common.model.service.ServiceSpecificationRef;
 import io.openslice.tmf.pm632.model.Characteristic;
 import io.openslice.tmf.pm632.model.Organization;
 import io.openslice.tmf.scm633.model.ServiceSpecCharacteristic;
+import io.openslice.tmf.scm633.model.ServiceSpecCharacteristicValue;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
 import io.openslice.tmf.so641.model.ServiceOrder;
 import io.openslice.tmf.so641.model.ServiceOrderCreate;
@@ -253,6 +254,10 @@ public class PartnerOrganizationServicesManager {
 					
 					for (ServiceSpecCharacteristic characts : aspec.getServiceSpecCharacteristic()) {
 						characts.setConfigurable(true); //this is a hack for FlowOne
+						characts.setValueType("TEXT");
+//						for (ServiceSpecCharacteristicValue cval : characts.getServiceSpecCharacteristicValue()) {
+//							cval.value
+//						}
 					}
 
 					logger.info("Will add FlowOne serviceSpecification name: " + aspec.getName() + ", id: " + aspec.getId());
@@ -268,6 +273,8 @@ public class PartnerOrganizationServicesManager {
 
 		}catch (Exception e) {
 			logger.error("fetchServiceSpecsFlowone error on web client request");
+			webclients.put(org.getId(), null);//to reset the webclient to retrieve a new one when there is a new try\
+			e.printStackTrace();
 		}
 		
 		/**

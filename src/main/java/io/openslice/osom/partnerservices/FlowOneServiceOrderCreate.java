@@ -41,6 +41,7 @@ public class FlowOneServiceOrderCreate extends ServiceOrderCreate{
 		this.getOrderItem().get(0).getService().getServiceSpecification().setBaseType(null);
 		for (Characteristic c : this.getOrderItem().get(0).getService().getServiceCharacteristic()) {
 			c.setBaseType(null);
+			c.setValueType("string");
 		}
 		
 	}
