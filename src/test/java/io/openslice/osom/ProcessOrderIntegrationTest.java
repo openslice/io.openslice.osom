@@ -148,7 +148,7 @@ public class ProcessOrderIntegrationTest {
 		assertThat(serviceOrderManager.retrieveServiceSpec("59d08753-e1b1-418b-9e3e-d3a3bb573051"))
 				.isInstanceOf(ServiceSpecification.class);
 
-		assertThat(repositoryService.createProcessDefinitionQuery().count()).isEqualTo(5);
+		assertThat(repositoryService.createProcessDefinitionQuery().count()).isEqualTo(7);
 		assertThat(taskService.createTaskQuery().count()).isEqualTo(0);
 
 		assertThat( scmocked.getRequeestedDescriptor() ).isNull();

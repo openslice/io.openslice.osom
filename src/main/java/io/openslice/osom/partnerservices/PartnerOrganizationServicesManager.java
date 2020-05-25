@@ -49,6 +49,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import io.openslice.osom.management.ServiceOrderManager;
+import io.openslice.tmf.common.model.Any;
 import io.openslice.tmf.common.model.service.Note;
 import io.openslice.tmf.common.model.service.ServiceSpecificationRef;
 import io.openslice.tmf.pm632.model.Characteristic;
@@ -83,6 +84,8 @@ public class PartnerOrganizationServicesManager {
 	private String CATALOG_UPD_EXTERNAL_SERVICESPEC = "";
 	
 
+	@Value("${CATALOG_UPDATE_PARTNER_ORGANIZATION}")
+	private String CATALOG_UPDATE_PARTNER_ORGANIZATION = "";
 	
 	Map<String, WebClient> webclients = new HashMap<>();
 
@@ -130,6 +133,8 @@ public class PartnerOrganizationServicesManager {
 			}			
 		}
 		
+		
+		
 		logger.info("Will fetchServiceSpecs of organization: " + org.getName() + ", id: " + org.getId());
 
 		WebClient webclient = this.getOrganizationWebClient(org);
@@ -157,11 +162,15 @@ public class PartnerOrganizationServicesManager {
 							//.attributes( ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId("authOpensliceProvider"))
 							.retrieve()
 							.onStatus(HttpStatus::is4xxClientError, response -> {
-								logger.error("4xx eror");
+								logger.error("4xx error");
+								 webclients.remove( org.getId(), webclient );
+								this.updateOrgzStatus(org, "WEBCLIENT 4xx ERROR");
 						        return Mono.error(new RuntimeException("4xx"));
 						      })
 						      .onStatus(HttpStatus::is5xxServerError, response -> {
-						    	  logger.error("5xx eror");
+						    	  logger.error("5xx error");
+								webclients.remove( org.getId(), webclient );
+								this.updateOrgzStatus(org, "WEBCLIENT 5xx ERROR");
 						        return Mono.error(new RuntimeException("5xx"));
 						      })
 						  .bodyToMono( new ParameterizedTypeReference<List<ServiceSpecification>>() {})
@@ -169,10 +178,12 @@ public class PartnerOrganizationServicesManager {
 				
 			} else  {
 				logger.error("WebClient is null. Cannot be created.");
+				this.updateOrgzStatus(org, "WEBCLIENT is null");
 			}
 
 		}catch (Exception e) {
 			logger.error("fetchServiceSpecs error on web client request");
+			this.updateOrgzStatus(org, "WEBCLIENT fetchServiceSpecs error ");
 		}
 		
 		/**
@@ -194,11 +205,16 @@ public class PartnerOrganizationServicesManager {
 					.uri( urlfullspec + "/" + specsrc.getId() )
 					.retrieve()
 					.onStatus(HttpStatus::is4xxClientError, response -> {
-						logger.error("4xx eror");
+						logger.error("4xx error");
+						webclients.remove( org.getId(), webclient );
+						this.updateOrgzStatus(org, "WEBCLIENT ServiceSpecification 4xx ERROR " + specsrc.getId() );
 				        return Mono.error(new RuntimeException("4xx"));
 				      })
 				      .onStatus(HttpStatus::is5xxServerError, response -> {
-				    	  logger.error("5xx eror");
+				    	  logger.error("5xx error");
+
+							webclients.remove( org.getId(), webclient );
+							this.updateOrgzStatus(org, "WEBCLIENT ServiceSpecification 5xx ERROR "  + specsrc.getId() );
 				        return Mono.error(new RuntimeException("5xx"));
 				      })
 				  .bodyToMono( new ParameterizedTypeReference< ServiceSpecification>() {})
@@ -207,7 +223,8 @@ public class PartnerOrganizationServicesManager {
 			fullSpecsResult.add( fullspec );
 		}
 		
-		
+
+		this.updateOrgzStatus(org, "FULLSPECS SUCCESS");
 
 		return fullSpecsResult;
 	}
@@ -232,10 +249,12 @@ public class PartnerOrganizationServicesManager {
 							.retrieve()
 							.onStatus(HttpStatus::is4xxClientError, response -> {
 								logger.error("4xx eror");
+								this.updateOrgzStatus(org, "WEBCLIENT 4xx ERROR");
 						        return Mono.error(new RuntimeException("4xx"));
 						      })
 						      .onStatus(HttpStatus::is5xxServerError, response -> {
 						    	  logger.error("5xx eror");
+									this.updateOrgzStatus(org, "WEBCLIENT 5xx ERROR");
 						        return Mono.error(new RuntimeException("5xx"));
 						      })
 						  .bodyToMono( new ParameterizedTypeReference< List<SimpleIDSpec>>() {})
@@ -268,12 +287,14 @@ public class PartnerOrganizationServicesManager {
 				
 				
 			} else  {
+				this.updateOrgzStatus(org, "fetchServiceSpecsFlowone WebClient is null. Cannot be created");
 				logger.error("WebClient is null. Cannot be created.");
 			}
 
 		}catch (Exception e) {
 			logger.error("fetchServiceSpecsFlowone error on web client request");
 			webclients.put(org.getId(), null);//to reset the webclient to retrieve a new one when there is a new try\
+			this.updateOrgzStatus(org, "fetchServiceSpecsFlowone error on web client request");
 			e.printStackTrace();
 		}
 		
@@ -354,13 +375,29 @@ public class PartnerOrganizationServicesManager {
 				webClient = oac.createWebClient();
 				webclients.put( org.getId() , webClient);
 				return webClient;
-			} catch (SSLException e) {
-				// TODO Auto-generated catch block
+			} catch (SSLException e) {				
+				
 				e.printStackTrace();
+				this.updateOrgzStatus(org, "WEBCLIENT ERROR SSLException");
 			}
 			
 		}
 		return null;
+	}
+
+	private void updateOrgzStatus(Organization org, String status) {
+		Characteristic partyCharacteristicItem = org.findPartyCharacteristic("EXTERNAL_TMFAPI_STATUS");
+		if ( partyCharacteristicItem == null ) {
+			partyCharacteristicItem = new Characteristic();
+			partyCharacteristicItem.setName( "EXTERNAL_TMFAPI_STATUS" );
+			partyCharacteristicItem.setValueType( "TEXT" );
+			partyCharacteristicItem.setValue( new Any(""));
+			org.addPartyCharacteristicItem(partyCharacteristicItem);
+		}
+
+		partyCharacteristicItem.setValue( new Any( OffsetDateTime.now(ZoneOffset.UTC) + ": " + status ));
+		this.updateOrganizationInCatalog(org.getId(), org);
+		
 	}
 
 	public ServiceSpecification updateSpecInLocalCatalog(String orgid, ServiceSpecification serviceSpecification) {
@@ -383,6 +420,31 @@ public class PartnerOrganizationServicesManager {
 			
 		}catch (Exception e) {
 			logger.error("Cannot update Service Spec : " + serviceSpecification.getId() + ": " + e.toString());
+		}
+		return null;
+
+	}
+	
+	
+	public Organization updateOrganizationInCatalog(String orgid, Organization orgz) {
+		logger.info("Will updateOrganizationCatalog orgz name: " + orgz.getName() + ", id: " + orgid);
+
+		try {
+			Map<String, Object> map = new HashMap<>();
+			map.put("orgid", orgid );
+			Object response = template.requestBodyAndHeaders( CATALOG_UPDATE_PARTNER_ORGANIZATION, toJsonString( orgz ), map);
+
+			if ( !(response instanceof String)) {
+				logger.error("Organization object is wrong.");
+			}
+
+			Organization orgzresp = toJsonObj( (String)response, Organization.class); 
+			//logger.debug("createService response is: " + response);
+			return orgzresp;
+			
+			
+		}catch (Exception e) {
+			logger.error("Cannot update Organization : " + orgid + ": " + e.toString());
 		}
 		return null;
 

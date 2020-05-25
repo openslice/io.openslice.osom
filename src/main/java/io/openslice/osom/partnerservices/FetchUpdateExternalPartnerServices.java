@@ -30,7 +30,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.openslice.tmf.common.model.Any;
 import io.openslice.tmf.common.model.UserPartRoleType;
+import io.openslice.tmf.pm632.model.Characteristic;
 import io.openslice.tmf.pm632.model.Organization;
 import io.openslice.tmf.prm669.model.RelatedParty;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
@@ -101,6 +103,19 @@ public class FetchUpdateExternalPartnerServices  implements JavaDelegate {
 				}
 				
 				
+			} else {
+				Characteristic partyCharacteristicItem = org.findPartyCharacteristic("EXTERNAL_TMFAPI_STATUS");
+				if ( partyCharacteristicItem == null ) {
+					partyCharacteristicItem = new Characteristic();
+					partyCharacteristicItem.setName( "EXTERNAL_TMFAPI_STATUS" );
+					partyCharacteristicItem.setValueType( "TEXT" );
+					partyCharacteristicItem.setValue( new Any(""));
+					org.addPartyCharacteristicItem(partyCharacteristicItem);
+					
+				}
+
+				partyCharacteristicItem.setValue( new Any("NOT_CONFIGURED"));
+				partnerOrganizationServicesManager.updateOrganizationInCatalog(org.getId(), org);
 			}
 			
 
