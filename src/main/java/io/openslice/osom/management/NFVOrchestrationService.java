@@ -33,9 +33,11 @@ import org.flowable.engine.delegate.JavaDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import io.openslice.model.ConstituentVxF;
 import io.openslice.model.DeploymentDescriptor;
 import io.openslice.model.DeploymentDescriptorStatus;
 import io.openslice.model.ExperimentMetadata;
+import io.openslice.model.NetworkServiceDescriptor;
 import io.openslice.tmf.common.model.Any;
 import io.openslice.tmf.common.model.service.Characteristic;
 import io.openslice.tmf.common.model.service.Note;
@@ -101,9 +103,15 @@ public class NFVOrchestrationService implements JavaDelegate {
 					 */
 
 					try {
+						NetworkServiceDescriptor refnsd = serviceOrderManager.retrieveNSD( NSDID );
+						if ( refnsd == null ) {
+							logger.error("NetworkServiceDescriptor cannot be retrieved, NSDID: " + NSDID );
+							throw new Exception( "NetworkServiceDescriptor cannot be retrieved, NSDID: " + NSDID );
+						}
+						
 						Map<String, Object> configParams = aDependencyRulesSolver.get( sorder, spec );
 						
-						DeploymentDescriptor dd = createNewDeploymentRequest( aService, NSDID, 
+						DeploymentDescriptor dd = createNewDeploymentRequest( aService, refnsd, 
 								sorder.getStartDate(), 
 								sorder.getExpectedCompletionDate(), 
 								sorder.getId(),
@@ -140,6 +148,22 @@ public class NFVOrchestrationService implements JavaDelegate {
 						serviceCharacteristicItem.setName( "ConfigStatus" );
 						serviceCharacteristicItem.setValue( new Any( dd.getConfigStatus() + "" ));
 						su.addServiceCharacteristicItem(serviceCharacteristicItem);
+						
+						serviceCharacteristicItem = new Characteristic();
+						serviceCharacteristicItem.setName( "APPLY CONFIG" );
+						serviceCharacteristicItem.setValue( new Any( dd.getInstantiationconfig()  + "" ));
+						su.addServiceCharacteristicItem(serviceCharacteristicItem);
+						
+
+//						serviceCharacteristicItem = new Characteristic();
+//						serviceCharacteristicItem.setName( "NSR" );
+//						serviceCharacteristicItem.setValue( new Any( dd.getNsr()  + "" ));
+//						su.addServiceCharacteristicItem(serviceCharacteristicItem);
+//
+//						serviceCharacteristicItem = new Characteristic();
+//						serviceCharacteristicItem.setName( "NSLCM_details" );
+//						serviceCharacteristicItem.setValue( new Any( dd.getNs_nslcm_details()   + "" ));
+//						su.addServiceCharacteristicItem(serviceCharacteristicItem);
 												
 						Service supd = serviceOrderManager.updateService(  execution.getVariable("serviceId").toString(), su);
 						logger.info("Request to NFVO for NSDID:" + NSDID + " done! Service: " + supd.getId() );
@@ -184,11 +208,12 @@ public class NFVOrchestrationService implements JavaDelegate {
 
 
 	private DeploymentDescriptor createNewDeploymentRequest(Service aService, 
-			String nsdId, OffsetDateTime startDate, OffsetDateTime endDate, String orderid,
+			NetworkServiceDescriptor refnsd, OffsetDateTime startDate, OffsetDateTime endDate, String orderid,
 			Map<String, Object> configParams) {
 		DeploymentDescriptor ddreq = new DeploymentDescriptor();
-		ExperimentMetadata expReq = new ExperimentMetadata();
-		expReq.setId( Long.parseLong(nsdId));
+		ExperimentMetadata expReq = refnsd;
+		
+		
 		ddreq.setName("Service Order " + orderid);
 		ddreq.setDescription("Created automatically by OSOM for Service Order " + orderid);
 		ddreq.setExperiment( expReq  );
@@ -200,16 +225,61 @@ public class NFVOrchestrationService implements JavaDelegate {
 		
 
 		String instantiationconfig = "{}";
-		Characteristic c = aService.getServiceCharacteristicByName( "CONFIG" );
-		if ( (c!=null) &&
-				(c.getValue()  != null) &&
-				(c.getValue().getValue() != null)) {
+		Characteristic configCharacteristic = aService.getServiceCharacteristicByName( "CONFIG" );
+		if ( (configCharacteristic!=null) &&
+				(configCharacteristic.getValue()  != null) &&
+				(configCharacteristic.getValue().getValue() != null)
+				&&
+				(!configCharacteristic.getValue().getValue().equals("") )) {
 			try {
-				instantiationconfig = c.getValue().getValue();
+				instantiationconfig = configCharacteristic.getValue().getValue();
 			}catch (Exception e) {
 				logger.error("cannot extract CONFIG");
 				e.printStackTrace();
 			}
+		} else {
+			configCharacteristic = null;
+		}
+		
+		/**
+		 * we will pass all characteristics if there is NO additionalParamsForVnf already added in confi param
+		 * {  additionalParamsForVnf: [ {member-vnf-index: "1", additionalParams: {touch_filename: your-value,  touch_filename2: your-value2} }]   }'
+		 */
+		if ( ( !instantiationconfig.contains("additionalParamsForVnf") ) &&
+				(ddreq.getExperiment() !=null ) &&
+				(ddreq.getExperiment().getConstituentVxF() !=null )){
+			
+			
+			String serviceParams="";
+			for (Characteristic chars : aService.getServiceCharacteristic()  ) {
+				if ( ( chars.getValue()!= null ) && ( !chars.getName().equals("CONFIG") )) {
+					serviceParams = serviceParams + "\"" + chars.getName() + "\" : \"" + chars.getValue().getValue() + "\",";					
+				}				
+			}
+			serviceParams = serviceParams + " \"_lastParam\": \"_last\"";
+			
+
+			serviceParams = "\"additionalParams\": {" + serviceParams + "}";
+			
+			StringBuilder additionalParamsForVnf = new StringBuilder();
+
+			additionalParamsForVnf.append(" \"additionalParamsForVnf\": [ ");
+			for (ConstituentVxF cvxf : ddreq.getExperiment().getConstituentVxF()) {
+				additionalParamsForVnf.append("{ \"member-vnf-index\": \"" + cvxf.getMembervnfIndex()  + "\", " + serviceParams + "}") ;
+				additionalParamsForVnf.append(",");
+			}
+			
+			int k = additionalParamsForVnf.lastIndexOf(",");
+			if ( k>=0 ) { 
+				additionalParamsForVnf.delete( k, k+1 );
+			}
+			additionalParamsForVnf.append(" ] ");
+
+			String acomma="";
+			if ( configCharacteristic!=null ) {
+				acomma = ",";
+			}
+			instantiationconfig = instantiationconfig.replaceFirst( Pattern.quote("{") , "{" + additionalParamsForVnf.toString() +  acomma );	
 		}
 		
 		Characteristic sshk= aService.getServiceCharacteristicByName( "SSHKEY" );
@@ -227,12 +297,18 @@ public class NFVOrchestrationService implements JavaDelegate {
 			}
 		}
 
-		instantiationconfig = instantiationconfig.replaceFirst( Pattern.quote("{") , "{\"nsName\": \"" + "Service_Order_" + orderid + "\",");		
-		ddreq.setInstantiationconfig(instantiationconfig);
 		
-//		if ( configParams!=null) {
-//			ddreq.setConfigStatus( configParams.toString() );			
-//		}
+		instantiationconfig = instantiationconfig.replaceFirst( Pattern.quote("{") , "{\"nsName\": \"" + "Service_Order_" + orderid + "\",");	
+
+		/**
+		 * for now only if CONFIG is not empty we will pass all parameters!. WE still Need nsdId and probably vimId
+		 */
+		if ( configCharacteristic!=null) { 
+			ddreq.setInstantiationconfig(instantiationconfig);
+			logger.debug( "instantiationconfig: " + instantiationconfig );
+		}
+		
+		
 		
 		DeploymentDescriptor dd =serviceOrderManager.nfvoDeploymentRequestByNSDid( ddreq );
 		

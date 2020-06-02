@@ -96,6 +96,14 @@ public class SCMocked {
 			File sspec = new File( "src/test/resources/TestServiceNSD.json" );
 			InputStream in = new FileInputStream( sspec );
 			sspectext = IOUtils.toString(in, "UTF-8");			
+		} else if ( id.equals( "22e399d3-b152-4966-9d0f-20e5b2ec42c4" )) {
+			File sspec = new File( "src/test/resources/NFVO_Example_RFS.json.json" );
+			InputStream in = new FileInputStream( sspec );
+			sspectext = IOUtils.toString(in, "UTF-8");			
+		} else if ( id.equals( "0399516f-e9ae-4c8e-8f7a-b13ad9a1bd00" )) {
+			File sspec = new File( "src/test/resources/NFVO_Examplejson" );
+			InputStream in = new FileInputStream( sspec );
+			sspectext = IOUtils.toString(in, "UTF-8");			
 		}
 		
 		

@@ -41,6 +41,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.openslice.model.DeploymentDescriptor;
+import io.openslice.model.NetworkServiceDescriptor;
 import io.openslice.osom.configuration.OSOMRouteBuilder;
 import io.openslice.tmf.pm632.model.Organization;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
@@ -106,6 +107,9 @@ public class ServiceOrderManager {
 	@Value("${NFV_CATALOG_GET_DEPLOYMENT_BY_ID}")
 	private String NFV_CATALOG_GET_DEPLOYMENT_BY_ID = "";
 	
+
+	@Value("${NFV_CATALOG_GET_NSD_BY_ID}")
+	private String NFV_CATALOG_GET_NSD_BY_ID = "";
 
 	@Value("${CATALOG_GET_PARTNER_ORGANIZATON_BY_ID}")
 	private String CATALOG_GET_PARTNER_ORGANIZATON_BY_ID = "";
@@ -442,6 +446,32 @@ public class ServiceOrderManager {
 		}catch (Exception e) {
 			logger.error("Cannot retrieve DeploymentDescriptor details from NFV catalog. " + e.toString());
 			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	/**
+	 * get  service order by id from model via bus
+	 * @param id
+	 * @return
+	 * @throws IOException
+	 */
+	public NetworkServiceDescriptor retrieveNSD( String nsdID) {
+		logger.info("will retrieve NetworkServiceDescriptor from NSD/VNF catalog nsdID=" + nsdID   );
+		try {
+			Object response = template.
+					requestBody( NFV_CATALOG_GET_NSD_BY_ID, nsdID);
+
+			if ( !(response instanceof String)) {
+				logger.error("NetworkServiceDescriptor object is wrong.");
+				return null;
+			}
+			NetworkServiceDescriptor sor = toJsonObj( (String)response, NetworkServiceDescriptor.class); 
+			//logger.debug("retrieveServiceOrder response is: " + response);
+			return sor;
+			
+		}catch (Exception e) {
+			logger.error("Cannot retrieve NetworkServiceDescriptor details from catalog. " + e.toString());
 		}
 		return null;
 	}

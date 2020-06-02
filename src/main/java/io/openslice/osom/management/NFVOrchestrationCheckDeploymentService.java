@@ -80,7 +80,12 @@ public class NFVOrchestrationCheckDeploymentService implements JavaDelegate {
 					c.setValue( new Any( dd.getConstituentVnfrIps() + "" ));
 				} else if ( c.getName().equals("ConfigStatus")) {
 					c.setValue( new Any( dd.getConfigStatus() + "" ));
-				}
+				} 
+//				else if ( c.getName().equals("NSR")) {
+//					c.setValue( new Any( dd.getNsr() + "" ));
+//				} else if ( c.getName().equals("NSLCM_details")) {
+//					c.setValue( new Any( dd.getNs_nslcm_details() + "" ));
+//				}
 				supd.addServiceCharacteristicItem( c );					
 			} 
 		} else {

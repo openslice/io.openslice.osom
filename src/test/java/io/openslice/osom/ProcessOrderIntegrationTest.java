@@ -247,5 +247,60 @@ public class ProcessOrderIntegrationTest {
 
 		}
 	}
+	
+	
+	@Test
+	public void testNFVOProcessOrder() throws Exception {
+
+
+		repositoryService.suspendProcessDefinitionByKey("OrderSchedulerProcess"); // this is to stop the timer
+		repositoryService.suspendProcessDefinitionByKey("fetchInRpogressOrdersProcess"); // this is to stop the timer
+		
+		
+		/**
+		 * configure here the mocked routes
+		 */
+		RoutesBuilder builder = new RouteBuilder() {
+			@Override
+			public void configure() {
+				from("direct:get_mocked_order").bean(scmocked, "getOrderById");
+				from("direct:get_mocked_spec").bean(scmocked, "getSpecById");
+				from("direct:get_mocked_add_service").bean(scmocked, "getMockedService");
+				from("direct:get_mocked_upd_service").bean(scmocked, "getMockedService");
+				from("direct:get_mocked_upd_order").bean(scmocked, "updateServiceOrder");
+				from("direct:get_mocked_service_id").bean(scmocked, "getServiceById");
+				from("direct:req_deploy_nsd").bean(scmocked, "req_deploy_nsd");
+				from("direct:req_deployment_id").bean(scmocked, "req_deployment_id");
+
+			};
+		};
+
+		camelContext.addRoutes(builder);
+
+		logger.info("waiting 1secs");
+		Thread.sleep(1000); // wait
+
+		assertThat(serviceOrderManager.retrieveServiceOrder("b0661e27-020f-4026-84ab-5c265bac47e7"))
+				.isInstanceOf(ServiceOrder.class);
+		
+		Map<String, Object> variables = new HashMap<>();
+		variables.put("orderid", "93b9928c-de35-4495-a157-1100f6e71c92");
+		runtimeService.startProcessInstanceByKey("StartOrderProcess", variables);
+		logger.info("waiting 1sec");
+		Thread.sleep(1000); // wait
+
+		for (ProcessInstance pi : runtimeService.createProcessInstanceQuery().list()) {
+			logger.info(" pi.id " + pi.toString());
+		}
+
+		for (Task task : taskService.createTaskQuery().list()) {
+			logger.info(" task.name " + task.getName());
+		}
+
+		
+		logger.info("waiting 10secs");
+		Thread.sleep(10000); // wait
+
+	}
 
 }
