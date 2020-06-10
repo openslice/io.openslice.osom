@@ -54,6 +54,9 @@ import io.openslice.tmf.common.model.service.Note;
 import io.openslice.tmf.common.model.service.ServiceSpecificationRef;
 import io.openslice.tmf.pm632.model.Characteristic;
 import io.openslice.tmf.pm632.model.Organization;
+import io.openslice.tmf.scm633.model.ServiceCandidate;
+import io.openslice.tmf.scm633.model.ServiceCandidateRef;
+import io.openslice.tmf.scm633.model.ServiceCategory;
 import io.openslice.tmf.scm633.model.ServiceSpecCharacteristic;
 import io.openslice.tmf.scm633.model.ServiceSpecCharacteristicValue;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
@@ -139,42 +142,136 @@ public class PartnerOrganizationServicesManager {
 
 		WebClient webclient = this.getOrganizationWebClient(org);
 
-		List<ServiceSpecification> specsList = new ArrayList<>();		
+		List<ServiceSpecification> totalSpecsList = new ArrayList<>();		
 		
+		/**
+		 * First fetch any from catalog URLs, only if there is a URL
+		 */
 		try
-		{
-			
-			String url = "/tmf-api/serviceCatalogManagement/v4/serviceSpecification";
-			
+		{			
+			String url = "/tmf-api/serviceCatalogManagement/v4/serviceSpecification";			
 			if ( ( org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_CATALOG_URLS") != null) &&
 					(org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_CATALOG_URLS").getValue() != null) &&
 					(!org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_CATALOG_URLS").getValue().getValue().equals("") )) {
+				
 				url = org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_CATALOG_URLS").getValue().getValue();
+				logger.info("Will fetchServiceSpecs of organization: " + org.getName() + " from: " + url );		
+				
+				if ( webclient!=null ) {					
+					List<ServiceSpecification> specsList = webclient.get()
+							.uri( url )
+								//.attributes( ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId("authOpensliceProvider"))
+								.retrieve()
+								.onStatus(HttpStatus::is4xxClientError, response -> {
+									logger.error("4xx error");
+									 webclients.remove( org.getId(), webclient );
+									this.updateOrgzStatus(org, "WEBCLIENT 4xx ERROR");
+							        return Mono.error(new RuntimeException("4xx"));
+							      })
+							      .onStatus(HttpStatus::is5xxServerError, response -> {
+							    	  logger.error("5xx error");
+									webclients.remove( org.getId(), webclient );
+									this.updateOrgzStatus(org, "WEBCLIENT 5xx ERROR");
+							        return Mono.error(new RuntimeException("5xx"));
+							      })
+							  .bodyToMono( new ParameterizedTypeReference<List<ServiceSpecification>>() {})
+							  .block();
+					
+					totalSpecsList.addAll(specsList);
+					
+				} else  {
+					logger.error("WebClient is null. Cannot be created.");
+					this.updateOrgzStatus(org, "WEBCLIENT is null");
+				}
+			}
+		}catch (Exception e) {
+			logger.error("fetchServiceSpecs error on web client request");
+			this.updateOrgzStatus(org, "WEBCLIENT fetchServiceSpecs error ");
+		}
+		
+		
+		
+		//EXTERNAL_TMFAPI_SERVICE_CATEGORY_URLS
+		/**
+		 *  fetch any from category URLs
+		 */
+		try
+		{
+			
+			String urls = "/tmf-api/serviceCatalogManagement/v4/serviceCategory";
+			
+			if ( ( org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_CATEGORY_URLS") != null) &&
+					(org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_CATEGORY_URLS").getValue() != null) &&
+					(!org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_CATEGORY_URLS").getValue().getValue().equals("") )) {
+				urls = org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_CATEGORY_URLS").getValue().getValue();
 			}
 			
-			logger.info("Will fetchServiceSpecs of organization: " + org.getName() + " from: " + url );
+			String[] urlToFetch = urls.split(",");
+			
 						
 		
 			if ( webclient!=null ) {
+				for (String url : urlToFetch) {
+					logger.info("Will fetchServiceCandidates of organization: " + org.getName() + " from: " + url );
+					
+					
+					ServiceCategory sc = webclient.get()
+							.uri( url )
+								//.attributes( ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId("authOpensliceProvider"))
+								.retrieve()
+								.onStatus(HttpStatus::is4xxClientError, response -> {
+									logger.error("4xx error");
+									 webclients.remove( org.getId(), webclient );
+									this.updateOrgzStatus(org, "WEBCLIENT 4xx ERROR");
+							        return Mono.error(new RuntimeException("4xx"));
+							      })
+							      .onStatus(HttpStatus::is5xxServerError, response -> {
+							    	  logger.error("5xx error");
+									webclients.remove( org.getId(), webclient );
+									this.updateOrgzStatus(org, "WEBCLIENT 5xx ERROR");
+							        return Mono.error(new RuntimeException("5xx"));
+							      })
+							  .bodyToMono( new ParameterizedTypeReference< ServiceCategory>() {})
+							  .block();
+
+
+					//prepei me neo fetch sot service candidate na parw to spec
+					
+						for (ServiceCandidate serviceCandidateRef : sc.getServiceCandidateObj()   ) {
+							url = url.split("serviceCategory")[0];
+							String urlCandidate = url + "serviceCandidate/" + serviceCandidateRef.getId();
+							ServiceCandidate scand = webclient.get()
+									.uri( urlCandidate )
+										//.attributes( ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId("authOpensliceProvider"))
+										.retrieve()
+										.onStatus(HttpStatus::is4xxClientError, response -> {
+											logger.error("4xx error");
+											 webclients.remove( org.getId(), webclient );
+											this.updateOrgzStatus(org, "WEBCLIENT 4xx ERROR");
+									        return Mono.error(new RuntimeException("4xx"));
+									      })
+									      .onStatus(HttpStatus::is5xxServerError, response -> {
+									    	  logger.error("5xx error");
+											webclients.remove( org.getId(), webclient );
+											this.updateOrgzStatus(org, "WEBCLIENT 5xx ERROR");
+									        return Mono.error(new RuntimeException("5xx"));
+									      })
+									  .bodyToMono( new ParameterizedTypeReference< ServiceCandidate>() {})
+									  .block();
+							
+							
+							//we only care for the id, so we add this in this fake spec							
+							
+							if ( (scand!=null) && ( scand.getServiceSpecificationObj() != null) ) {
+								totalSpecsList.add( scand.getServiceSpecificationObj() );
+							}
+							
+						}	
+					
+						
+					
+				}
 				
-				specsList = webclient.get()
-						.uri( url )
-							//.attributes( ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId("authOpensliceProvider"))
-							.retrieve()
-							.onStatus(HttpStatus::is4xxClientError, response -> {
-								logger.error("4xx error");
-								 webclients.remove( org.getId(), webclient );
-								this.updateOrgzStatus(org, "WEBCLIENT 4xx ERROR");
-						        return Mono.error(new RuntimeException("4xx"));
-						      })
-						      .onStatus(HttpStatus::is5xxServerError, response -> {
-						    	  logger.error("5xx error");
-								webclients.remove( org.getId(), webclient );
-								this.updateOrgzStatus(org, "WEBCLIENT 5xx ERROR");
-						        return Mono.error(new RuntimeException("5xx"));
-						      })
-						  .bodyToMono( new ParameterizedTypeReference<List<ServiceSpecification>>() {})
-						  .block();
 				
 			} else  {
 				logger.error("WebClient is null. Cannot be created.");
@@ -185,6 +282,7 @@ public class PartnerOrganizationServicesManager {
 			logger.error("fetchServiceSpecs error on web client request");
 			this.updateOrgzStatus(org, "WEBCLIENT fetchServiceSpecs error ");
 		}
+		
 		
 		/**
 		 * will  fetch each spec details from API
@@ -200,27 +298,29 @@ public class PartnerOrganizationServicesManager {
 			urlfullspec = org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_SPEC").getValue().getValue();
 		}
 		
-		for (ServiceSpecification specsrc : specsList) {
-			ServiceSpecification fullspec = webclient.get()
-					.uri( urlfullspec + "/" + specsrc.getId() )
-					.retrieve()
-					.onStatus(HttpStatus::is4xxClientError, response -> {
-						logger.error("4xx error");
-						webclients.remove( org.getId(), webclient );
-						this.updateOrgzStatus(org, "WEBCLIENT ServiceSpecification 4xx ERROR " + specsrc.getId() );
-				        return Mono.error(new RuntimeException("4xx"));
-				      })
-				      .onStatus(HttpStatus::is5xxServerError, response -> {
-				    	  logger.error("5xx error");
-
+		for (ServiceSpecification specsrc : totalSpecsList) {
+			if ( specsrc.getId()!=null ) {
+				ServiceSpecification fullspec = webclient.get()
+						.uri( urlfullspec + "/" + specsrc.getId() )
+						.retrieve()
+						.onStatus(HttpStatus::is4xxClientError, response -> {
+							logger.error("4xx error");
 							webclients.remove( org.getId(), webclient );
-							this.updateOrgzStatus(org, "WEBCLIENT ServiceSpecification 5xx ERROR "  + specsrc.getId() );
-				        return Mono.error(new RuntimeException("5xx"));
-				      })
-				  .bodyToMono( new ParameterizedTypeReference< ServiceSpecification>() {})
-				  .block();
-			logger.info("Will add from " + org.getName() + " serviceSpecification name: " + fullspec.getName() + ", id: " + fullspec.getId());
-			fullSpecsResult.add( fullspec );
+							this.updateOrgzStatus(org, "WEBCLIENT ServiceSpecification 4xx ERROR " + specsrc.getId() );
+					        return Mono.error(new RuntimeException("4xx"));
+					      })
+					      .onStatus(HttpStatus::is5xxServerError, response -> {
+					    	  logger.error("5xx error");
+
+								webclients.remove( org.getId(), webclient );
+								this.updateOrgzStatus(org, "WEBCLIENT ServiceSpecification 5xx ERROR "  + specsrc.getId() );
+					        return Mono.error(new RuntimeException("5xx"));
+					      })
+					  .bodyToMono( new ParameterizedTypeReference< ServiceSpecification>() {})
+					  .block();
+				logger.info("Will add from " + org.getName() + " serviceSpecification name: " + fullspec.getName() + ", id: " + fullspec.getId());
+				fullSpecsResult.add( fullspec );				
+			}
 		}
 		
 
