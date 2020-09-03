@@ -85,6 +85,9 @@ import io.openslice.tmf.so641.model.ServiceOrder;
 		"CATALOG_GET_SERVICESPEC_BY_ID = direct:get_mocked_spec", "CATALOG_ADD_SERVICE = direct:get_mocked_add_service",
 		"CATALOG_UPD_SERVICEORDER_BY_ID = direct:get_mocked_upd_order",
 		"CATALOG_GET_SERVICE_BY_ID = direct:get_mocked_service_id",
+		"CATALOG_SERVICE_QUEUE_ITEMS_GET: direct:get_mocked_service_id",
+		"CATALOG_SERVICE_QUEUE_ITEM_UPD: direct:get_mocked_service_id",
+		"CATALOG_SERVICE_QUEUE_ITEM_DELETE: direct:get_mocked_service_id",
 		"CATALOG_UPD_SERVICE = direct:get_mocked_upd_service", "NFV_CATALOG_DEPLOY_NSD_REQ = direct:req_deploy_nsd",
 		"NFV_CATALOG_GET_DEPLOYMENT_BY_ID = direct:req_deployment_id", "uri.to   = mock:output" })
 @ActiveProfiles("testing")

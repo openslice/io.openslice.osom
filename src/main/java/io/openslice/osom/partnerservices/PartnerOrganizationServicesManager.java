@@ -187,6 +187,8 @@ public class PartnerOrganizationServicesManager {
 		}catch (Exception e) {
 			logger.error("fetchServiceSpecs error on web client request");
 			this.updateOrgzStatus(org, "WEBCLIENT fetchServiceSpecs error ");
+			this.invalidateOrganizationWebClient(org);
+			
 		}
 		
 		
@@ -281,6 +283,7 @@ public class PartnerOrganizationServicesManager {
 		}catch (Exception e) {
 			logger.error("fetchServiceSpecs error on web client request");
 			this.updateOrgzStatus(org, "WEBCLIENT fetchServiceSpecs error ");
+			this.invalidateOrganizationWebClient(org);
 		}
 		
 		
@@ -328,6 +331,7 @@ public class PartnerOrganizationServicesManager {
 
 		return fullSpecsResult;
 	}
+
 
 	private List<ServiceSpecification> fetchServiceSpecsFlowOne(Organization org) {
 		logger.info("Will fetchServiceSpecsFlowOne of organization: " + org.getName() + ", id: " + org.getId());
@@ -403,6 +407,14 @@ public class PartnerOrganizationServicesManager {
 		 */
 
 		return specs;
+	}
+	
+
+	private void invalidateOrganizationWebClient(Organization org) {
+		if (webclients.get(org.getId()) != null) {
+			webclients.remove( org.getId() );
+		}
+		
 	}
 
 	private WebClient getOrganizationWebClient(Organization org) {

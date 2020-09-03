@@ -26,6 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.model.dataformat.JsonLibrary;
 import org.apache.commons.lang3.RandomUtils;
@@ -62,6 +65,7 @@ import io.openslice.tmf.so641.model.ServiceOrderActionType;
 import io.openslice.tmf.so641.model.ServiceOrderItem;
 import io.openslice.tmf.so641.model.ServiceOrderStateType;
 import io.openslice.tmf.so641.model.ServiceOrderUpdate;
+import io.openslice.tmf.so641.model.ServiceRestriction;
 import liquibase.change.core.AddAutoIncrementChange;
 
 /**
@@ -113,10 +117,8 @@ public class AutomationCheck implements JavaDelegate {
 					logger.debug("Retrieved Service Name:" + spec.getName());
 					
 
-					//this is a main underlying service for the requested service (restriction)
-					if ( soi.getAction().equals(  ServiceOrderActionType.ADD   ) ) {
-						addServicesToVariables( spec, sor, soi, servicesHandledByExternalSP, servicesHandledManual, servicesHandledByNFVOAutomated, servicesLocallyAutomated );
-					}
+					//this is a main underlying service for the requested service (restriction)					
+					addServicesToVariables( spec, sor, soi, servicesHandledByExternalSP, servicesHandledManual, servicesHandledByNFVOAutomated, servicesLocallyAutomated );
 					
 					//List<Service> createdServices = new ArrayList<>();
 					
@@ -125,17 +127,44 @@ public class AutomationCheck implements JavaDelegate {
 						logger.debug("\tService specRelsId:" + specRels.getId());
 						
 						ServiceSpecification specrel = serviceOrderManager.retrieveServiceSpec(specRels.getId());
-
-						if ( soi.getAction().equals(  ServiceOrderActionType.ADD   ) ) {
-							addServicesToVariables(specrel, sor, soi, servicesHandledByExternalSP, servicesHandledManual, servicesHandledByNFVOAutomated, servicesLocallyAutomated );							
-						}
-						
+						addServicesToVariables(specrel, sor, soi, servicesHandledByExternalSP, servicesHandledManual, servicesHandledByNFVOAutomated, servicesLocallyAutomated );
 						
 
 					}
+					
+
+					soi.getService().setState( ServiceStateType.RESERVED );
+					soi.setState(ServiceOrderStateType.INPROGRESS);
 					logger.debug("<--------------- /related specs -------------->");					
+				}else if ( soi.getAction().equals(  ServiceOrderActionType.DELETE    ) ) {
+					ServiceRestriction refservice = soi.getService();
+					if ( soi.getState().equals(  ServiceOrderStateType.ACKNOWLEDGED    ) ) {
+
+						//we need to add the service to the MODIFY- INACTIVE/TERMINATION queue
+						
+					}
+					soi.setState(ServiceOrderStateType.INPROGRESS);
+					soi.setAction( ServiceOrderActionType.NOCHANGE ); //reset the action to NOCHANGE	
+
+					
+				}else if ( soi.getAction().equals(  ServiceOrderActionType.MODIFY    ) ) {	
+					ServiceRestriction refservice = soi.getService();
+					
+					if ( soi.getState().equals(  ServiceOrderStateType.ACKNOWLEDGED    ) ) {
+						if ( refservice.getState().equals(  ServiceStateType.INACTIVE) 
+								||  refservice.getState().equals(  ServiceStateType.TERMINATED)) {
+						
+							//we need to add the service to an MODIFY- INACTIVE/TERMINATION queue queue
+							
+						}						
+					}
+					soi.setState(ServiceOrderStateType.INPROGRESS);
+					soi.setAction( ServiceOrderActionType.NOCHANGE ); //reset the action to NOCHANGE
+					
 				}
 			}
+			
+			
 
 			execution.setVariable("servicesHandledByExternalSP", servicesHandledByExternalSP);
 			execution.setVariable("servicesHandledManual", servicesHandledManual);
@@ -157,16 +186,16 @@ public class AutomationCheck implements JavaDelegate {
 			
 			ServiceOrderUpdate serviceOrderUpd = new ServiceOrderUpdate();
 			for (ServiceOrderItem orderItemItem : sor.getOrderItem()) {
-				orderItemItem.setState(ServiceOrderStateType.INPROGRESS);
 				orderItemItem.getService().setName( orderItemItem.getService().getServiceSpecification().getName() );
 				orderItemItem.getService().setCategory( orderItemItem.getService().getServiceSpecification().getType() );
-				orderItemItem.getService().setState( ServiceStateType.RESERVED );
-				
-				orderItemItem.setAction( ServiceOrderActionType.NOCHANGE ); //reset the action to NOCHANGE				
+				//orderItemItem.getService().setState( ServiceStateType.RESERVED );
+				//orderItemItem.setAction( ServiceOrderActionType.NOCHANGE ); //reset the action to NOCHANGE	
+							
 				serviceOrderUpd.addOrderItemItem(orderItemItem);
 			}
-			serviceOrderManager.updateServiceOrderOrder( sor.getId(), serviceOrderUpd );
 			
+			
+			serviceOrderManager.updateServiceOrderOrder( sor.getId(), serviceOrderUpd );
 			
 		}
 	}
@@ -284,6 +313,7 @@ public class AutomationCheck implements JavaDelegate {
 		s.setType(spec.getType());
 		s.setServiceDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
 		s.setStartDate( OffsetDateTime.now(ZoneOffset.UTC).toString()  );
+		s.setEndDate( sor.getExpectedCompletionDate()  );
 		s.hasStarted(false);
 		s.setIsServiceEnabled(false);
 		s.setStartMode( startMode.getValue() );

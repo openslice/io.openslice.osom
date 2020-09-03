@@ -21,6 +21,7 @@ package io.openslice.osom.management;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +46,7 @@ import io.openslice.model.NetworkServiceDescriptor;
 import io.openslice.osom.configuration.OSOMRouteBuilder;
 import io.openslice.tmf.pm632.model.Organization;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
+import io.openslice.tmf.sim638.model.ServiceActionQueueItem;
 import io.openslice.tmf.sim638.model.ServiceCreate;
 import io.openslice.tmf.sim638.model.ServiceUpdate;
 import io.openslice.tmf.so641.model.ServiceOrder;
@@ -99,6 +101,15 @@ public class ServiceOrderManager {
 
 	@Value("${CATALOG_GET_SERVICE_BY_ID}")
 	private String CATALOG_GET_SERVICE_BY_ID = "";
+	
+	@Value("${CATALOG_SERVICE_QUEUE_ITEMS_GET}")
+	private String CATALOG_SERVICE_QUEUE_ITEMS_GET = "";	
+
+	@Value("${CATALOG_SERVICE_QUEUE_ITEM_UPD}")
+	private String CATALOG_SERVICE_QUEUE_ITEM_UPD = "";
+	
+	@Value("${CATALOG_SERVICE_QUEUE_ITEM_DELETE}")
+	private String CATALOG_SERVICE_QUEUE_ITEM_DELETE = "";
 
 	@Value("${NFV_CATALOG_DEPLOY_NSD_REQ}")
 	private String NFV_CATALOG_DEPLOY_NSD_REQ = "";
@@ -499,7 +510,52 @@ public class ServiceOrderManager {
 	}
 
 	
+	//CATALOG_SERVICE_QUEUE_ITEMS_GET
+	public List<ServiceActionQueueItem> retrieveServiceQueueItems() {
+		logger.info("will retrieve Service QueueItems from repository"   );
+		try {
+			
+			Object response = template.
+					requestBody( CATALOG_SERVICE_QUEUE_ITEMS_GET, "" );
 
+			logger.debug("will retrieve Service QueueItems response: " + response.getClass()  );
+			if ( !(response instanceof String)) {
+				logger.error("List  object is wrong.");
+				return null;
+			}
+			//String[] sor = toJsonObj( (String)response, String[].class );
+
+			ServiceActionQueueItem[] sor = toJsonObj( (String)response, ServiceActionQueueItem[].class ); 
+			logger.debug("retrieveServiceQueueItems response is: " + response);
+			
+//			return asList(sor);
+			return Arrays.asList(sor);
+			
+		}catch (Exception e) {
+			logger.error("Cannot retrieve Listof Service QueueItems . " + e.toString());
+		}
+		return null;
+	}
+	
+	public void deleteServiceActionQueueItem(ServiceActionQueueItem item) {
+	
+		//
+		logger.info("will delete Service QueueItems from repository itemid : " + item.getUuid() );
+		try {
+
+			String body = toJsonString(item);
+			
+			Map<String, Object> map = new HashMap<>();
+			map.put("itemid", item.getUuid() );
+			Object response = template.requestBodyAndHeaders( CATALOG_SERVICE_QUEUE_ITEM_DELETE, body, map);
+
+			
+			
+		}catch (Exception e) {
+			logger.error("Cannot update itemid: " + item.getUuid() + ": " + e.toString());
+		}
+		
+	}
 
 
 }

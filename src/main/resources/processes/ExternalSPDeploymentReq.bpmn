@@ -20,7 +20,7 @@
     <endEvent id="endevent1" name="End"></endEvent>
     <sequenceFlow id="flowExtServiceOrderReqFinished" name="flowExtServiceOrderReq Finished" sourceRef="exclusivegateway1" targetRef="endevent1">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${serviceDeploymentFinished}]]></conditionExpression>
-      </sequenceFlow>
+    </sequenceFlow>
     <textAnnotation id="textannotation1">
       <text>Timer start wait 60 secs</text>
     </textAnnotation>
