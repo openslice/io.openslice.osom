@@ -111,6 +111,10 @@ public class ServiceOrderManager {
 	
 	@Value("${CATALOG_SERVICE_QUEUE_ITEM_DELETE}")
 	private String CATALOG_SERVICE_QUEUE_ITEM_DELETE = "";
+	
+
+	@Value("${CATALOG_SERVICES_TO_TERMINATE}")
+	private String CATALOG_SERVICES_TO_TERMINATE = "";
 
 	@Value("${NFV_CATALOG_DEPLOY_NSD_REQ}")
 	private String NFV_CATALOG_DEPLOY_NSD_REQ = "";
@@ -133,6 +137,7 @@ public class ServiceOrderManager {
 	@Value("${NFV_CATALOG_NS_DAY2_ACTION}")
 	private String NFV_CATALOG_NS_DAY2_ACTION = "";
 	
+
 	
 	
 	
@@ -624,6 +629,32 @@ public class ServiceOrderManager {
 			logger.error("Cannot update itemid: " + item.getUuid() + ": " + e.toString());
 		}
 		
+	}
+
+	public List<String> retrieveActiveServiceToTerminate() {
+		logger.info("will retrieve ActiveServiceToTerminate"   );
+		try {
+			
+			Object response = template.
+					requestBody( CATALOG_SERVICES_TO_TERMINATE, "" );
+
+			logger.debug("will retrieve ActiveServiceToTerminate response: " + response.getClass()  );
+			if ( !(response instanceof String)) {
+				logger.error("List  object is wrong.");
+				return null;
+			}
+			//String[] sor = toJsonObj( (String)response, String[].class );
+
+			String[] sor = toJsonObj( (String)response, String[].class ); 
+			logger.debug("retrieveActiveServiceToTerminate response is: " + response);
+			
+//			return asList(sor);
+			return Arrays.asList(sor);
+			
+		}catch (Exception e) {
+			logger.error("Cannot retrieve Listof ActiveServiceToTerminate . " + e.toString());
+		}
+		return null;
 	}
 
 	

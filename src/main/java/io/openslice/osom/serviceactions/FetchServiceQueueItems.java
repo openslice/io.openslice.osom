@@ -26,8 +26,6 @@ public class FetchServiceQueueItems implements JavaDelegate {
 	@Autowired
 	private ServiceOrderManager serviceOrderManager;
 
-	@Autowired
-	private RuntimeService runtimeService;
 
 	public void execute(DelegateExecution execution) {
 		logger.info("FetchServiceQueueItems by Service Inventory Repository");
