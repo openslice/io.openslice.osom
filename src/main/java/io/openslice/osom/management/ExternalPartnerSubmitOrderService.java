@@ -156,7 +156,7 @@ public class ExternalPartnerSubmitOrderService  implements JavaDelegate {
 						serviceCharacteristicItem.setValue( any );
 						su.addServiceCharacteristicItem(serviceCharacteristicItem);
 						
-						Service supd = serviceOrderManager.updateService(  execution.getVariable("serviceId").toString(), su);
+						Service supd = serviceOrderManager.updateService(  execution.getVariable("serviceId").toString(), su, false);
 						logger.info("Request to partner " + orgz.getName() + " for spec:" + spec.getName()  + " done! Service: " + supd.getId() );						
 						return;						
 					}
@@ -177,7 +177,7 @@ public class ExternalPartnerSubmitOrderService  implements JavaDelegate {
 		noteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
 		su.addNoteItem( noteItem );
 		su.setState(ServiceStateType.TERMINATED   );
-		serviceOrderManager.updateService(  execution.getVariable("serviceId").toString(), su);
+		serviceOrderManager.updateService(  execution.getVariable("serviceId").toString(), su, false);
 		
 	}
 

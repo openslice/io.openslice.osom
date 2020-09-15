@@ -22,6 +22,7 @@ package io.openslice.osom.management;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -34,6 +35,7 @@ import org.flowable.engine.delegate.JavaDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import io.openslice.model.DeploymentDescriptor;
 import io.openslice.tmf.common.model.service.Note;
 import io.openslice.tmf.common.model.service.ResourceRef;
 import io.openslice.tmf.common.model.service.ServiceRef;
@@ -54,6 +56,10 @@ public class OrderCompleteService implements JavaDelegate {
     @Autowired
     private ServiceOrderManager serviceOrderManager;
     
+
+    @Autowired
+    NFVOrchestrationCheckDeploymentService nfvOrchestrationCheckDeploymentService;
+    
 	public void execute(DelegateExecution execution) {
 
 		logger.info("OrderCompleteService:" + execution.getVariableNames().toString() );
@@ -67,17 +73,42 @@ public class OrderCompleteService implements JavaDelegate {
 				logger.error("Cannot retrieve Service Order details from catalog.");
 				return;
 			}
+			
+			
+			if ( nfvOrchestrationCheckDeploymentService!= null) {
+				for (ServiceOrderItem soi : sOrder.getOrderItem()) {
+					for (ServiceRef sref : soi.getService().getSupportingService()) {
+						Service aService = serviceOrderManager.retrieveService( sref.getId()  );
+						
+						if ( (aService!=null ) &&
+								(aService.getServiceCharacteristicByName( "DeploymentRequestID" ) != null )){
+							String deploymentRequestID = aService.getServiceCharacteristicByName( "DeploymentRequestID" ).getValue().getValue();
+
+							execution.setVariable( "deploymentId", Long.parseLong( deploymentRequestID ));
+							execution.setVariable( "serviceId", aService.getUuid() );
+							
+							nfvOrchestrationCheckDeploymentService.execute(execution);
+
+						}
+						
+					}
+				}
+				
+			}
 
 
 			boolean allCompletedItemsInOrder= true;
 			boolean allTerminatedItemsInOrder= true;
 			boolean existsInactiveInORder= false;
+			boolean existsTerminatedInORder= false;
 			boolean updateServiceOrder= false;
 			
 			logger.info("ServiceOrder id:" + sOrder.getId());
 			for (ServiceOrderItem soi : sOrder.getOrderItem()) {
 				boolean existsReserved=false;
 				boolean existsInactive=false;
+				boolean existsActive=false;
+				boolean existsTerminated=false;
 				boolean allTerminated= ( soi.getService().getSupportingService() != null) || ( soi.getService().getSupportingResource() != null);
 				boolean existsDesigned=false;
 				boolean allActive= ( soi.getService().getSupportingService() != null) || ( soi.getService().getSupportingResource() != null);
@@ -89,6 +120,8 @@ public class OrderCompleteService implements JavaDelegate {
 						existsReserved = existsReserved || srv.getState().equals(ServiceStateType.RESERVED );
 						existsInactive = existsInactive || srv.getState().equals(ServiceStateType.INACTIVE );
 						existsDesigned = existsDesigned || srv.getState().equals(ServiceStateType.DESIGNED );
+						existsActive  = existsActive || srv.getState().equals(ServiceStateType.ACTIVE );
+						existsTerminated  = existsTerminated || srv.getState().equals(ServiceStateType.TERMINATED );
 						allTerminated = allTerminated && srv.getState().equals(ServiceStateType.TERMINATED );
 						allActive = allActive && srv.getState().equals(ServiceStateType.ACTIVE );
 					}						
@@ -101,6 +134,8 @@ public class OrderCompleteService implements JavaDelegate {
 						existsReserved = existsReserved || srv.getState().equals(ServiceStateType.RESERVED );
 						existsInactive = existsInactive || srv.getState().equals(ServiceStateType.INACTIVE );
 						existsDesigned = existsDesigned || srv.getState().equals(ServiceStateType.DESIGNED );
+						existsActive  = existsActive || srv.getState().equals(ServiceStateType.ACTIVE );
+						existsTerminated  = existsTerminated || srv.getState().equals(ServiceStateType.TERMINATED );
 						allTerminated = allTerminated && srv.getState().equals(ServiceStateType.TERMINATED );
 						allActive = allActive && srv.getState().equals(ServiceStateType.ACTIVE );
 					}					
@@ -112,7 +147,8 @@ public class OrderCompleteService implements JavaDelegate {
 					sserviceState = ServiceStateType.ACTIVE;
 					soi.setState( ServiceOrderStateType.COMPLETED );		
 				} else if (allTerminated) {
-					sserviceState = ServiceStateType.TERMINATED;					
+					sserviceState = ServiceStateType.TERMINATED;	
+					existsTerminatedInORder = true;				
 				} else if (existsInactive) {
 					sserviceState = ServiceStateType.INACTIVE;		
 					soi.setState( ServiceOrderStateType.PARTIAL );			
@@ -123,6 +159,10 @@ public class OrderCompleteService implements JavaDelegate {
 				} else if (existsReserved) {
 					sserviceState = ServiceStateType.RESERVED;	
 					soi.setState( ServiceOrderStateType.INPROGRESS );						
+				} else if (existsTerminated) {
+					sserviceState = ServiceStateType.TERMINATED;	
+					soi.setState( ServiceOrderStateType.COMPLETED  );
+					existsTerminatedInORder = true;
 				}
 				
 				
@@ -144,7 +184,9 @@ public class OrderCompleteService implements JavaDelegate {
 				sOrder.setState( ServiceOrderStateType.COMPLETED );				
 			} else if ( existsInactiveInORder ) {
 				sOrder.setState( ServiceOrderStateType.PARTIAL );		
-			}
+			}  else if ( existsTerminatedInORder ) {
+				sOrder.setState( ServiceOrderStateType.FAILED );		
+			} 
 			
 			if ( updateServiceOrder ) {
 				logger.info("Will update ServiceOrder with state:" +  sOrder.getState() );

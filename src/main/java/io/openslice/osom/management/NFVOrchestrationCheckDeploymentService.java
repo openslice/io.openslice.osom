@@ -60,6 +60,11 @@ public class NFVOrchestrationCheckDeploymentService implements JavaDelegate {
 		logger.info( "NFVOrchestrationCheckDeploymentService" );
 		logger.info( execution.getVariableNames().toString() );
 		Long deploymentId = (Long) execution.getVariable("deploymentId") ;
+		if ( deploymentId == null) {
+
+			logger.error( "Variable deploymentId is NULL!" );
+			return;
+		}
 		Service aService = serviceOrderManager.retrieveService( (String) execution.getVariable("serviceId") );
 		
 		//retrieve Status from NFVO (OSM?) scheduler
@@ -80,7 +85,11 @@ public class NFVOrchestrationCheckDeploymentService implements JavaDelegate {
 					c.setValue( new Any( dd.getConstituentVnfrIps() + "" ));
 				} else if ( c.getName().equals("ConfigStatus")) {
 					c.setValue( new Any( dd.getConfigStatus() + "" ));
+				}  else if ( c.getName().equals("InstanceId")) {
+					c.setValue( new Any( dd.getInstanceId() + "" ));
 				} 
+				
+
 //				else if ( c.getName().equals("NSR")) {
 //					c.setValue( new Any( dd.getNsr() + "" ));
 //				} else if ( c.getName().equals("NSLCM_details")) {
@@ -105,14 +114,16 @@ public class NFVOrchestrationCheckDeploymentService implements JavaDelegate {
 			supd.setState( ServiceStateType.TERMINATED );
 		}
 		
-		Service serviceResult = serviceOrderManager.updateService( aService.getId(), supd );
+		Service serviceResult = serviceOrderManager.updateService( aService.getId(), supd, false );
 		
-		if ( serviceResult.getState().equals(ServiceStateType.ACTIVE)
-				|| serviceResult.getState().equals(ServiceStateType.TERMINATED)) {
+		if ( serviceResult!= null ) {
+			if ( serviceResult.getState().equals(ServiceStateType.ACTIVE)
+					|| serviceResult.getState().equals(ServiceStateType.TERMINATED)) {
 
-			logger.info("Deployment Status OK. Service state = " + serviceResult.getState() );
-			execution.setVariable("serviceDeploymentFinished", new Boolean(true));
-			return;
+				logger.info("Deployment Status OK. Service state = " + serviceResult.getState() );
+				execution.setVariable("serviceDeploymentFinished", new Boolean(true));
+				return;
+			}			
 		}
 		logger.info("Wait For Deployment Status. ");
 		

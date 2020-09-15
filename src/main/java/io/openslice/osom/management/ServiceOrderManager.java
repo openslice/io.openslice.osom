@@ -44,6 +44,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.openslice.model.DeploymentDescriptor;
 import io.openslice.model.NetworkServiceDescriptor;
 import io.openslice.osom.configuration.OSOMRouteBuilder;
+import io.openslice.osom.serviceactions.NSActionRequestPayload;
 import io.openslice.tmf.pm632.model.Organization;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
 import io.openslice.tmf.sim638.model.ServiceActionQueueItem;
@@ -121,9 +122,18 @@ public class ServiceOrderManager {
 
 	@Value("${NFV_CATALOG_GET_NSD_BY_ID}")
 	private String NFV_CATALOG_GET_NSD_BY_ID = "";
+	
+
+	@Value("${NFV_CATALOG_UPD_DEPLOYMENT_BY_ID}")
+	private String NFV_CATALOG_UPD_DEPLOYMENT_BY_ID = "";
 
 	@Value("${CATALOG_GET_PARTNER_ORGANIZATON_BY_ID}")
 	private String CATALOG_GET_PARTNER_ORGANIZATON_BY_ID = "";
+	
+	@Value("${NFV_CATALOG_NS_DAY2_ACTION}")
+	private String NFV_CATALOG_NS_DAY2_ACTION = "";
+	
+	
 	
 	
 	@Transactional
@@ -347,11 +357,13 @@ public class ServiceOrderManager {
 		
 	}
 	
-	public io.openslice.tmf.sim638.model.Service updateService(String serviceId, ServiceUpdate s) {
+	public io.openslice.tmf.sim638.model.Service updateService(String serviceId, ServiceUpdate s, boolean propagateToSO) {
 		logger.info("will update Service : " + serviceId );
 		try {
 			Map<String, Object> map = new HashMap<>();
 			map.put("serviceid", serviceId );
+			map.put("propagateToSO", propagateToSO );
+			
 			Object response = template.requestBodyAndHeaders( CATALOG_UPD_SERVICE, toJsonString(s), map);
 
 			if ( !(response instanceof String)) {
@@ -413,6 +425,7 @@ public class ServiceOrderManager {
 	        return mapper.writeValueAsString(object);
 	    }
 
+	 
 	public DeploymentDescriptor nfvoDeploymentRequestByNSDid( DeploymentDescriptor ddreq ) {
 		
 		
@@ -460,6 +473,62 @@ public class ServiceOrderManager {
 		}
 		return null;
 	}
+	
+	public DeploymentDescriptor nfvoDeploymentRequestUpdate( DeploymentDescriptor ddreq ) {
+		
+		
+		logger.info("Will update nfvoDeploymentRequestUpdate = " + ddreq.getId()   );
+		
+		try {
+
+			String body = toJsonString(ddreq);
+			Object response = template.requestBodyAndHeader( NFV_CATALOG_UPD_DEPLOYMENT_BY_ID, body , "id", ddreq.getId());
+
+			if ( !(response instanceof String)) {
+				logger.error("DeploymentDescriptor object is wrong.");
+				return null;
+			}
+			DeploymentDescriptor dd = toJsonObj( (String)response, DeploymentDescriptor.class); 
+			logger.debug("nfvoDeploymentRequestUpdate response is: " + response);
+			return dd;
+			
+		}catch (Exception e) {
+			logger.error("Cannot retrieve DeploymentDescriptor details from NFV catalog. " + e.toString());
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	
+	/**
+	 * 
+	 * execute Day2 action 
+	 * @param nsp is a JSON string from class NSActionRequestPayload 
+	 * @return
+	 */
+	public String nfvoDay2Action(NSActionRequestPayload nsp) {
+		 
+		logger.info("Will act NFV_CATALOG_NS_DAY2_ACTION = " + nsp   );
+		
+		try {
+
+			String body = toJsonString(nsp);
+			Object response = template.requestBody( NFV_CATALOG_NS_DAY2_ACTION, body);
+
+			if ( !(response instanceof String)) {
+				logger.error("nfvoDay2Action result  is wrong.");
+				return null;
+			}
+
+			logger.debug("nfvoDay2Action response is: " + response);
+			return (String) response;
+			
+		}catch (Exception e) {
+			logger.error("Cannot perform nfvoDay2Action. " + e.toString());
+			e.printStackTrace();
+		}
+		return null;
+	 }
 	
 	/**
 	 * get  service order by id from model via bus
@@ -556,6 +625,8 @@ public class ServiceOrderManager {
 		}
 		
 	}
+
+	
 
 
 }

@@ -58,6 +58,7 @@ import io.openslice.tmf.pm632.model.Organization;
 		"CATALOG_SERVICE_QUEUE_ITEM_DELETE: direct:get_mocked_service_id",
 		"CATALOG_UPD_SERVICE = direct:get_mocked_upd_service", "NFV_CATALOG_DEPLOY_NSD_REQ = direct:req_deploy_nsd",
 		"NFV_CATALOG_GET_DEPLOYMENT_BY_ID = direct:req_deployment_id", 
+		"NFV_CATALOG_UPD_DEPLOYMENT_BY_ID = direct:req_deployment_id", 
 		 "CATALOG_GET_EXTERNAL_SERVICE_PARTNERS = direct:get_mocked_partners",
 		 "CATALOG_UPD_EXTERNAL_SERVICESPEC = direct:upd_external_specs",
 		 

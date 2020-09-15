@@ -90,7 +90,7 @@ public class LocalSOInitialize implements JavaDelegate {
 				su.addNoteItem( noteItem );
 				
 				
-				Service supd = serviceOrderManager.updateService(  execution.getVariable("serviceId").toString(), su);
+				Service supd = serviceOrderManager.updateService(  execution.getVariable("serviceId").toString(), su, false);
 				logger.info("Service updated: " + supd.getId() );						
 				return;						
 				
@@ -110,7 +110,7 @@ public class LocalSOInitialize implements JavaDelegate {
 		noteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
 		su.addNoteItem( noteItem );
 		su.setState(ServiceStateType.TERMINATED   );
-		serviceOrderManager.updateService(  execution.getVariable("serviceId").toString(), su);
+		serviceOrderManager.updateService(  execution.getVariable("serviceId").toString(), su, false);
 		
 	}
 	

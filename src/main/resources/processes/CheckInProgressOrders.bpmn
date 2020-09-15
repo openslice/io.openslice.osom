@@ -22,7 +22,7 @@
         <omgdc:Bounds height="69.0" width="105.0" x="190.0" y="135.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="stCheck_If_InProgressOrder_Complete" id="BPMNShape_stCheck_If_InProgressOrder_Complete">
-        <omgdc:Bounds height="55.0" width="105.0" x="450.0" y="142.0"></omgdc:Bounds>
+        <omgdc:Bounds height="87.0" width="131.0" x="450.0" y="124.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
         <omgdi:waypoint x="105.0" y="169.0"></omgdi:waypoint>
@@ -30,7 +30,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
         <omgdi:waypoint x="295.0" y="169.0"></omgdi:waypoint>
-        <omgdi:waypoint x="450.0" y="169.0"></omgdi:waypoint>
+        <omgdi:waypoint x="450.0" y="167.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

@@ -50,7 +50,7 @@ public class AutomaticallyHandleAction  implements JavaDelegate {
 			n.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
 			supd.addNoteItem( n );
 			serviceOrderManager.deleteServiceActionQueueItem( item );			
-			serviceOrderManager.updateService( aService.getId() , supd);
+			serviceOrderManager.updateService( aService.getId() , supd, false);
 			
 			
 		} catch (JsonMappingException e) {

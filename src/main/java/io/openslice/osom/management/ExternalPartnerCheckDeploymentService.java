@@ -154,7 +154,7 @@ public class ExternalPartnerCheckDeploymentService  implements JavaDelegate {
 			noteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
 			noteItem.setAuthor("OSOM");
 			supd.addNoteItem( noteItem );
-			Service serviceResult = serviceOrderManager.updateService( aService.getId(), supd );
+			Service serviceResult = serviceOrderManager.updateService( aService.getId(), supd, false );
 			if ( serviceResult.getState().equals(ServiceStateType.ACTIVE)
 					|| serviceResult.getState().equals(ServiceStateType.TERMINATED)) {
 

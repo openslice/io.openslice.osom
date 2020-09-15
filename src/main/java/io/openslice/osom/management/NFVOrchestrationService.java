@@ -154,6 +154,11 @@ public class NFVOrchestrationService implements JavaDelegate {
 						serviceCharacteristicItem.setValue( new Any( dd.getInstantiationconfig()  + "" ));
 						su.addServiceCharacteristicItem(serviceCharacteristicItem);
 						
+						serviceCharacteristicItem = new Characteristic();
+						serviceCharacteristicItem.setName( "InstanceId" );
+						serviceCharacteristicItem.setValue( new Any( dd.getInstanceId() + "" ));
+						su.addServiceCharacteristicItem(serviceCharacteristicItem);
+
 
 //						serviceCharacteristicItem = new Characteristic();
 //						serviceCharacteristicItem.setName( "NSR" );
@@ -165,7 +170,7 @@ public class NFVOrchestrationService implements JavaDelegate {
 //						serviceCharacteristicItem.setValue( new Any( dd.getNs_nslcm_details()   + "" ));
 //						su.addServiceCharacteristicItem(serviceCharacteristicItem);
 												
-						Service supd = serviceOrderManager.updateService(  execution.getVariable("serviceId").toString(), su);
+						Service supd = serviceOrderManager.updateService(  execution.getVariable("serviceId").toString(), su, false);
 						logger.info("Request to NFVO for NSDID:" + NSDID + " done! Service: " + supd.getId() );
 						
 						execution.setVariable("deploymentId", dd.getId());
@@ -201,7 +206,7 @@ public class NFVOrchestrationService implements JavaDelegate {
 		noteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
 		su.addNoteItem( noteItem );
 		su.setState(ServiceStateType.TERMINATED   );
-		serviceOrderManager.updateService(  execution.getVariable("serviceId").toString(), su);
+		serviceOrderManager.updateService(  execution.getVariable("serviceId").toString(), su, false);
 		
 	}
 
@@ -253,7 +258,9 @@ public class NFVOrchestrationService implements JavaDelegate {
 			String serviceParams="";
 			for (Characteristic chars : aService.getServiceCharacteristic()  ) {
 				if ( ( chars.getValue()!= null ) && ( !chars.getName().equals("CONFIG") )) {
-					serviceParams = serviceParams + "\"" + chars.getName() + "\" : \"" + chars.getValue().getValue() + "\",";					
+					if (!chars.getName().contains( "Primitive::") ) {
+						serviceParams = serviceParams + "\"" + chars.getName() + "\" : \"" + chars.getValue().getValue() + "\",";						
+					}					
 				}				
 			}
 			serviceParams = serviceParams + " \"_lastParam\": \"_last\"";
