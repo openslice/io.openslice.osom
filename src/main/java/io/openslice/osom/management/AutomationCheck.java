@@ -137,17 +137,6 @@ public class AutomationCheck implements JavaDelegate {
 					soi.getService().setState( ServiceStateType.RESERVED );
 					soi.setState(ServiceOrderStateType.INPROGRESS);
 					logger.debug("<--------------- /related specs -------------->");					
-				}else if ( soi.getAction().equals(  ServiceOrderActionType.DELETE    ) ) {
-					ServiceRestriction refservice = soi.getService();
-					if ( soi.getState().equals(  ServiceOrderStateType.ACKNOWLEDGED    ) ) {
-
-						//we need to add the service to the MODIFY- INACTIVE/TERMINATION queue
-						
-					}
-					soi.setState(ServiceOrderStateType.INPROGRESS);
-					soi.setAction( ServiceOrderActionType.NOCHANGE ); //reset the action to NOCHANGE	
-
-					
 				}else if ( soi.getAction().equals(  ServiceOrderActionType.MODIFY    ) ) {	
 					
 					
@@ -201,6 +190,27 @@ public class AutomationCheck implements JavaDelegate {
 					
 					soi.setState(ServiceOrderStateType.INPROGRESS);
 					soi.setAction( ServiceOrderActionType.NOCHANGE ); //reset the action to NOCHANGE
+					
+				}else if ( soi.getAction().equals(  ServiceOrderActionType.DELETE    ) ) {
+					
+					/**
+					 * we will terminate the services
+					 */
+					if ( soi.getState().equals(  ServiceOrderStateType.ACKNOWLEDGED    ) ) {
+
+						for (ServiceRef sref : soi.getService().getSupportingService() ) {
+							ServiceUpdate supd = new ServiceUpdate();
+							supd.setState( ServiceStateType.TERMINATED );
+							serviceOrderManager.updateService( sref.getId(), supd , true);
+						}
+						
+					}
+					
+					
+					
+					soi.setState(ServiceOrderStateType.INPROGRESS);
+					soi.setAction( ServiceOrderActionType.NOCHANGE ); //reset the action to NOCHANGE	
+
 					
 				}
 			}
