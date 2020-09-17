@@ -70,9 +70,14 @@ public class NFVOrchestrationService implements JavaDelegate {
 		logger.info("serviceId:" + execution.getVariable("serviceId").toString() );
 
 		ServiceUpdate su = new ServiceUpdate();//the object to update the service
+		Note noteItem = new Note();
+		noteItem.setText("");
 		
 		if (execution.getVariable("serviceId") instanceof String) {
 
+			//if we get here somethign is wrong so we need to terminate the service.
+			
+			
 			ServiceOrder sorder = serviceOrderManager.retrieveServiceOrder( execution.getVariable("orderid").toString() );
 			Service aService = serviceOrderManager.retrieveService( (String) execution.getVariable("serviceId") );
 			logger.info("Service name:" + aService.getName() );
@@ -106,6 +111,8 @@ public class NFVOrchestrationService implements JavaDelegate {
 						NetworkServiceDescriptor refnsd = serviceOrderManager.retrieveNSD( NSDID );
 						if ( refnsd == null ) {
 							logger.error("NetworkServiceDescriptor cannot be retrieved, NSDID: " + NSDID );
+							execution.setVariable("deploymentId", null);
+							noteItem.setText("Request to NFVO FAILED. NetworkServiceDescriptor cannot be retrieved, NSDID: " + NSDID);
 							throw new Exception( "NetworkServiceDescriptor cannot be retrieved, NSDID: " + NSDID );
 						}
 						
@@ -118,11 +125,11 @@ public class NFVOrchestrationService implements JavaDelegate {
 								configParams);
 						
 						su.setState(ServiceStateType.RESERVED );
-						Note noteItem = new Note();
-						noteItem.setText("Request to NFVO for NSDID: " + NSDID + ". Deployment Request id: " + dd.getId());
-						noteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
-						noteItem.setAuthor("OSOM");
-						su.addNoteItem( noteItem );
+						Note successNoteItem = new Note();
+						successNoteItem.setText("Request to NFVO for NSDID: " + NSDID + ". Deployment Request id: " + dd.getId());
+						successNoteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
+						successNoteItem.setAuthor("OSOM");
+						su.addNoteItem( successNoteItem );
 						Characteristic serviceCharacteristicItem = new Characteristic();
 						serviceCharacteristicItem.setName( "DeploymentRequestID" );
 						serviceCharacteristicItem.setValue( new Any( dd.getId() + "" ));
@@ -200,8 +207,8 @@ public class NFVOrchestrationService implements JavaDelegate {
 		}
 
 		//if we get here somethign is wrong so we need to terminate the service.
-		Note noteItem = new Note();
-		noteItem.setText("Request to NFVO FAILED");
+		
+		noteItem.setText("Request to NFVO FAILED." + noteItem.getText()  );
 		noteItem.setAuthor("OSOM");
 		noteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
 		su.addNoteItem( noteItem );

@@ -148,10 +148,11 @@ public class OrderCompleteService implements JavaDelegate {
 					soi.setState( ServiceOrderStateType.COMPLETED );		
 				} else if (allTerminated) {
 					sserviceState = ServiceStateType.TERMINATED;	
+					soi.setState( ServiceOrderStateType.COMPLETED );	
 					existsTerminatedInORder = true;				
 				} else if (existsInactive) {
 					sserviceState = ServiceStateType.INACTIVE;		
-					soi.setState( ServiceOrderStateType.PARTIAL );			
+					soi.setState( ServiceOrderStateType.FAILED );			
 					existsInactiveInORder = true;
 				} else if (existsDesigned) {
 					sserviceState = ServiceStateType.DESIGNED;	
@@ -161,7 +162,7 @@ public class OrderCompleteService implements JavaDelegate {
 					soi.setState( ServiceOrderStateType.INPROGRESS );						
 				} else if (existsTerminated) {
 					sserviceState = ServiceStateType.TERMINATED;	
-					soi.setState( ServiceOrderStateType.COMPLETED  );
+					soi.setState( ServiceOrderStateType.FAILED  );
 					existsTerminatedInORder = true;
 				}
 				
@@ -172,8 +173,11 @@ public class OrderCompleteService implements JavaDelegate {
 				}
 				soi.getService().setState(sserviceState);	
 
-				allCompletedItemsInOrder = allCompletedItemsInOrder && soi.getService().getState().equals( ServiceStateType.ACTIVE  );
-				allTerminatedItemsInOrder = allTerminatedItemsInOrder && soi.getService().getState().equals( ServiceStateType.TERMINATED  );
+//				allCompletedItemsInOrder = allCompletedItemsInOrder && soi.getService().getState().equals( ServiceStateType.ACTIVE  );
+//				allTerminatedItemsInOrder = allTerminatedItemsInOrder && soi.getService().getState().equals( ServiceStateType.TERMINATED  );
+				
+				allCompletedItemsInOrder = allCompletedItemsInOrder && soi.getState().equals( ServiceOrderStateType.COMPLETED );
+				allTerminatedItemsInOrder = allTerminatedItemsInOrder && soi.getState().equals( ServiceOrderStateType.COMPLETED );
 
 				logger.info("ServiceOrderItem state:" + sserviceState.toString() );
 			}
@@ -183,7 +187,7 @@ public class OrderCompleteService implements JavaDelegate {
 				updateServiceOrder = true;
 				sOrder.setState( ServiceOrderStateType.COMPLETED );				
 			} else if ( existsInactiveInORder ) {
-				sOrder.setState( ServiceOrderStateType.PARTIAL );		
+				sOrder.setState( ServiceOrderStateType.FAILED );		
 			}  else if ( existsTerminatedInORder ) {
 				sOrder.setState( ServiceOrderStateType.FAILED );		
 			} 

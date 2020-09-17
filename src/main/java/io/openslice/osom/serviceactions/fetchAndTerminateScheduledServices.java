@@ -39,7 +39,6 @@ public class fetchAndTerminateScheduledServices implements JavaDelegate {
 			for (String serviceID : itemsToBeProcessed) {
 				logger.info("Will TERMINATE service with id: " + serviceID );
 				
-				Service aService = serviceOrderManager.retrieveService(serviceID);
 				ServiceUpdate supd = new ServiceUpdate();
 				supd.setState( ServiceStateType.TERMINATED );
 				serviceOrderManager.updateService(serviceID, supd , true);

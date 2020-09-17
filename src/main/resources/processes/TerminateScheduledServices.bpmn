@@ -14,7 +14,7 @@
   <bpmndi:BPMNDiagram id="BPMNDiagram_myProcess">
     <bpmndi:BPMNPlane bpmnElement="myProcess" id="BPMNPlane_myProcess">
       <bpmndi:BPMNShape bpmnElement="timerstartevent1" id="BPMNShape_timerstartevent1">
-        <omgdc:Bounds height="35.0" width="35.0" x="140.0" y="208.0"></omgdc:Bounds>
+        <omgdc:Bounds height="35.0" width="35.0" x="141.0" y="198.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="stFetchAndTerminateScheduledServices" id="BPMNShape_stFetchAndTerminateScheduledServices">
         <omgdc:Bounds height="91.0" width="121.0" x="270.0" y="170.0"></omgdc:Bounds>
@@ -23,7 +23,7 @@
         <omgdc:Bounds height="35.0" width="35.0" x="530.0" y="198.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
-        <omgdi:waypoint x="175.0" y="225.0"></omgdi:waypoint>
+        <omgdi:waypoint x="176.0" y="215.0"></omgdi:waypoint>
         <omgdi:waypoint x="270.0" y="215.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">

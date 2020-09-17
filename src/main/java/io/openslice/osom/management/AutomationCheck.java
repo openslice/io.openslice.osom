@@ -60,6 +60,7 @@ import io.openslice.tmf.sim638.model.EServiceStartMode;
 import io.openslice.tmf.sim638.model.Service;
 import io.openslice.tmf.sim638.model.ServiceCreate;
 import io.openslice.tmf.sim638.model.ServiceOrderRef;
+import io.openslice.tmf.sim638.model.ServiceUpdate;
 import io.openslice.tmf.so641.model.ServiceOrder;
 import io.openslice.tmf.so641.model.ServiceOrderActionType;
 import io.openslice.tmf.so641.model.ServiceOrderItem;
@@ -148,16 +149,56 @@ public class AutomationCheck implements JavaDelegate {
 
 					
 				}else if ( soi.getAction().equals(  ServiceOrderActionType.MODIFY    ) ) {	
+					
+					
 					ServiceRestriction refservice = soi.getService();
 					
 					if ( soi.getState().equals(  ServiceOrderStateType.ACKNOWLEDGED    ) ) {
+						
+						
 						if ( refservice.getState().equals(  ServiceStateType.INACTIVE) 
 								||  refservice.getState().equals(  ServiceStateType.TERMINATED)) {
 						
-							//we need to add the service to an MODIFY- INACTIVE/TERMINATION queue queue
 							
-						}						
+							for (ServiceRef sref : soi.getService().getSupportingService() ) {
+								ServiceUpdate supd = new ServiceUpdate();
+								supd.setState( ServiceStateType.TERMINATED );
+								serviceOrderManager.updateService( sref.getId(), supd , true);
+							}
+						}		
+						else {
+							
+
+							//na doume to modify (me change characteristics apo to service restriction kai to terminate)
+							//copy characteristics values from Service restriction to supporting services.
+							for (ServiceRef sref : soi.getService().getSupportingService() ) {
+								Service aService = serviceOrderManager.retrieveService( sref.getId() );
+								ServiceUpdate supd = new ServiceUpdate();
+								
+								if ( soi.getService().getServiceCharacteristic() != null ) {
+									for (Characteristic serviceChar : aService.getServiceCharacteristic() ) {
+										
+										for (Characteristic soiCharacteristic : soi.getService().getServiceCharacteristic()) {
+											if ( soiCharacteristic.getName().contains( serviceChar.getName() )) { //copy only characteristics that are related from the order
+												
+												serviceChar.setValue( soiCharacteristic.getValue() );
+												supd.addServiceCharacteristicItem( serviceChar );
+												
+												
+											}
+										}
+									}
+									
+								}
+								
+
+								serviceOrderManager.updateService( aService.getId(), supd , true); //update the service
+							}
+						 }
+						
 					}
+					
+					
 					soi.setState(ServiceOrderStateType.INPROGRESS);
 					soi.setAction( ServiceOrderActionType.NOCHANGE ); //reset the action to NOCHANGE
 					

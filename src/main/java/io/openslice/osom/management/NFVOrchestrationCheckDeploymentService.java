@@ -63,13 +63,14 @@ public class NFVOrchestrationCheckDeploymentService implements JavaDelegate {
 		if ( deploymentId == null) {
 
 			logger.error( "Variable deploymentId is NULL!" );
+			execution.setVariable("serviceDeploymentFinished", Boolean.TRUE );
 			return;
 		}
 		Service aService = serviceOrderManager.retrieveService( (String) execution.getVariable("serviceId") );
 		
 		//retrieve Status from NFVO (OSM?) scheduler
 		logger.info("Checking Deployment Status of deployment Request id: " + deploymentId );
-		execution.setVariable("serviceDeploymentFinished", new Boolean( false ));
+		execution.setVariable("serviceDeploymentFinished", Boolean.FALSE );
 
 		DeploymentDescriptor dd =serviceOrderManager.retrieveNFVODeploymentRequestById( deploymentId );
 		logger.info("Operational Status of deployment Request id: " + dd.getOperationalStatus() );
@@ -121,7 +122,7 @@ public class NFVOrchestrationCheckDeploymentService implements JavaDelegate {
 					|| serviceResult.getState().equals(ServiceStateType.TERMINATED)) {
 
 				logger.info("Deployment Status OK. Service state = " + serviceResult.getState() );
-				execution.setVariable("serviceDeploymentFinished", new Boolean(true));
+				execution.setVariable("serviceDeploymentFinished", Boolean.TRUE);
 				return;
 			}			
 		}
