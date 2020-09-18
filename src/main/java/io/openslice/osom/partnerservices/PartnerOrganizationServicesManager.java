@@ -64,6 +64,7 @@ import io.openslice.tmf.so641.model.ServiceOrder;
 import io.openslice.tmf.so641.model.ServiceOrderCreate;
 import io.openslice.tmf.so641.model.ServiceOrderItem;
 import io.openslice.tmf.so641.model.ServiceOrderStateType;
+import io.openslice.tmf.so641.model.ServiceOrderUpdate;
 import io.openslice.tmf.so641.model.ServiceRestriction;
 import reactor.core.publisher.Mono;
 
@@ -188,6 +189,7 @@ public class PartnerOrganizationServicesManager {
 			logger.error("fetchServiceSpecs error on web client request");
 			this.updateOrgzStatus(org, "WEBCLIENT fetchServiceSpecs error ");
 			this.invalidateOrganizationWebClient(org);
+			return new ArrayList<>();
 			
 		}
 		
@@ -284,6 +286,8 @@ public class PartnerOrganizationServicesManager {
 			logger.error("fetchServiceSpecs error on web client request");
 			this.updateOrgzStatus(org, "WEBCLIENT fetchServiceSpecs error ");
 			this.invalidateOrganizationWebClient(org);
+			e.printStackTrace();
+			return new ArrayList<>();
 		}
 		
 		
@@ -605,7 +609,7 @@ public class PartnerOrganizationServicesManager {
 		
 		if ( webclient!=null ) {
 			
-			
+			try {
 			sorder = webclient.post()
 					.uri(url)
 				      //.header("Authorization", "Basic " + encodedClientData)
@@ -623,7 +627,12 @@ public class PartnerOrganizationServicesManager {
 					  .bodyToMono( new ParameterizedTypeReference<ServiceOrder>() {})
 					  .block();
 		
-
+			}catch (Exception e) {
+				logger.error(" error on web client request");
+				this.invalidateOrganizationWebClient(org);
+				e.printStackTrace();
+			}
+			
 			 
 			 
 		} else  {
@@ -660,7 +669,7 @@ public class PartnerOrganizationServicesManager {
 		
 		if ( webclient!=null ) {
 			
-			
+			try {
 			sorder = webclient.post()
 					.uri( org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_ORDER_URLS").getValue().getValue()  )
 				      //.header("Authorization", "Basic " + encodedClientData)
@@ -678,7 +687,11 @@ public class PartnerOrganizationServicesManager {
 					  .bodyToMono( new ParameterizedTypeReference<ServiceOrder>() {})
 					  .block();
 		
-
+			}catch (Exception e) {
+				logger.error(" error on web client request");
+				this.invalidateOrganizationWebClient(org);
+				e.printStackTrace();
+			}
 			 
 			 
 		} else  {
@@ -710,7 +723,7 @@ public class PartnerOrganizationServicesManager {
 
 		ServiceOrder sorder = new ServiceOrder();
 		if ( webclient!=null ) {
-			
+			try {
 			
 			sorder = webclient.get()
 					.uri("/tmf-api/serviceOrdering/v4/serviceOrder/{id}", externalServiceOrderId)
@@ -728,12 +741,18 @@ public class PartnerOrganizationServicesManager {
 					  .bodyToMono( new ParameterizedTypeReference<ServiceOrder>() {})
 					  .block();
 		
-
+			}catch (Exception e) {
+				logger.error(" error on web client request");
+				this.invalidateOrganizationWebClient(org);
+				e.printStackTrace();
+			}
 			 
 			 
 			
 		} else  {
 			logger.error("WebClient is null. Cannot be created.");
+
+			this.invalidateOrganizationWebClient(org);
 		}
 
 		
@@ -758,7 +777,7 @@ public class PartnerOrganizationServicesManager {
 		ServiceOrder sorder = new ServiceOrder();
 		if ( webclient!=null ) {
 			
-			
+			try {
 			String sorderStr = webclient.get()
 					.uri(org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_ORDER_URLS").getValue().getValue() + "/" + externalServiceOrderId)
 				      //.header("Authorization", "Basic " + encodedClientData)
@@ -774,9 +793,9 @@ public class PartnerOrganizationServicesManager {
 					      })
 					  .bodyToMono( new ParameterizedTypeReference<String>() {})
 					  .block();
-		
+			
 
-			try {
+			
 				//sorderStr = sorderStr.replace("\"note\":{", "\"note\":{\"id\":\"1\",");
 				FlowOneServiceOrder flowsorder = toJsonObj(sorderStr, FlowOneServiceOrder.class);
 				sorder.setUuid( flowsorder.getId() );
@@ -787,7 +806,9 @@ public class PartnerOrganizationServicesManager {
 					logger.error("FlowOneServiceOrder state is NULL");
 				}
 				sorder.addOrderItemItem(flowsorder.getOrderItem());
-			} catch (IOException e) {
+			}catch (Exception e) {
+				logger.error(" error on web client request");
+				this.invalidateOrganizationWebClient(org);
 				e.printStackTrace();
 			}
 			 
@@ -801,6 +822,136 @@ public class PartnerOrganizationServicesManager {
 		return sorder;
 	}
 
+	
+	public ServiceOrder updateExternalServiceOrder(String serviceId, ServiceOrderUpdate servOrder, Organization org) {
+		
+		Characteristic ctype = org.findPartyCharacteristic("EXTERNAL_TMFAPI_CLIENTREGISTRATIONID");
+		if ( ctype !=null ) {			
+			if (ctype.getValue().getValue().contains("flowone")) {
+				return updateExternalServiceOrderFlowOne(serviceId, servOrder, org); //break here
+			}			
+		}
+		
+		logger.info("Will updateExternalServiceOrder to organization: " + org.getName() + ", id: " + org.getId());
+
+		/**
+		 * will create or fetch existing web client for this organization
+		 */
+		WebClient webclient = this.getOrganizationWebClient(org);
+
+
+		//EXTERNAL_TMFAPI_SERVICE_ORDER_URLS
+		String url = "/tmf-api/serviceOrdering/v4/serviceOrder/" + serviceId;
+		
+		if ( ( org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_ORDER_URLS") != null) &&
+				(org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_ORDER_URLS").getValue() != null) &&
+				(!org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_ORDER_URLS").getValue().getValue().equals("") )) {
+			url = org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_ORDER_URLS").getValue().getValue();
+		}
+		
+		ServiceOrder sorder = new ServiceOrder();
+		
+		if ( webclient!=null ) {
+			
+			try {
+			sorder = webclient.patch()
+					.uri(url)
+				      //.header("Authorization", "Basic " + encodedClientData)
+				      .bodyValue( servOrder ) 
+						//.attributes( ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId("authOpensliceProvider"))
+						.retrieve()
+						.onStatus(HttpStatus::is4xxClientError, response -> {
+							logger.error("4xx eror");
+					        return Mono.error(new RuntimeException("4xx"));
+					      })
+					      .onStatus(HttpStatus::is5xxServerError, response -> {
+					    	  logger.error("5xx eror");
+					        return Mono.error(new RuntimeException("5xx"));
+					      })
+					  .bodyToMono( new ParameterizedTypeReference<ServiceOrder>() {})
+					  .block();
+			}catch (Exception e) {
+				logger.error(" error on web client request");
+				this.invalidateOrganizationWebClient(org);
+				e.printStackTrace();
+			}
+
+			 
+			 
+		} else  {
+			logger.error("WebClient is null. Cannot be created.");
+		}
+
+		
+
+		return sorder;
+	}
+	
+	
+	private ServiceOrder updateExternalServiceOrderFlowOne( String serviceId, ServiceOrderUpdate servOrderUpd, Organization org ) {
+		logger.info("Will makeExternalServiceOrderFlowOne to organization: " + org.getName() + ", id: " + org.getId());
+
+		/**
+		 * will create or fetch existing web client for this organization
+		 */
+		WebClient webclient = this.getOrganizationWebClient(org);
+		FlowOneServiceOrderUpdate servOrder = new FlowOneServiceOrderUpdate( servOrderUpd );
+		
+		
+		
+		String abody = "";
+		try {
+			abody = toJsonString( servOrder );
+			logger.debug( "updateExternalServiceOrderFlowOne = " + abody );
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		
+		ServiceOrder sorder = new ServiceOrder();
+		
+		
+		if ( webclient!=null ) {
+			
+			try {
+			sorder = webclient.patch()
+					.uri( org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_ORDER_URLS").getValue().getValue()+"/"+serviceId  )
+				      //.header("Authorization", "Basic " + encodedClientData)
+				      .bodyValue( abody ) 
+						//.attributes( ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId("authOpensliceProvider"))
+						.retrieve()
+						.onStatus(HttpStatus::is4xxClientError, response -> {
+							logger.error("4xx eror");
+					        return Mono.error(new RuntimeException("4xx"));
+					      })
+					      .onStatus(HttpStatus::is5xxServerError, response -> {
+					    	  logger.error("5xx eror");
+					        return Mono.error(new RuntimeException("5xx"));
+					      })
+					  .bodyToMono( new ParameterizedTypeReference<ServiceOrder>() {})
+					  .block();
+		
+			}catch (Exception e) {
+				logger.error(" error on web client request");
+				this.invalidateOrganizationWebClient(org);
+				e.printStackTrace();
+			}
+			 
+			 
+		} else  {
+			logger.error("WebClient is null. Cannot be created.");
+			this.invalidateOrganizationWebClient(org);
+		}
+
+		
+
+		return sorder;
+	}
+
+
+		
+	
+	
 	public io.openslice.tmf.sim638.model.Service retrieveServiceFromInventory(@NotNull Organization org, @NotNull String externalServiceId) {
 	
 		logger.info("Will retrieveServiceFromInventory from organization: " + org.getName() + ", id: " + org.getId());
@@ -814,7 +965,7 @@ public class PartnerOrganizationServicesManager {
 		io.openslice.tmf.sim638.model.Service srvc = new io.openslice.tmf.sim638.model.Service();
 		if ( webclient!=null ) {
 			
-			
+			try {
 			srvc = webclient.get()
 					.uri("/tmf-api/serviceInventory/v4/service/{id}", externalServiceId)
 				      //.header("Authorization", "Basic " + encodedClientData)
@@ -832,11 +983,16 @@ public class PartnerOrganizationServicesManager {
 					  .block();
 		
 
-			 
+			}catch (Exception e) {
+				logger.error(" error on web client request");
+				this.invalidateOrganizationWebClient(org);
+				e.printStackTrace();
+			}
 			 
 			
 		} else  {
 			logger.error("WebClient is null. Cannot be created.");
+			this.invalidateOrganizationWebClient(org);
 		}
 		
 

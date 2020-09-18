@@ -12,8 +12,11 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.openslice.osom.management.ServiceOrderManager;
+import io.openslice.tmf.common.model.UserPartRoleType;
 import io.openslice.tmf.common.model.service.ResourceRef;
 import io.openslice.tmf.common.model.service.ServiceRef;
+import io.openslice.tmf.pm632.model.Organization;
+import io.openslice.tmf.prm669.model.RelatedParty;
 import io.openslice.tmf.sim638.model.Service;
 import io.openslice.tmf.sim638.model.ServiceActionQueueAction;
 import io.openslice.tmf.sim638.model.ServiceActionQueueItem;
@@ -68,6 +71,25 @@ public class ServiceActionCheck implements JavaDelegate {
 				
 				if ( (aService.getServiceCharacteristicByName( "externalServiceOrderId" ) != null )){
 					execution.setVariable("saction", "ExternalProviderServiceAction");					
+					execution.setVariable("externalServiceOrderId", aService.getServiceCharacteristicByName( "externalServiceOrderId" ).getValue().getValue()  );					
+					RelatedParty rpOrg = null;
+					if ( aService.getRelatedParty() != null ) {
+						for (RelatedParty rp : aService.getRelatedParty()) {
+							if ( rp.getRole().equals( UserPartRoleType.ORGANIZATION.getValue() )) {
+								rpOrg =rp;
+								break;
+							}				
+						}			
+					}
+					if ( rpOrg == null) {
+						logger.error("Cannot retrieve partner organization, switch to HandleManuallyAction"  );
+						execution.setVariable("saction", "HandleManuallyAction");
+					} else {
+						execution.setVariable("organizationId",  rpOrg.getId() );					
+							
+					}
+				
+				
 				} else  if ( aService.getCategory().equals( "CustomerFacingServiceSpecification") ) {
 					execution.setVariable("saction", "AutomaticallyHandleAction");
 				} else if ( aService.getCategory().equals( "ResourceFacingServiceSpecification") ) {
