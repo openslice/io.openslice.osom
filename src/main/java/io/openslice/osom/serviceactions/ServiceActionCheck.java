@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.openslice.osom.management.ServiceOrderManager;
 import io.openslice.tmf.common.model.UserPartRoleType;
+import io.openslice.tmf.common.model.service.Characteristic;
 import io.openslice.tmf.common.model.service.ResourceRef;
 import io.openslice.tmf.common.model.service.ServiceRef;
 import io.openslice.tmf.pm632.model.Organization;
@@ -20,6 +21,7 @@ import io.openslice.tmf.prm669.model.RelatedParty;
 import io.openslice.tmf.sim638.model.Service;
 import io.openslice.tmf.sim638.model.ServiceActionQueueAction;
 import io.openslice.tmf.sim638.model.ServiceActionQueueItem;
+import io.openslice.tmf.sim638.model.ServiceUpdate;
 
 @Component(value = "serviceActionCheck") //bean name
 public class ServiceActionCheck implements JavaDelegate {
@@ -92,6 +94,35 @@ public class ServiceActionCheck implements JavaDelegate {
 				
 				} else  if ( aService.getCategory().equals( "CustomerFacingServiceSpecification") ) {
 					execution.setVariable("saction", "AutomaticallyHandleAction");
+					
+
+					if ( aService.getSupportingService() != null ) {
+						//copy characteristics values from CFS Service  to its supporting services.
+						for (ServiceRef sref : aService.getSupportingService() ) {
+							Service aSupportingService = serviceOrderManager.retrieveService( sref.getId() );
+							ServiceUpdate supd = new ServiceUpdate();
+							
+							if ( aService.getServiceCharacteristic() != null ) {
+								for (Characteristic serviceChar : aSupportingService.getServiceCharacteristic() ) {
+									
+									for (Characteristic soiCharacteristic : aService.getServiceCharacteristic()) {
+										if ( soiCharacteristic.getName().contains( serviceChar.getName() )) { //copy only characteristics that are related from the order										
+											serviceChar.setValue( soiCharacteristic.getValue() );
+											supd.addServiceCharacteristicItem( serviceChar );
+										}
+									}
+								}
+								
+							}
+							
+
+							serviceOrderManager.updateService( aSupportingService.getId(), supd , true); //update the service
+						}
+						
+					}
+					
+					
+					
 				} else if ( aService.getCategory().equals( "ResourceFacingServiceSpecification") ) {
 					
 					if (aService.getServiceCharacteristicByName( "NSDID" ) != null ){

@@ -119,7 +119,7 @@ public class AutomationCheck implements JavaDelegate {
 					
 
 					//this is a main underlying service for the requested service (restriction)					
-					addServicesToVariables( spec, sor, soi, servicesHandledByExternalSP, servicesHandledManual, servicesHandledByNFVOAutomated, servicesLocallyAutomated );
+					Service createdUnderlService = addServicesToVariables( spec, sor, soi, servicesHandledByExternalSP, servicesHandledManual, servicesHandledByNFVOAutomated, servicesLocallyAutomated, null );
 					
 					//List<Service> createdServices = new ArrayList<>();
 					
@@ -128,7 +128,7 @@ public class AutomationCheck implements JavaDelegate {
 						logger.debug("\tService specRelsId:" + specRels.getId());
 						
 						ServiceSpecification specrel = serviceOrderManager.retrieveServiceSpec(specRels.getId());
-						addServicesToVariables(specrel, sor, soi, servicesHandledByExternalSP, servicesHandledManual, servicesHandledByNFVOAutomated, servicesLocallyAutomated );
+						addServicesToVariables(specrel, sor, soi, servicesHandledByExternalSP, servicesHandledManual, servicesHandledByNFVOAutomated, servicesLocallyAutomated, createdUnderlService );
 						
 
 					}
@@ -267,13 +267,16 @@ public class AutomationCheck implements JavaDelegate {
 	 * @param servicesHandledManual
 	 * @param servicesHandledByNFVOAutomated
 	 * @param servicesLocallyAutomated
+	 * @param parentService 
+	 * @return 
 	 */
-	private void addServicesToVariables(ServiceSpecification specrel, 
+	private Service addServicesToVariables(ServiceSpecification specrel, 
 			ServiceOrder sor, ServiceOrderItem soi, 
 			List<String> servicesHandledByExternalSP,
 			List<String> servicesHandledManual,
 			List<String> servicesHandledByNFVOAutomated,
-			List<String> servicesLocallyAutomated) {
+			List<String> servicesLocallyAutomated, Service parentService) {
+		
 		logger.debug("\tService spec name :" + specrel.getName());
 		logger.debug("\tService spec type :" + specrel.getType());
 		
@@ -321,15 +324,51 @@ public class AutomationCheck implements JavaDelegate {
 		
 		//add now the serviceRef
 		if ( createdServ!=null ) {
-			ServiceRef supportingServiceItem = new ServiceRef();
-			supportingServiceItem.setId( createdServ.getId() );
-			supportingServiceItem.setReferredType( createdServ.getName() );
-			supportingServiceItem.setName( createdServ.getName()  );
-			soi.getService().addSupportingServiceItem(supportingServiceItem );						
+			ServiceRef supportingServiceRef = new ServiceRef();
+			supportingServiceRef.setId( createdServ.getId() );
+			supportingServiceRef.setReferredType( createdServ.getName() );
+			supportingServiceRef.setName( createdServ.getName()  );
+			soi.getService().addSupportingServiceItem(supportingServiceRef );			
+			
+			if ( parentService!= null) {
+				addCreatedServiceAsSupportingServiceToParent( parentService, supportingServiceRef );				
+			}
+			
+			
+			return createdServ;
+			
 		} else {
 			logger.error("Service was not created for spec: " + specrel.getName());
 		}
+		
+		return null;
+		
 	}
+
+	/**
+	 * 
+	 * Adds a supportingServiceRef to the Supporting Services of createdUnderlService
+	 * 
+	 * @param createdUnderlService
+	 * @param supportingServiceRef
+	 */
+	private void addCreatedServiceAsSupportingServiceToParent(Service createdUnderlService,
+			ServiceRef supportingServiceRef) {
+
+
+		createdUnderlService.addSupportingServiceItem(supportingServiceRef);
+		
+		ServiceUpdate supd = new ServiceUpdate();
+		
+		for (ServiceRef existingSupportingServices : createdUnderlService.getSupportingService()  ) {
+			supd.addSupportingServiceItem(existingSupportingServices);			
+		}
+		
+		serviceOrderManager.updateService( createdUnderlService.getId() , supd, false);
+		
+	}
+
+
 
 	private RelatedParty fromPartnerOrganization(ServiceSpecification specrel) {
 		if ( specrel.getRelatedParty() != null ) {
