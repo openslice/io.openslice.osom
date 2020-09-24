@@ -202,10 +202,10 @@ public class OrderCompleteService implements JavaDelegate {
 				}
 				
 				Note noteItem = new Note();
-				noteItem.setText("Update Service Order State");
+				noteItem.setText("Update Service Order State to: " +  serviceOrderUpd.getState());
 				noteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
 				noteItem.setAuthor("OSOM");
-				sOrder.addNoteItem( noteItem );
+				serviceOrderUpd.addNoteItem( noteItem );
 				
 				serviceOrderManager.updateServiceOrderOrder( sOrder.getId() , serviceOrderUpd);
 				
