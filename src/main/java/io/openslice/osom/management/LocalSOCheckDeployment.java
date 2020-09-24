@@ -74,11 +74,32 @@ public class LocalSOCheckDeployment  implements JavaDelegate {
 
 		ServiceSpecification spec = serviceOrderManager.retrieveServiceSpec( aService.getServiceSpecificationRef().getId() );
 		
-
-
-		ServiceUpdate supd = new ServiceUpdate();
 		
-		supd.setState( ServiceStateType.ACTIVE);
+		//decide if the service will be active only if it's supported services are also active
+
+		boolean allacctive=true;
+		boolean existsTerminated=false;
+		for (ServiceRef sref : aService.getSupportingService() ) {
+			Service supportedService = serviceOrderManager.retrieveService( sref.getId() );
+			if ( ! supportedService.getState().equals( ServiceStateType.ACTIVE ) ) {
+				allacctive = false;
+			}
+			
+			if ( supportedService.getState().equals( ServiceStateType.TERMINATED ) || supportedService.getState().equals( ServiceStateType.INACTIVE ) ) {
+				existsTerminated = true;
+			}
+			
+		}
+		
+		ServiceUpdate supd = new ServiceUpdate();
+
+		if ( allacctive ) {
+			supd.setState( ServiceStateType.ACTIVE);			
+		} else if ( existsTerminated ) {
+			supd.setState( ServiceStateType.TERMINATED);			
+		} else {
+			supd.setState( ServiceStateType.RESERVED);			
+		}
 		
 		
 		if  (spec.getName().contains("DUMMYSERVICE") ) {
