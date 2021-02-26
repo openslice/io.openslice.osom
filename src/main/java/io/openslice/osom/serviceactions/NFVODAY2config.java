@@ -91,7 +91,7 @@ public class NFVODAY2config implements JavaDelegate {
 				ncTxt += characteristic.getName() + ", ";
 				
 				if ( ncTxt.toUpperCase().contains(  "PRIMITIVE::" ) ) {
-					if ( (characteristic.getValueType() != null ) && characteristic.getValueType().equals("ARRAY") ) {
+					if ( (characteristic != null ) && (characteristic.getValueType() != null ) && characteristic.getValueType().equals("ARRAY") ) {
 
 						NSActionRequestPayload nsp = new NSActionRequestPayload();
 						nsp.setNsInstanceId(nsInstanceId);
