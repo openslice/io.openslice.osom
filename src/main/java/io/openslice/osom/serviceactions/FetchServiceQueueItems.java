@@ -28,13 +28,13 @@ public class FetchServiceQueueItems implements JavaDelegate {
 
 
 	public void execute(DelegateExecution execution) {
-		logger.info("FetchServiceQueueItems by Service Inventory Repository");
+		logger.info("=====================  FetchServiceQueueItems by Service Inventory Repository ===================== ");
 		
 
 		List<ServiceActionQueueItem> itemsToBeProcessed = serviceOrderManager.retrieveServiceQueueItems();
 		if ( itemsToBeProcessed!= null ) {
 			for (ServiceActionQueueItem serviceActionQueueItem : itemsToBeProcessed) {
-				logger.info("FetchServiceQueueItems serviceActionQueueItem getServiceRefId = " + serviceActionQueueItem.getServiceRefId());
+				logger.debug("FetchServiceQueueItems serviceActionQueueItem getServiceRefId = " + serviceActionQueueItem.getServiceRefId());
 				
 			}			
 		} 

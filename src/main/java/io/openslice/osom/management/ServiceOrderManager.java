@@ -433,6 +433,15 @@ public class ServiceOrderManager {
 	 
 	public DeploymentDescriptor nfvoDeploymentRequestByNSDid( DeploymentDescriptor ddreq ) {
 		
+		if (ddreq == null) {
+			logger.fatal("nfvoDeploymentRequestByNSDid ddreq is NULL!"  );
+			return null;
+		}
+		
+		if (ddreq.getExperiment() == null) {
+			logger.fatal("nfvoDeploymentRequestByNSDid ddreq.getExperiment() is NULL!"  );
+			return null;
+		}
 		
 		logger.info("Will request by NFV Catalog to deploy NSD id= " + ddreq.getExperiment().getId()   );
 		
@@ -586,13 +595,12 @@ public class ServiceOrderManager {
 	
 	//CATALOG_SERVICE_QUEUE_ITEMS_GET
 	public List<ServiceActionQueueItem> retrieveServiceQueueItems() {
-		logger.info("will retrieve Service QueueItems from repository"   );
+		logger.debug("will retrieve Service QueueItems from repository"   );
 		try {
 			
 			Object response = template.
 					requestBody( CATALOG_SERVICE_QUEUE_ITEMS_GET, "" );
 
-			logger.debug("will retrieve Service QueueItems response: " + response.getClass()  );
 			if ( !(response instanceof String)) {
 				logger.error("List  object is wrong.");
 				return null;

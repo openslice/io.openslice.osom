@@ -39,7 +39,7 @@ public class ServiceActionCheck implements JavaDelegate {
 		
 		
 		if (execution.getVariable("serviceActionItem")!=null) {
-			logger.info("Will check status of serviceActionItem of ref:" + execution.getVariable("serviceActionItem") );
+			logger.debug("Will check status of serviceActionItem of ref:" + execution.getVariable("serviceActionItem") );
 			ObjectMapper mapper = new ObjectMapper();
 			
 			ServiceActionQueueItem item;
@@ -58,13 +58,13 @@ public class ServiceActionCheck implements JavaDelegate {
 			
 			if ( aService.getSupportingService()!=null) {
 				for (ServiceRef aSupportingService : aService.getSupportingService() ) {
-					logger.info("aSupportingService:" + aSupportingService.getName() );				
+					logger.debug("aSupportingService:" + aSupportingService.getName() );				
 				}
 			}
 
 			if ( aService.getSupportingResource()!=null) {
 				for (ResourceRef aSupportingResource : aService.getSupportingResource() ) {
-					logger.info("aSupportingResource:" + aSupportingResource.getName() );				
+					logger.debug("aSupportingResource:" + aSupportingResource.getName() );				
 				}				
 				
 			}

@@ -30,7 +30,7 @@ public class fetchAndTerminateScheduledServices implements JavaDelegate {
 
 
 	public void execute(DelegateExecution execution) {
-		logger.info("fetchAndTerminateScheduledServices by Service Inventory Repository");
+		logger.info("===================== fetchAndTerminateScheduledServices by Service Inventory Repository ====================");
 		
 
 		List<String> itemsToBeProcessed = serviceOrderManager.retrieveActiveServiceToTerminate();
