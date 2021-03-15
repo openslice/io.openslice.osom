@@ -60,8 +60,11 @@ public class NFVONSTerminateTask  implements JavaDelegate {
 			String deploymentRequestID = aService.getServiceCharacteristicByName( "DeploymentRequestID" ).getValue().getValue();
 			logger.info("Will terminate DeploymentRequestID:" + deploymentRequestID );
 			DeploymentDescriptor dd =serviceOrderManager.retrieveNFVODeploymentRequestById( Long.parseLong( deploymentRequestID ) );
-			dd.setEndDate( new Date() ); // it will terminate it now
-			serviceOrderManager.nfvoDeploymentRequestByNSDid(dd);
+			if ( dd != null ) {
+				dd.setEndDate( new Date() ); // it will terminate it now
+				serviceOrderManager.nfvoDeploymentRequestByNSDid(dd);
+				
+			}
 		}
 		
 		

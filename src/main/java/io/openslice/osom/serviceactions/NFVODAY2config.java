@@ -4,6 +4,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,6 +18,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.openslice.model.ScaleDescriptor;
 import io.openslice.osom.management.ServiceOrderManager;
 import io.openslice.tmf.common.model.Any;
 import io.openslice.tmf.common.model.service.Characteristic;
@@ -142,6 +144,31 @@ public class NFVODAY2config implements JavaDelegate {
 						
 						
 					}
+				} else if ( ncTxt.toUpperCase().contains(  "EXEC_ACTION" ) ) {
+					String characteristicValue = characteristic.getValue().getValue();
+					Map<String, String> vals = mapper.readValue( characteristicValue, new TypeReference< Map<String, String>>() {});
+					logger.debug("NFVODAY2config:  EXEC_ACTION characteristicValue = " +characteristicValue );
+					
+					if (  vals.get("ACTION_NAME") != null) {
+						if ( vals.get("ACTION_NAME").equalsIgnoreCase("scaleServiceEqually") ) {
+
+							ScaleDescriptor aScaleDescriptor = new ScaleDescriptor();
+							aScaleDescriptor.setNsInstanceId(nsInstanceId);
+							aScaleDescriptor.setMemberVnfIndex(  vals.get("Member_vnf_index") );
+							aScaleDescriptor.setScalingGroupDescriptor(vals.get("Scaling_group_descriptor"));
+							aScaleDescriptor.setScaleVnfType( "SCALE_OUT" );
+							
+							String actionresult = serviceOrderManager.nfvoScaleDescriptorAction( aScaleDescriptor );
+							logger.debug("NFVODAY2config: actionresult = " +actionresult );
+							
+							
+						}						
+						
+					}
+					
+					
+					//here send
+					
 				}
 				
 				

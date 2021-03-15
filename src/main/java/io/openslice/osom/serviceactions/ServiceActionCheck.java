@@ -130,6 +130,8 @@ public class ServiceActionCheck implements JavaDelegate {
 							execution.setVariable("saction", "NFVONSTerminate");
 						} else if (  item.getAction().equals( ServiceActionQueueAction.MODIFY ) ) {
 							execution.setVariable("saction", "NFVODAY2config");
+						}  else {
+							execution.setVariable("saction", "HandleManuallyAction");
 						} 
 					} else {
 						execution.setVariable("saction", "AutomaticallyHandleAction");

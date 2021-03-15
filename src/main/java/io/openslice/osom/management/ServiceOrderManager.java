@@ -43,6 +43,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.openslice.model.DeploymentDescriptor;
 import io.openslice.model.NetworkServiceDescriptor;
+import io.openslice.model.ScaleDescriptor;
 import io.openslice.osom.configuration.OSOMRouteBuilder;
 import io.openslice.osom.serviceactions.NSActionRequestPayload;
 import io.openslice.tmf.pm632.model.Organization;
@@ -133,11 +134,14 @@ public class ServiceOrderManager {
 
 	@Value("${CATALOG_GET_PARTNER_ORGANIZATON_BY_ID}")
 	private String CATALOG_GET_PARTNER_ORGANIZATON_BY_ID = "";
-	
+
 	@Value("${NFV_CATALOG_NS_DAY2_ACTION}")
 	private String NFV_CATALOG_NS_DAY2_ACTION = "";
-	
 
+	@Value("${NFV_CATALOG_NSACTIONS_SCALE}")
+	private String NFV_CATALOG_NSACTIONS_SCALE = "";
+	
+	
 	
 	
 	
@@ -661,6 +665,29 @@ public class ServiceOrderManager {
 			
 		}catch (Exception e) {
 			logger.error("Cannot retrieve Listof ActiveServiceToTerminate . " + e.toString());
+		}
+		return null;
+	}
+
+	public String nfvoScaleDescriptorAction(ScaleDescriptor aScaleDescriptor) {
+
+		
+		try {
+
+			String body = toJsonString(aScaleDescriptor);
+			Object response = template.requestBodyAndHeader( NFV_CATALOG_NSACTIONS_SCALE, body , "id", aScaleDescriptor.getDeploymentRequestID() );
+
+			if ( !(response instanceof String)) {
+				logger.error(" nfvoScaleDescriptorAction response object is wrong.");
+				return null;
+			}
+			//String dd = toJsonObj( (String)response, DeploymentDescriptor.class); 
+			logger.debug("nfvoScaleDescriptorAction response is: " + response);
+			return (String) response;
+			
+		}catch (Exception e) {
+			logger.error("Cannot retrieve nfvoScaleDescriptorAction details from NFV catalog. " + e.toString());
+			e.printStackTrace();
 		}
 		return null;
 	}

@@ -29,6 +29,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 import io.openslice.osom.management.ServiceOrderManager;
+import io.openslice.osom.serviceactions.ServiceActionCheck;
+import io.openslice.tmf.am642.model.AlarmCreate;
 import io.openslice.tmf.so641.model.ServiceOrder;
 
 @Configuration
@@ -38,9 +40,12 @@ public class OSOMRouteBuilder extends RouteBuilder {
 
 	private static final transient Log logger = LogFactory.getLog(OSOMRouteBuilder.class.getName());
 
-	
-	
 	public void configure() {
+		
+
+//		
+//		prepei edw na lavoume ena action object
+//		kai na to epekseragstei to ServiceActionCheck.class Prepei na gemisoume to antistoixo object
 
 //		from("jms:queue:OSOM.NEW_SERVICEORDER_PROCESS")
 //			.log(LoggingLevel.INFO, log, "New OSOM.IN.SERVICEORDER message received!")
