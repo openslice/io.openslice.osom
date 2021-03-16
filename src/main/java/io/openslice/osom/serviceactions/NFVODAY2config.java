@@ -160,7 +160,12 @@ public class NFVODAY2config implements JavaDelegate {
 							
 							String actionresult = serviceOrderManager.nfvoScaleDescriptorAction( aScaleDescriptor );
 							logger.debug("NFVODAY2config: actionresult = " +actionresult );
-							
+							if ( actionresult.contains("ACCEPTED") ) {
+								n.setText( n.getText() + "ACCEPTED. Values=" + vals.toString());
+								
+							} else {
+								n.setText( n.getText() + " " + actionresult );								
+							}
 							
 						}						
 						
