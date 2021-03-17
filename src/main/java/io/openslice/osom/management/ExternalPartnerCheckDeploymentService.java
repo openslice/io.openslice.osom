@@ -155,12 +155,16 @@ public class ExternalPartnerCheckDeploymentService  implements JavaDelegate {
 			noteItem.setAuthor("OSOM");
 			supd.addNoteItem( noteItem );
 			Service serviceResult = serviceOrderManager.updateService( aService.getId(), supd, false );
-			if ( serviceResult.getState().equals(ServiceStateType.ACTIVE)
-					|| serviceResult.getState().equals(ServiceStateType.TERMINATED)) {
+			if ( serviceResult!=null ) {
+				if ( serviceResult.getState().equals(ServiceStateType.ACTIVE)
+						|| serviceResult.getState().equals(ServiceStateType.TERMINATED)) {
 
-				logger.info("Deployment Status OK. Service state = " + serviceResult.getState() );
-				execution.setVariable("serviceDeploymentFinished", true);
-				return;
+					logger.info("Deployment Status OK. Service state = " + serviceResult.getState() );
+					execution.setVariable("serviceDeploymentFinished", true);
+					return;
+				}				
+			} else {
+				logger.error("Deployment Status ERROR from External Parnter with null serviceResult " );
 			}
 		}
 		logger.info("Wait For  External Service Partner Status. ");

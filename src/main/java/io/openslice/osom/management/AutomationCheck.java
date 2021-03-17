@@ -437,20 +437,27 @@ public class AutomationCheck implements JavaDelegate {
 		if (soi.getService().getServiceCharacteristic() != null ) {
 			for (ServiceSpecCharacteristic c : spec.getServiceSpecCharacteristic()) {
 				
+				boolean characteristicFound = false;
 				for (Characteristic orderCharacteristic : soi.getService().getServiceCharacteristic()) {
-					if ( orderCharacteristic.getName().equals( c.getName()) ||
-							orderCharacteristic.getName().contains( spec.getName() + "::" +c.getName() )) { //copy only characteristics that are related from the order
-						Characteristic serviceCharacteristicItem =  new Characteristic();
-						serviceCharacteristicItem.setName( c.getName() );
-						serviceCharacteristicItem.setValueType( c.getValueType() );
-									
-						Any val = new Any();
-						val.setValue( orderCharacteristic.getValue().getValue() );
-						val.setAlias( orderCharacteristic.getValue().getAlias() );
-						
-						serviceCharacteristicItem.setValue( val );
-						s.addServiceCharacteristicItem(serviceCharacteristicItem);
+					String specCharacteristicToSearch = spec.getName() + "::" +c.getName();
+					 if ( orderCharacteristic.getName().equals( specCharacteristicToSearch )) { //copy only characteristics that are related from the order
+						s.addServiceCharacteristicItem( addServiceCharacteristicItem(c, orderCharacteristic) );
+						characteristicFound = true;
+						break;
 					}
+				}
+				
+				if (!characteristicFound) { //fallback to find simple name (i.e. not starting with service spec name)
+					for (Characteristic orderCharacteristic : soi.getService().getServiceCharacteristic()) {
+						String specCharacteristicToSearch = c.getName();
+						 if ( orderCharacteristic.getName().equals( specCharacteristicToSearch )) { //copy only characteristics that are related from the order							 
+							
+							s.addServiceCharacteristicItem( addServiceCharacteristicItem(c, orderCharacteristic) );
+							characteristicFound = true;
+							break;
+						}
+					}
+					
 				}
 			}
 			
@@ -461,4 +468,17 @@ public class AutomationCheck implements JavaDelegate {
 		return createdService;
 	}
 
+	private Characteristic addServiceCharacteristicItem(ServiceSpecCharacteristic c, Characteristic orderCharacteristic) {
+		Characteristic serviceCharacteristicItem =  new Characteristic();
+		serviceCharacteristicItem.setName( c.getName() );
+		serviceCharacteristicItem.setValueType( c.getValueType() );
+					
+		Any val = new Any();
+		val.setValue( orderCharacteristic.getValue().getValue() );
+		val.setAlias( orderCharacteristic.getValue().getAlias() );
+		
+		serviceCharacteristicItem.setValue( val );
+		
+		return serviceCharacteristicItem;
+	}
 }
