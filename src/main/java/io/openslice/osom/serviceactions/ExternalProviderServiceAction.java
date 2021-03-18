@@ -105,7 +105,7 @@ public class ExternalProviderServiceAction  implements JavaDelegate {
 				item = mapper.readValue( execution.getVariable("serviceActionItem").toString(), ServiceActionQueueItem.class);
 				ServiceUpdate supd = new ServiceUpdate();
 				Note n = new Note();
-				n.setText("Service Action NFVONSTerminateTask. Action: " + item.getAction() );
+				n.setText("Service Action ExternalProviderServiceAction. Action: " + item.getAction() );
 				n.setAuthor( "OSOM" );
 				n.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
 				supd.addNoteItem( n );

@@ -44,6 +44,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.openslice.tmf.common.model.Any;
+import io.openslice.tmf.common.model.EValueType;
 import io.openslice.tmf.common.model.UserPartRoleType;
 import io.openslice.tmf.common.model.service.Characteristic;
 import io.openslice.tmf.common.model.service.Note;
@@ -164,6 +165,7 @@ public class AutomationCheck implements JavaDelegate {
 								Service aService = serviceOrderManager.retrieveService( sref.getId() );
 								ServiceUpdate supd = new ServiceUpdate();
 								
+								boolean execActionAdded = false; 
 								if ( soi.getService().getServiceCharacteristic() != null ) {
 									for (Characteristic serviceChar : aService.getServiceCharacteristic() ) {
 										
@@ -171,11 +173,27 @@ public class AutomationCheck implements JavaDelegate {
 											if ( soiCharacteristic.getName().contains( serviceChar.getName() )) { //copy only characteristics that are related from the order
 												
 												serviceChar.setValue( soiCharacteristic.getValue() );
-												supd.addServiceCharacteristicItem( serviceChar );
-												
-												
+												supd.addServiceCharacteristicItem( serviceChar );											
+												if ( soiCharacteristic.getName().contains( "EXEC_ACTION" )) { 
+													execActionAdded = true;
+												}
 											}
 										}
+									}
+									
+									//add now for EXEC_ACTION which is a separatecharacteristic
+									if (!execActionAdded) {
+										for (Characteristic soiCharacteristic : soi.getService().getServiceCharacteristic()) {										
+											if ( soiCharacteristic.getName().contains( "EXEC_ACTION" )) { //copy only characteristics that are related from the order
+
+												Characteristic serviceCharExec = new Characteristic();
+												serviceCharExec.setName( "EXEC_ACTION"  );
+												serviceCharExec.setValueType(  EValueType.MAP.getValue()  );
+												serviceCharExec.setValue( soiCharacteristic.getValue() );
+												supd.addServiceCharacteristicItem( serviceCharExec );											
+												
+											}
+										}										
 									}
 									
 								}
