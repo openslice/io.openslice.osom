@@ -73,7 +73,12 @@ public class ServiceActionCheck implements JavaDelegate {
 				
 				if ( (aService.getServiceCharacteristicByName( "externalServiceOrderId" ) != null )){
 					execution.setVariable("saction", "ExternalProviderServiceAction");					
-					execution.setVariable("externalServiceOrderId", aService.getServiceCharacteristicByName( "externalServiceOrderId" ).getValue().getValue()  );					
+					execution.setVariable("externalServiceOrderId", aService.getServiceCharacteristicByName( "externalServiceOrderId" ).getValue().getValue()  );	
+
+					if ( (aService.getServiceCharacteristicByName( "externalPartnerServiceId" ) != null )){
+						execution.setVariable("externalPartnerServiceId", aService.getServiceCharacteristicByName( "externalPartnerServiceId" ).getValue().getValue()  );							
+					}
+					
 					RelatedParty rpOrg = null;
 					if ( aService.getRelatedParty() != null ) {
 						for (RelatedParty rp : aService.getRelatedParty()) {

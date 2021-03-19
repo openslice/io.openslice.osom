@@ -82,6 +82,10 @@ public class AutomationCheck implements JavaDelegate {
 	@Autowired
 	private ServiceOrderManager serviceOrderManager;
 
+
+	@Value("${spring.application.name}")
+	private String compname;
+	
 	public void execute(DelegateExecution execution) {
 
 		logger.info("Process Orders by Orchetrator:" + execution.getVariableNames().toString());
@@ -165,7 +169,6 @@ public class AutomationCheck implements JavaDelegate {
 								Service aService = serviceOrderManager.retrieveService( sref.getId() );
 								ServiceUpdate supd = new ServiceUpdate();
 								
-								boolean execActionAdded = false; 
 								if ( soi.getService().getServiceCharacteristic() != null ) {
 									for (Characteristic serviceChar : aService.getServiceCharacteristic() ) {
 										
@@ -173,29 +176,12 @@ public class AutomationCheck implements JavaDelegate {
 											if ( soiCharacteristic.getName().contains( serviceChar.getName() )) { //copy only characteristics that are related from the order
 												
 												serviceChar.setValue( soiCharacteristic.getValue() );
-												supd.addServiceCharacteristicItem( serviceChar );											
-												if ( soiCharacteristic.getName().contains( "EXEC_ACTION" )) { 
-													execActionAdded = true;
-												}
+												supd.addServiceCharacteristicItem( serviceChar );		
 											}
 										}
 									}
 									
-									//add now for EXEC_ACTION which is a separatecharacteristic
-									if (!execActionAdded) {
-										for (Characteristic soiCharacteristic : soi.getService().getServiceCharacteristic()) {										
-											if ( soiCharacteristic.getName().contains( "EXEC_ACTION" )) { //copy only characteristics that are related from the order
-
-												Characteristic serviceCharExec = new Characteristic();
-												serviceCharExec.setName( "EXEC_ACTION"  );
-												serviceCharExec.setValueType(  EValueType.MAP.getValue()  );
-												serviceCharExec.setValue( soiCharacteristic.getValue() );
-												supd.addServiceCharacteristicItem( serviceCharExec );											
-												
-											}
-										}										
-									}
-									
+																		
 								}
 								
 
@@ -408,47 +394,48 @@ public class AutomationCheck implements JavaDelegate {
 	private Service createServiceByServiceSpec(ServiceOrder sor, ServiceOrderItem soi,
 			ServiceSpecification spec, EServiceStartMode startMode, RelatedParty partnerOrg) {
 
-		ServiceCreate s = new ServiceCreate();
+		ServiceCreate serviceToCreate = new ServiceCreate();
 		String servicename = spec.getName();
-		s.setDescription("A Service for " + spec.getName());
+		serviceToCreate.setDescription("A Service for " + spec.getName());
 		if ( partnerOrg!= null ) {
-			servicename = partnerOrg.getName() + "::" +  servicename;
-			s.setDescription("A Service for " + spec.getName() + " offered by external partner: " + partnerOrg.getName());
+			servicename = partnerOrg.getName() + "::" +  servicename  + "::PROXY";
+			serviceToCreate.setDescription("A Service for " + spec.getName() + " offered by external partner: " + partnerOrg.getName());
 		}
 
-		s.setName( servicename );
-		s.setCategory(spec.getType());
-		s.setType(spec.getType());
-		s.setServiceDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
-		s.setStartDate( OffsetDateTime.now(ZoneOffset.UTC).toString()  );
-		s.setEndDate( sor.getExpectedCompletionDate()  );
-		s.hasStarted(false);
-		s.setIsServiceEnabled(false);
-		s.setStartMode( startMode.getValue() );
+		serviceToCreate.setName( servicename );
+		serviceToCreate.setCategory(spec.getType());
+		serviceToCreate.setType(spec.getType());
+		serviceToCreate.setServiceDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
+		serviceToCreate.setStartDate( OffsetDateTime.now(ZoneOffset.UTC).toString()  );
+		serviceToCreate.setEndDate( sor.getExpectedCompletionDate()  );
+		serviceToCreate.hasStarted(false);
+		serviceToCreate.setIsServiceEnabled(false);
+		serviceToCreate.setStartMode( startMode.getValue() );
 		
 		Note noteItem = new Note();
 		noteItem.setText("Service Created by AutomationCheck");
-		noteItem.setAuthor("OSOM");
-		s.addNoteItem(noteItem);
+		
+		noteItem.setAuthor( compname );
+		serviceToCreate.addNoteItem(noteItem);
 		
 		ServiceOrderRef serviceOrderref = new ServiceOrderRef();
 		serviceOrderref.setId( sor.getId() );
 		serviceOrderref.setServiceOrderItemId( soi.getId() );
-		s.addServiceOrderItem(serviceOrderref );
+		serviceToCreate.addServiceOrderItem(serviceOrderref );
 		
 		ServiceSpecificationRef serviceSpecificationRef = new ServiceSpecificationRef();
 		serviceSpecificationRef.setId( spec.getId());
 		serviceSpecificationRef.setName(spec.getName());
-		s.setServiceSpecificationRef(serviceSpecificationRef );
+		serviceToCreate.setServiceSpecificationRef(serviceSpecificationRef );
 		
-		s.setServiceType( spec.getName());
-		s.setState( ServiceStateType.RESERVED );
+		serviceToCreate.setServiceType( spec.getName());
+		serviceToCreate.setState( ServiceStateType.RESERVED );
 		
 		
 		if (spec.getRelatedParty()!=null) {
 			for (RelatedParty rp : spec.getRelatedParty()) {
 				rp.setUuid(null); 
-				s.addRelatedPartyItem(rp);
+				serviceToCreate.addRelatedPartyItem(rp);
 			}			
 		}
 		
@@ -459,7 +446,7 @@ public class AutomationCheck implements JavaDelegate {
 				for (Characteristic orderCharacteristic : soi.getService().getServiceCharacteristic()) {
 					String specCharacteristicToSearch = spec.getName() + "::" +c.getName();
 					 if ( orderCharacteristic.getName().equals( specCharacteristicToSearch )) { //copy only characteristics that are related from the order
-						s.addServiceCharacteristicItem( addServiceCharacteristicItem(c, orderCharacteristic) );
+						serviceToCreate.addServiceCharacteristicItem( addServiceCharacteristicItem(c, orderCharacteristic) );
 						characteristicFound = true;
 						break;
 					}
@@ -470,7 +457,7 @@ public class AutomationCheck implements JavaDelegate {
 						String specCharacteristicToSearch = c.getName();
 						 if ( orderCharacteristic.getName().equals( specCharacteristicToSearch )) { //copy only characteristics that are related from the order							 
 							
-							s.addServiceCharacteristicItem( addServiceCharacteristicItem(c, orderCharacteristic) );
+							serviceToCreate.addServiceCharacteristicItem( addServiceCharacteristicItem(c, orderCharacteristic) );
 							characteristicFound = true;
 							break;
 						}
@@ -482,7 +469,7 @@ public class AutomationCheck implements JavaDelegate {
 		}
 		
 		
-		Service createdService = serviceOrderManager.createService(s, sor, spec);
+		Service createdService = serviceOrderManager.createService(serviceToCreate, sor, spec);
 		return createdService;
 	}
 

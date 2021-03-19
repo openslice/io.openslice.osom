@@ -117,6 +117,9 @@ public class ServiceOrderManager {
 	@Value("${CATALOG_SERVICES_TO_TERMINATE}")
 	private String CATALOG_SERVICES_TO_TERMINATE = "";
 
+	@Value("${CATALOG_SERVICES_OF_PARTNERS}")
+	private String CATALOG_SERVICES_OF_PARTNERS = "";
+	
 	@Value("${NFV_CATALOG_DEPLOY_NSD_REQ}")
 	private String NFV_CATALOG_DEPLOY_NSD_REQ = "";
 	
@@ -366,6 +369,13 @@ public class ServiceOrderManager {
 		
 	}
 	
+	/**
+	 * @param serviceId
+	 * @param s
+	 * @param propagateToSO is a cryptic thing. However it is used as follows: if FALSE, to just update the service status in catalog without further taking any action.
+	 * if TRUE then the ServiceUpdate will trigger a ServiceActionQueue to further process the update. So this is needed to avoid these kinds of deadlocks
+	 * @return
+	 */
 	public io.openslice.tmf.sim638.model.Service updateService(String serviceId, ServiceUpdate s, boolean propagateToSO) {
 		logger.info("will update Service : " + serviceId );
 		try {
@@ -691,6 +701,31 @@ public class ServiceOrderManager {
 		}
 		return null;
 	}
+
+	public List<String> retrieveActiveServiceOfExternalPartners() {
+			logger.info("will retrieve ActiveServiceOfExternalPartners"   );
+			try {
+				
+				Object response = template.
+						requestBody( CATALOG_SERVICES_OF_PARTNERS, "" );
+
+				logger.debug("will retrieve ActiveServiceOfExternalPartners response: " + response.getClass()  );
+				if ( !(response instanceof String)) {
+					logger.error("List  object is wrong.");
+					return null;
+				}
+
+				String[] sor = toJsonObj( (String)response, String[].class ); 
+				logger.debug("ActiveServiceOfExternalPartners response is: " + response);
+				
+//				return asList(sor);
+				return Arrays.asList(sor);
+				
+			}catch (Exception e) {
+				logger.error("Cannot retrieve Listof ActiveServiceOfExternalPartners . " + e.toString());
+			}
+			return null;
+		}
 
 	
 

@@ -11,6 +11,7 @@ import org.apache.commons.logging.LogFactory;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -19,8 +20,10 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.openslice.model.ScaleDescriptor;
+import io.openslice.osom.management.AlarmsService;
 import io.openslice.osom.management.ServiceOrderManager;
 import io.openslice.tmf.common.model.Any;
+import io.openslice.tmf.common.model.EValueType;
 import io.openslice.tmf.common.model.service.Characteristic;
 import io.openslice.tmf.common.model.service.Note;
 import io.openslice.tmf.sim638.model.Service;
@@ -32,10 +35,15 @@ public class NFVODAY2config implements JavaDelegate {
 
 	private static final transient Log logger = LogFactory.getLog( NFVODAY2config.class.getName() );
 
+	@Value("${spring.application.name}")
+	private String compname;
 
     @Autowired
     private ServiceOrderManager serviceOrderManager;
-    
+
+	@Autowired
+	AlarmsService alarmsService;
+	
 	public void execute(DelegateExecution execution) {
 		
 		logger.debug("NFVODAY2config:" + execution.getVariableNames().toString() );
@@ -75,7 +83,7 @@ public class NFVODAY2config implements JavaDelegate {
 			
 			Note n = new Note();
 			n.setText("Service Action NFVODAY2config. Action: " + item.getAction() +". " );
-			n.setAuthor( "OSOM" );
+			n.setAuthor( compname);
 			n.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
 			
 			
@@ -87,10 +95,13 @@ public class NFVODAY2config implements JavaDelegate {
 				
 			}
 			
+
+			ServiceUpdate supd = new ServiceUpdate();
 			
 			String ncTxt = "";
 			for (Characteristic characteristic : changeCharacteristics) {
 				ncTxt += characteristic.getName() + ", ";
+
 				
 				if ( ncTxt.toUpperCase().contains(  "PRIMITIVE::" ) ) {
 					if ( (characteristic != null ) && (characteristic.getValueType() != null ) && characteristic.getValueType().equals("ARRAY") ) {
@@ -148,6 +159,9 @@ public class NFVODAY2config implements JavaDelegate {
 					String characteristicValue = characteristic.getValue().getValue();
 					Map<String, String> vals = mapper.readValue( characteristicValue, new TypeReference< Map<String, String>>() {});
 					logger.debug("NFVODAY2config:  EXEC_ACTION characteristicValue = " +characteristicValue );
+					//first add to a new item the acknowledge
+					Characteristic characteristicAck = new Characteristic();
+					characteristicAck.setName("EXEC_ACTION_LAST_ACK");
 					
 					if (  vals.get("ACTION_NAME") != null) {
 						if ( vals.get("ACTION_NAME").equalsIgnoreCase("scaleServiceEqually") ) {
@@ -160,11 +174,29 @@ public class NFVODAY2config implements JavaDelegate {
 							
 							String actionresult = serviceOrderManager.nfvoScaleDescriptorAction( aScaleDescriptor );
 							logger.debug("NFVODAY2config: actionresult = " +actionresult );
-							if ( actionresult.contains("ACCEPTED") ) {
-								n.setText( n.getText() + "ACCEPTED. Values=" + vals.toString());
+
+							if ( actionresult != null ) {
+								if ( actionresult.contains("202") ) {
+									n.setText( n.getText() + "ACCEPTED. Values=" + vals.toString());
+									characteristicAck.setValueType(  characteristicAck.getValueType()  );
+									Any value = new Any();
+									value.setValue( characteristicValue );		
+									characteristicAck.setValue( value );
+								} else {
+									n.setText( n.getText() + " " + actionresult );		
+									characteristicAck.setValueType(  "TEXT"  );
+									Any value = new Any();
+									value.setValue( "ERROR" );		
+									characteristicAck.setValue( value );
+								}
 								
 							} else {
-								n.setText( n.getText() + " " + actionresult );								
+
+								n.setText( n.getText() + " ERROR ON NFVODAY2config" );		
+								characteristicAck.setValueType(  "TEXT"  );
+								Any value = new Any();
+								value.setValue( "ERROR" );		
+								characteristicAck.setValue( value );			
 							}
 							
 						}						
@@ -172,15 +204,14 @@ public class NFVODAY2config implements JavaDelegate {
 					}
 					
 					
-					//here send
+					
+					supd.addServiceCharacteristicItem(characteristicAck);					
 					
 				}
 				
 				
 			}
 			
-			
-			ServiceUpdate supd = new ServiceUpdate();
 			
 			supd.addNoteItem( n );
 			serviceOrderManager.deleteServiceActionQueueItem( item );			

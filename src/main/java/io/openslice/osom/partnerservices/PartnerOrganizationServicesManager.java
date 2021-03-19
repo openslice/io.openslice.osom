@@ -60,6 +60,7 @@ import io.openslice.tmf.scm633.model.ServiceCategory;
 import io.openslice.tmf.scm633.model.ServiceSpecCharacteristic;
 import io.openslice.tmf.scm633.model.ServiceSpecCharacteristicValue;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
+import io.openslice.tmf.sim638.model.ServiceUpdate;
 import io.openslice.tmf.so641.model.ServiceOrder;
 import io.openslice.tmf.so641.model.ServiceOrderCreate;
 import io.openslice.tmf.so641.model.ServiceOrderItem;
@@ -423,19 +424,10 @@ public class PartnerOrganizationServicesManager {
 
 	private WebClient getOrganizationWebClient(Organization org) {
 		
-		if (webclients.get(org.getId()) != null) {
-			return webclients.get( org.getId() );
-		} else {
+//		if (webclients.get(org.getId()) != null) {
+//			return webclients.get( org.getId() );
+//		} else {
 			
-//			GenericClient oac = new GenericClient(
-//					"authOpensliceProvider", 
-//					"osapiWebClientId",
-//					"secret",
-//					scopes ,
-//					"http://portal.openslice.io/osapi-oauth-server/oauth/token",
-//					"admin", 
-//					"openslice", 
-//					"http://portal.openslice.io" );
 
 			try {
 				String[] scopes = new String[0];
@@ -497,7 +489,7 @@ public class PartnerOrganizationServicesManager {
 				this.updateOrgzStatus(org, "WEBCLIENT ERROR SSLException");
 			}
 			
-		}
+//		}
 		return null;
 	}
 
@@ -998,5 +990,65 @@ public class PartnerOrganizationServicesManager {
 
 		return srvc;
 	}
+
+	public io.openslice.tmf.sim638.model.Service updateExternalService(String externalPartnerServiceId, ServiceUpdate servUpdate, Organization org) {
+		Characteristic ctype = org.findPartyCharacteristic("EXTERNAL_TMFAPI_CLIENTREGISTRATIONID");
+		
+		
+		logger.info("Will updateExternalServiceOrder to organization: " + org.getName() + ", id: " + org.getId());
+
+		/**
+		 * will create or fetch existing web client for this organization
+		 */
+		WebClient webclient = this.getOrganizationWebClient(org);
+
+
+		//EXTERNAL_TMFAPI_SERVICE_ORDER_URLS
+		String url = "/tmf-api/serviceInventory/v4/service/" + externalPartnerServiceId;
+		
+		if ( ( org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_INVENTORY_URLS") != null) &&
+				(org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_INVENTORY_URLS").getValue() != null) &&
+				(!org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_INVENTORY_URLS").getValue().getValue().equals("") )) {
+			url = org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_INVENTORY_URLS").getValue().getValue();
+		}
+		
+		io.openslice.tmf.sim638.model.Service serv = new io.openslice.tmf.sim638.model.Service();
+		
+		if ( webclient!=null ) {
+			
+			try {
+			serv = webclient.patch()
+					.uri(url)
+				      //.header("Authorization", "Basic " + encodedClientData)
+				      .bodyValue( servUpdate ) 
+						//.attributes( ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId("authOpensliceProvider"))
+						.retrieve()
+						.onStatus(HttpStatus::is4xxClientError, response -> {
+							logger.error("4xx eror");
+					        return Mono.error(new RuntimeException("4xx"));
+					      })
+					      .onStatus(HttpStatus::is5xxServerError, response -> {
+					    	  logger.error("5xx eror");
+					        return Mono.error(new RuntimeException("5xx"));
+					      })
+					  .bodyToMono( new ParameterizedTypeReference<io.openslice.tmf.sim638.model.Service>() {})
+					  .block();
+			}catch (Exception e) {
+				logger.error(" error on web client request");
+				this.invalidateOrganizationWebClient(org);
+				e.printStackTrace();
+			}
+
+			 
+			 
+		} else  {
+			logger.error("WebClient is null. Cannot be created.");
+		}
+
+		
+
+		return serv;
+	}
+		
 
 }

@@ -33,6 +33,7 @@ import org.apache.commons.logging.LogFactory;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import io.openslice.model.DeploymentDescriptor;
@@ -52,6 +53,8 @@ public class OrderCompleteService implements JavaDelegate {
 
 	private static final transient Log logger = LogFactory.getLog(OrderCompleteService.class.getName());
 
+	@Value("${spring.application.name}")
+	private String compname;
 
     @Autowired
     private ServiceOrderManager serviceOrderManager;
@@ -75,21 +78,27 @@ public class OrderCompleteService implements JavaDelegate {
 			}
 			
 			
-			if ( nfvOrchestrationCheckDeploymentService!= null) {
 				for (ServiceOrderItem soi : sOrder.getOrderItem()) {
 					for (ServiceRef sref : soi.getService().getSupportingService()) {
-						Service aService = serviceOrderManager.retrieveService( sref.getId()  );
+						Service aService = serviceOrderManager.retrieveService( sref.getId()  );						
 						
+
 						if ( (aService!=null ) &&
-								(aService.getServiceCharacteristicByName( "DeploymentRequestID" ) != null )){
-							String deploymentRequestID = aService.getServiceCharacteristicByName( "DeploymentRequestID" ).getValue().getValue();
-
-							execution.setVariable( "deploymentId", Long.parseLong( deploymentRequestID ));
-							execution.setVariable( "serviceId", aService.getUuid() );
+								(aService.getServiceCharacteristicByName( "externalPartnerServiceId" ) != null )){
+							//service belongs to a partner. Here we might query it
 							
-							nfvOrchestrationCheckDeploymentService.execute(execution);
+						}else if ( (aService!=null ) &&
+								(aService.getServiceCharacteristicByName( "DeploymentRequestID" ) != null )){
+							
+							if ( nfvOrchestrationCheckDeploymentService!= null) {
+								String deploymentRequestID = aService.getServiceCharacteristicByName( "DeploymentRequestID" ).getValue().getValue();
+	
+								execution.setVariable( "deploymentId", Long.parseLong( deploymentRequestID ));
+								execution.setVariable( "serviceId", aService.getUuid() );
+								
+								nfvOrchestrationCheckDeploymentService.execute(execution);
 
-						}
+							}
 						
 					}
 				}
@@ -204,7 +213,7 @@ public class OrderCompleteService implements JavaDelegate {
 				Note noteItem = new Note();
 				noteItem.setText("Update Service Order State to: " +  serviceOrderUpd.getState());
 				noteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
-				noteItem.setAuthor("OSOM");
+				noteItem.setAuthor( compname );
 				serviceOrderUpd.addNoteItem( noteItem );
 				
 				serviceOrderManager.updateServiceOrderOrder( sOrder.getId() , serviceOrderUpd);

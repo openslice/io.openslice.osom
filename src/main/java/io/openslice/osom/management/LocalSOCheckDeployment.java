@@ -27,6 +27,7 @@ import org.apache.commons.logging.LogFactory;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import io.openslice.osom.partnerservices.PartnerOrganizationServicesManager;
@@ -52,6 +53,8 @@ public class LocalSOCheckDeployment  implements JavaDelegate {
 	private static final transient Log logger = LogFactory.getLog( LocalSOCheckDeployment.class.getName());
 
 
+	@Value("${spring.application.name}")
+	private String compname;
 	@Autowired
 	private ServiceOrderManager serviceOrderManager;
 	
@@ -127,7 +130,7 @@ public class LocalSOCheckDeployment  implements JavaDelegate {
 			Note noteItem = new Note();
 			noteItem.setText("Update Service Order State to: " + supd.getState() + ". ");
 			noteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
-			noteItem.setAuthor("OSOM");
+			noteItem.setAuthor( compname );
 			supd.addNoteItem( noteItem );
 			Service serviceResult = serviceOrderManager.updateService( aService.getId(), supd, false );
 			if ( serviceResult.getState().equals(ServiceStateType.ACTIVE)

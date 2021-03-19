@@ -3,7 +3,7 @@
   <process id="ServiceActionQueueProcess" name="My process" isExecutable="true">
     <startEvent id="timerstartevent1" name="Timer start">
       <timerEventDefinition>
-        <timeCycle>30 0/1 * * * ?</timeCycle>
+        <timeCycle>0/30 * * * * ?</timeCycle>
       </timerEventDefinition>
     </startEvent>
     <serviceTask id="fetchServiceQueueItems" name="Fetch Service Queue Items" activiti:delegateExpression="${fetchServiceQueueItems}"></serviceTask>

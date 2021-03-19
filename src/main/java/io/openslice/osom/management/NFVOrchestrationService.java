@@ -25,12 +25,12 @@ import java.util.Date;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import io.openslice.model.ConstituentVxF;
@@ -56,6 +56,10 @@ public class NFVOrchestrationService implements JavaDelegate {
 	private static final transient Log logger = LogFactory.getLog(NFVOrchestrationService.class.getName());
 
 
+	@Value("${spring.application.name}")
+	private String compname;
+	
+	
 	@Autowired
 	private ServiceOrderManager serviceOrderManager;
 
@@ -128,7 +132,7 @@ public class NFVOrchestrationService implements JavaDelegate {
 						Note successNoteItem = new Note();
 						successNoteItem.setText("Request to NFVO for NSDID: " + NSDID + ". Deployment Request id: " + dd.getId());
 						successNoteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
-						successNoteItem.setAuthor("OSOM");
+						successNoteItem.setAuthor( compname );
 						su.addNoteItem( successNoteItem );
 						Characteristic serviceCharacteristicItem = new Characteristic();
 						serviceCharacteristicItem.setName( "DeploymentRequestID" );
@@ -209,7 +213,7 @@ public class NFVOrchestrationService implements JavaDelegate {
 		//if we get here somethign is wrong so we need to terminate the service.
 		
 		noteItem.setText("Request to NFVO FAILED." + noteItem.getText()  );
-		noteItem.setAuthor("OSOM");
+		noteItem.setAuthor( compname );
 		noteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
 		su.addNoteItem( noteItem );
 		su.setState(ServiceStateType.TERMINATED   );

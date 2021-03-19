@@ -56,7 +56,9 @@ public class LocalSOInitialize implements JavaDelegate {
 	
 	@Autowired
 	private ServiceOrderManager serviceOrderManager;
-	
+
+	@Value("${spring.application.name}")
+	private String compname;
 	
 	@Override
 	public void execute(DelegateExecution execution) {
@@ -86,7 +88,7 @@ public class LocalSOInitialize implements JavaDelegate {
 				Note noteItem = new Note();
 				noteItem.setText( "Local Service Orchestration initialized for spec:" + spec.getName()  + " done!");
 				noteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
-				noteItem.setAuthor("OSOM");
+				noteItem.setAuthor( compname );
 				su.addNoteItem( noteItem );
 				
 				
@@ -106,7 +108,7 @@ public class LocalSOInitialize implements JavaDelegate {
 		//if we get here somethign is wrong so we need to terminate the service.
 		Note noteItem = new Note();
 		noteItem.setText("Order Request Service for Local Service Orchestration FAILED");
-		noteItem.setAuthor("OSOM");
+		noteItem.setAuthor( compname );
 		noteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
 		su.addNoteItem( noteItem );
 		su.setState(ServiceStateType.TERMINATED   );

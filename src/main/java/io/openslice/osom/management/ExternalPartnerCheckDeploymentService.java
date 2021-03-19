@@ -27,22 +27,28 @@ import org.apache.commons.logging.LogFactory;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import io.openslice.osom.partnerservices.PartnerOrganizationServicesManager;
+import io.openslice.tmf.common.model.Any;
 import io.openslice.tmf.common.model.UserPartRoleType;
 import io.openslice.tmf.common.model.service.Characteristic;
 import io.openslice.tmf.common.model.service.Note;
 import io.openslice.tmf.common.model.service.ServiceRef;
+import io.openslice.tmf.common.model.service.ServiceSpecificationRef;
 import io.openslice.tmf.common.model.service.ServiceStateType;
 import io.openslice.tmf.pm632.model.Organization;
 import io.openslice.tmf.prm669.model.RelatedParty;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
 import io.openslice.tmf.sim638.model.Service;
+import io.openslice.tmf.sim638.model.ServiceCreate;
+import io.openslice.tmf.sim638.model.ServiceOrderRef;
 import io.openslice.tmf.sim638.model.ServiceUpdate;
 import io.openslice.tmf.so641.model.ServiceOrder;
 import io.openslice.tmf.so641.model.ServiceOrderItem;
 import io.openslice.tmf.so641.model.ServiceOrderStateType;
+import io.openslice.tmf.so641.model.ServiceOrderUpdate;
 
 @Component(value = "externalPartnerCheckDeploymentService") //bean name
 public class ExternalPartnerCheckDeploymentService  implements JavaDelegate {
@@ -50,6 +56,9 @@ public class ExternalPartnerCheckDeploymentService  implements JavaDelegate {
 	private static final transient Log logger = LogFactory.getLog( ExternalPartnerCheckDeploymentService.class.getName());
 
 
+	@Value("${spring.application.name}")
+	private String compname;
+	
 	@Autowired
 	private ServiceOrderManager serviceOrderManager;
 	
@@ -65,13 +74,13 @@ public class ExternalPartnerCheckDeploymentService  implements JavaDelegate {
 		execution.setVariable("serviceDeploymentFinished",   false );
 
 		ServiceOrder sorder = serviceOrderManager.retrieveServiceOrder( execution.getVariable("orderid").toString() );
-		Service aService = serviceOrderManager.retrieveService( (String) execution.getVariable("serviceId") );
-		logger.debug("Check external partner for Service name:" + aService.getName() );
-		logger.debug("Check external partner for  Service state:" + aService.getState()  );			
-		logger.debug("Request to External Service Partner for Service: " + aService.getId() );
+		Service aLocalWrapperService = serviceOrderManager.retrieveService( (String) execution.getVariable("serviceId") );
+		logger.debug("Check external partner for Service name:" + aLocalWrapperService.getName() );
+		logger.debug("Check external partner for  Service state:" + aLocalWrapperService.getState()  );			
+		logger.debug("Request to External Service Partner for Service: " + aLocalWrapperService.getId() );
 
 		logger.debug("Checking Order Status of Order Request id: " + externalServiceOrderId );
-		ServiceSpecification spec = serviceOrderManager.retrieveServiceSpec( aService.getServiceSpecificationRef().getId() );
+		ServiceSpecification spec = serviceOrderManager.retrieveServiceSpec( aLocalWrapperService.getServiceSpecificationRef().getId() );
 		RelatedParty rpOrg = null;
 		if ( spec.getRelatedParty() != null ) {
 			for (RelatedParty rp : spec.getRelatedParty()) {
@@ -119,27 +128,47 @@ public class ExternalPartnerCheckDeploymentService  implements JavaDelegate {
 			 * update now service characteristics from the remote Service Inventory
 			 */
 			
-			for (ServiceOrderItem ext_soi : externalSOrder.getOrderItem()) {
-				for (ServiceRef serviceRef : ext_soi.getService().getSupportingService()) {
-					Service ext_service = partnerOrganizationServicesManager.retrieveServiceFromInventory( orgz, serviceRef.getId() );
-					if ( ext_service.getServiceCharacteristic() != null ) {
-						for (Characteristic c : ext_service.getServiceCharacteristic()) {
-							c.setUuid( null );
-							c.setName( orgz.getName()  
-									+ "::" 
-									+ ext_service.getName() 
-									+ "::" 
-									+ c.getName());// we prefix here with the Service Name of external partner.
-							supd.addServiceCharacteristicItem( c );	
+			if ( externalSOrder.getState().equals( ServiceOrderStateType.COMPLETED )){
+				for (ServiceOrderItem ext_soi : externalSOrder.getOrderItem()) {
+					for (ServiceRef serviceRef : ext_soi.getService().getSupportingService()) {
+						Service remotePartnerService = partnerOrganizationServicesManager.retrieveServiceFromInventory( orgz, serviceRef.getId() );
+						//we need to create here on our partner, Services in our ServiceInventory that reflect the remote Services in the partnerService Inventory!
+						
+						Service addedPartnerService = addServiceFromPartnerOrg( 
+								sorder,
+								externalSOrder,
+								aLocalWrapperService, 
+								spec,
+								orgz, 
+								remotePartnerService, 
+								externalServiceOrderId);
+						
+
+						ServiceRef supportingServiceRef = new ServiceRef();
+						supportingServiceRef.setId( addedPartnerService.getId() );
+						supportingServiceRef.setReferredType( addedPartnerService.getName() );
+						supportingServiceRef.setName( addedPartnerService.getName()  );
+						supd.addSupportingServiceItem(supportingServiceRef);
+						
+						if ( remotePartnerService.getServiceCharacteristic() != null ) {
+							for (Characteristic c : remotePartnerService.getServiceCharacteristic()) {
+								c.setUuid( null );
+								c.setName( orgz.getName()  
+										+ "::" 
+										+ remotePartnerService.getName() 
+										+ "::" 
+										+ c.getName());// we prefix here with the Service Name of external partner.
+								supd.addServiceCharacteristicItem( c );	
+							}
 						}
+						
 					}
-					
 				}
 			}
 			
 		}
 		
-		if ( aService.getState() != supd.getState()) {
+		if ( aLocalWrapperService.getState() != supd.getState()) {
 
 			String partnerNotes = "";
 			if ( externalSOrder.getNote()!=null) {
@@ -152,24 +181,141 @@ public class ExternalPartnerCheckDeploymentService  implements JavaDelegate {
 			Note noteItem = new Note();
 			noteItem.setText("Update Service Order State to: " + supd.getState() + ". "+  partnerNotes);
 			noteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
-			noteItem.setAuthor("OSOM");
+			noteItem.setAuthor( compname );
 			supd.addNoteItem( noteItem );
-			Service serviceResult = serviceOrderManager.updateService( aService.getId(), supd, false );
+			Service serviceResult = serviceOrderManager.updateService( aLocalWrapperService.getId(), supd, false );
 			if ( serviceResult!=null ) {
 				if ( serviceResult.getState().equals(ServiceStateType.ACTIVE)
 						|| serviceResult.getState().equals(ServiceStateType.TERMINATED)) {
 
-					logger.info("Deployment Status OK. Service state = " + serviceResult.getState() );
+					logger.info("Request Deployment Status OK. Service state = " + serviceResult.getState() );
 					execution.setVariable("serviceDeploymentFinished", true);
 					return;
 				}				
 			} else {
-				logger.error("Deployment Status ERROR from External Parnter with null serviceResult " );
+				logger.error("Request Deployment Status ERROR from External Parnter with null serviceResult " );
 			}
 		}
 		logger.info("Wait For  External Service Partner Status. ");
 		
 		
+	}
+
+
+	private Service addServiceFromPartnerOrg(ServiceOrder localSOrder, 
+			ServiceOrder externalSOrder, 
+			Service aLocalWrapperService, 
+			ServiceSpecification aLocalServiceSpec,
+			Organization orgz,
+			Service remotePartnerService, 
+			String externalServiceOrderId) {
+
+		ServiceCreate serviceToCreate = new ServiceCreate();//the object to update the service
+		serviceToCreate.setName( orgz.getName()  + "::"+ remotePartnerService.getName() );
+		serviceToCreate.setState( remotePartnerService.getState() );
+		serviceToCreate.setCategory( remotePartnerService.getCategory() );
+		serviceToCreate.setType( remotePartnerService.getType());
+		serviceToCreate.setServiceDate(remotePartnerService.getServiceDate() );
+		serviceToCreate.setStartDate( remotePartnerService.getStartDate() );
+		serviceToCreate.setEndDate( remotePartnerService.getEndDate()  );
+		serviceToCreate.hasStarted( remotePartnerService.isHasStarted() );
+		serviceToCreate.setIsServiceEnabled( remotePartnerService.isIsServiceEnabled() );
+		serviceToCreate.setStartMode( remotePartnerService.getStartMode() );
+		
+		Note noteItem = new Note();
+		noteItem.setText("Service Created by ExternalPartnerCheckDeploymentService as a reference to the external Service Inventory of Partner " + orgz.getName() + 
+				". External ServiceID = " + remotePartnerService.getId());
+		noteItem.setAuthor( compname );
+		serviceToCreate.addNoteItem(noteItem);
+		
+		ServiceOrderRef serviceOrderref = new ServiceOrderRef();
+		serviceOrderref.setId( localSOrder.getId() );
+		serviceOrderref.setServiceOrderItemId( localSOrder.getId() );
+		serviceToCreate.addServiceOrderItem(serviceOrderref );
+		
+		ServiceSpecificationRef serviceSpecificationRef = new ServiceSpecificationRef();
+		serviceSpecificationRef.setId( remotePartnerService.getServiceSpecificationRef().getId() );
+		serviceSpecificationRef.setName( remotePartnerService.getServiceSpecificationRef().getName());
+		serviceToCreate.setServiceSpecificationRef(serviceSpecificationRef );
+		
+		if (aLocalServiceSpec.getRelatedParty()!=null) {
+			for (RelatedParty rp : aLocalServiceSpec.getRelatedParty()) {
+				rp.setUuid(null); 
+				rp.setExtendedInfo( remotePartnerService.getId() );
+				serviceToCreate.addRelatedPartyItem(rp);
+			}			
+		}
+		
+		//copy all characteristics
+		for (Characteristic iterableChar : remotePartnerService.getServiceCharacteristic() ) {
+			Characteristic serviceCharacteristicItem =  new Characteristic();
+			serviceCharacteristicItem.setName( iterableChar.getName() );
+			serviceCharacteristicItem.setValueType( iterableChar.getValueType() );
+						
+			Any val = new Any();
+			val.setValue( iterableChar.getValue().getValue() );
+			val.setAlias( iterableChar.getValue().getAlias() );
+			
+			serviceCharacteristicItem.setValue( val );
+			serviceToCreate.addServiceCharacteristicItem( serviceCharacteristicItem );
+		}
+		
+		//add as extra characteristics:	
+		Characteristic serviceCharacteristicItem = new Characteristic();
+		serviceCharacteristicItem.setName( "externalServiceOrderId" );		
+		String vals = externalSOrder.getId() + "";
+		Any any = new Any( vals );
+		serviceCharacteristicItem.setValue( any );
+		serviceToCreate.addServiceCharacteristicItem(serviceCharacteristicItem);
+		
+
+		serviceCharacteristicItem = new Characteristic();
+		serviceCharacteristicItem.setName( "externalPartnerServiceId" );		
+		vals = remotePartnerService.getId() + "";
+		any = new Any( vals );
+		serviceCharacteristicItem.setValue( any );
+		serviceToCreate.addServiceCharacteristicItem(serviceCharacteristicItem);
+		
+		
+		Service createdService = serviceOrderManager.createService(  serviceToCreate, localSOrder, aLocalServiceSpec);
+		
+		//we need to add also this service as supporting ServiceOrderItem to the LocalServiceOrder
+
+		ServiceOrderItem orderItemItem = new ServiceOrderItem();
+
+		for (ServiceOrderItem soi : localSOrder.getOrderItem()) {
+			if (soi.getService().getServiceSpecification().getId().equals( aLocalServiceSpec.getUuid())) {
+				ServiceRef supportingServiceRef = new ServiceRef();
+				supportingServiceRef.setId( createdService.getId() );
+				supportingServiceRef.setReferredType( createdService.getName() );
+				supportingServiceRef.setName( createdService.getName()  );
+				soi.getService().addSupportingServiceItem(supportingServiceRef );	
+				orderItemItem = soi;
+				
+			} else {
+				for (ServiceRef soiServiceRef : soi.getService().getSupportingService() ) {
+					if ( soiServiceRef.getId().equals( aLocalWrapperService.getUuid())) {
+						ServiceRef supportingServiceRef = new ServiceRef();
+						supportingServiceRef.setId( createdService.getId() );
+						supportingServiceRef.setReferredType( createdService.getName() );
+						supportingServiceRef.setName( createdService.getName()  );
+						soi.getService().addSupportingServiceItem(supportingServiceRef );	
+						orderItemItem = soi;
+					}			
+					
+				}				
+			}
+			
+			
+		}
+		
+		
+		
+		ServiceOrderUpdate serviceOrderUpd = new ServiceOrderUpdate();				
+		serviceOrderUpd.addOrderItemItem(orderItemItem);
+		serviceOrderManager.updateServiceOrderOrder( localSOrder.getId(), serviceOrderUpd );
+		
+		return createdService;
 	}
 		
 

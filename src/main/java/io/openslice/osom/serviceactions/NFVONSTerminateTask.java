@@ -9,6 +9,7 @@ import org.apache.commons.logging.LogFactory;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -29,6 +30,8 @@ public class NFVONSTerminateTask  implements JavaDelegate {
 
 	private static final transient Log logger = LogFactory.getLog( NFVONSTerminateTask.class.getName() );
 
+	@Value("${spring.application.name}")
+	private String compname;
 
     @Autowired
     private ServiceOrderManager serviceOrderManager;
@@ -78,7 +81,7 @@ public class NFVONSTerminateTask  implements JavaDelegate {
 			ServiceUpdate supd = new ServiceUpdate();
 			Note n = new Note();
 			n.setText("Service Action NFVONSTerminateTask. Action: " + item.getAction() );
-			n.setAuthor( "OSOM" );
+			n.setAuthor( compname );
 			n.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
 			supd.addNoteItem( n );
 			serviceOrderManager.deleteServiceActionQueueItem( item );			

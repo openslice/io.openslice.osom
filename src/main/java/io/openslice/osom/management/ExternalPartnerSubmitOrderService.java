@@ -58,6 +58,8 @@ public class ExternalPartnerSubmitOrderService  implements JavaDelegate {
 
 	private static final transient Log logger = LogFactory.getLog( ExternalPartnerSubmitOrderService.class.getName());
 
+	@Value("${spring.application.name}")
+	private String compname;
 
 	@Autowired
 	private ServiceOrderManager serviceOrderManager;
@@ -146,7 +148,7 @@ public class ExternalPartnerSubmitOrderService  implements JavaDelegate {
 						Note noteItem = new Note();
 						noteItem.setText( "Request to partner " + orgz.getName() + " for spec:" + spec.getName()  + " done!  ServiceOrder id: " + externalSOrder.getId());
 						noteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
-						noteItem.setAuthor("OSOM");
+						noteItem.setAuthor( compname );
 						su.addNoteItem( noteItem );
 						Characteristic serviceCharacteristicItem = new Characteristic();
 						serviceCharacteristicItem.setName( "externalServiceOrderId" );
@@ -173,7 +175,7 @@ public class ExternalPartnerSubmitOrderService  implements JavaDelegate {
 		//if we get here somethign is wrong so we need to terminate the service.
 		Note noteItem = new Note();
 		noteItem.setText("Order Request Service to External Partner FAILED");
-		noteItem.setAuthor("OSOM");
+		noteItem.setAuthor( compname );
 		noteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
 		su.addNoteItem( noteItem );
 		su.setState(ServiceStateType.TERMINATED   );
