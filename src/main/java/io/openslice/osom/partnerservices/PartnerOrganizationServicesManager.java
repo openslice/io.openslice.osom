@@ -24,6 +24,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -948,47 +949,65 @@ public class PartnerOrganizationServicesManager {
 	
 		logger.info("Will retrieveServiceFromInventory from organization: " + org.getName() + ", id: " + org.getId());
 
-		/**
-		 * will create or fetch existing web client for this organization
-		 */
-		WebClient webclient = this.getOrganizationWebClient(org);
-		
-
-		io.openslice.tmf.sim638.model.Service srvc = new io.openslice.tmf.sim638.model.Service();
-		if ( webclient!=null ) {
+		for (int i = 0; i < 5; i++) { //try 5 times if something is wrong
 			
-			try {
-			srvc = webclient.get()
-					.uri("/tmf-api/serviceInventory/v4/service/{id}", externalServiceId)
-				      //.header("Authorization", "Basic " + encodedClientData)
-						//.attributes( ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId("authOpensliceProvider"))
-						.retrieve()
-						.onStatus(HttpStatus::is4xxClientError, response -> {
-							logger.error("4xx eror");
-					        return Mono.error(new RuntimeException("4xx"));
-					      })
-					      .onStatus(HttpStatus::is5xxServerError, response -> {
-					    	  logger.error("5xx eror");
-					        return Mono.error(new RuntimeException("5xx"));
-					      })
-					  .bodyToMono( new ParameterizedTypeReference<io.openslice.tmf.sim638.model.Service>() {})
-					  .block();
-		
-
-			}catch (Exception e) {
-				logger.error(" error on web client request");
+			/**
+			 * will create or fetch existing web client for this organization
+			 */
+			WebClient webclient = this.getOrganizationWebClient(org);
+			
+	
+			io.openslice.tmf.sim638.model.Service srvc = new io.openslice.tmf.sim638.model.Service();
+			if ( webclient!=null ) {
+				
+				try {
+				srvc = webclient.get()
+						.uri("/tmf-api/serviceInventory/v4/service/{id}", externalServiceId)
+					      //.header("Authorization", "Basic " + encodedClientData)
+							//.attributes( ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId("authOpensliceProvider"))
+							.retrieve()
+							.onStatus(HttpStatus::is4xxClientError, response -> {
+								logger.error("4xx eror");
+						        return Mono.error(new RuntimeException("4xx"));
+						      })
+						      .onStatus(HttpStatus::is5xxServerError, response -> {
+						    	  logger.error("5xx eror");
+						        return Mono.error(new RuntimeException("5xx"));
+						      })
+						  .bodyToMono( new ParameterizedTypeReference<io.openslice.tmf.sim638.model.Service>() {})
+						  .block();
+			
+	
+				}catch (Exception e) {
+					logger.error(" error on web client request");
+					this.invalidateOrganizationWebClient(org);
+					e.printStackTrace();
+					try {
+						Thread.sleep(3000);
+					} catch (InterruptedException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+				 
+				
+			} else  {
+				logger.error("WebClient is null. Cannot be created.");
 				this.invalidateOrganizationWebClient(org);
-				e.printStackTrace();
+				try {
+					Thread.sleep(3000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
-			 
 			
-		} else  {
-			logger.error("WebClient is null. Cannot be created.");
-			this.invalidateOrganizationWebClient(org);
+	
+			return srvc;
 		}
 		
-
-		return srvc;
+		return null;
+		
 	}
 
 	public io.openslice.tmf.sim638.model.Service updateExternalService(String externalPartnerServiceId, ServiceUpdate servUpdate, Organization org) {

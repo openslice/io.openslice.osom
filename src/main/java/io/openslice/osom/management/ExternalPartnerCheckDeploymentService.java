@@ -133,8 +133,8 @@ public class ExternalPartnerCheckDeploymentService  implements JavaDelegate {
 					for (ServiceRef serviceRef : ext_soi.getService().getSupportingService()) {
 						Service remotePartnerService = partnerOrganizationServicesManager.retrieveServiceFromInventory( orgz, serviceRef.getId() );
 						//we need to create here on our partner, Services in our ServiceInventory that reflect the remote Services in the partnerService Inventory!
-						
-						Service addedPartnerService = addServiceFromPartnerOrg( 
+						if (remotePartnerService!=null) {
+							Service addedPartnerService = addServiceFromPartnerOrg( 
 								sorder,
 								externalSOrder,
 								aLocalWrapperService, 
@@ -144,23 +144,28 @@ public class ExternalPartnerCheckDeploymentService  implements JavaDelegate {
 								externalServiceOrderId);
 						
 
-						ServiceRef supportingServiceRef = new ServiceRef();
-						supportingServiceRef.setId( addedPartnerService.getId() );
-						supportingServiceRef.setReferredType( addedPartnerService.getName() );
-						supportingServiceRef.setName( addedPartnerService.getName()  );
-						supd.addSupportingServiceItem(supportingServiceRef);
+							ServiceRef supportingServiceRef = new ServiceRef();
+							supportingServiceRef.setId( addedPartnerService.getId() );
+							supportingServiceRef.setReferredType( addedPartnerService.getName() );
+							supportingServiceRef.setName( addedPartnerService.getName()  );
+							supd.addSupportingServiceItem(supportingServiceRef);
 						
-						if ( remotePartnerService.getServiceCharacteristic() != null ) {
-							for (Characteristic c : remotePartnerService.getServiceCharacteristic()) {
-								c.setUuid( null );
-								c.setName( orgz.getName()  
-										+ "::" 
-										+ remotePartnerService.getName() 
-										+ "::" 
-										+ c.getName());// we prefix here with the Service Name of external partner.
-								supd.addServiceCharacteristicItem( c );	
+							if ( remotePartnerService.getServiceCharacteristic() != null ) {
+								for (Characteristic c : remotePartnerService.getServiceCharacteristic()) {
+									c.setUuid( null );
+									c.setName( orgz.getName()  
+											+ "::" 
+											+ remotePartnerService.getName() 
+											+ "::" 
+											+ c.getName());// we prefix here with the Service Name of external partner.
+									supd.addServiceCharacteristicItem( c );	
+								}
 							}
+							
+						} else {
+							logger.error("ExternalPartnerCheckDeploymentService cannot retrieve remotePartnerService!"); 
 						}
+						
 						
 					}
 				}
