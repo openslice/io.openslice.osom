@@ -103,6 +103,11 @@ public class ServiceOrderManager {
 
 	@Value("${CATALOG_GET_SERVICE_BY_ID}")
 	private String CATALOG_GET_SERVICE_BY_ID = "";
+
+	@Value("${CATALOG_GET_SERVICE_BY_ORDERID}")
+	private String CATALOG_GET_SERVICE_BY_ORDERID = "";
+	
+	
 	
 	@Value("${CATALOG_SERVICE_QUEUE_ITEMS_GET}")
 	private String CATALOG_SERVICE_QUEUE_ITEMS_GET = "";	
@@ -432,6 +437,7 @@ public class ServiceOrderManager {
 	
 	
 	
+	
 	static <T> T toJsonObj(String content, Class<T> valueType)  throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -728,6 +734,34 @@ public class ServiceOrderManager {
 		}
 
 	
+	/**
+	 * Ger service instance IDs via bus CATALOG_GET_SERVICE_BY_ORDERID
+	 * @param serviceIDorderID
+	 * @return List<String>
+	 */
+	public List<String>  retrieveServicesOfOrder(String orderID) {
+		logger.info("will retrieve ActiveServiceOfExternalPartners"   );
+		try {
+			
+			Object response = template.
+					requestBody( CATALOG_GET_SERVICE_BY_ORDERID, orderID );
+
+			logger.debug("will retrieve ServicesOfOrder response: " + response.getClass()  );
+			if ( !(response instanceof String)) {
+				logger.error("List  object is wrong.");
+				return null;
+			}
+
+			String[] sor = toJsonObj( (String)response, String[].class ); 
+			logger.debug("ServicesOfOrder response is: " + response);
+			
+			return Arrays.asList(sor);
+			
+		}catch (Exception e) {
+			logger.error("Cannot retrieve Listof ServicesOfOrder . " + e.toString());
+		}
+		return null;
+	}
 
 
 }

@@ -21,6 +21,8 @@ package io.openslice.osom.management;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -74,13 +76,13 @@ public class ExternalPartnerCheckDeploymentService  implements JavaDelegate {
 		execution.setVariable("serviceDeploymentFinished",   false );
 
 		ServiceOrder sorder = serviceOrderManager.retrieveServiceOrder( execution.getVariable("orderid").toString() );
-		Service aLocalWrapperService = serviceOrderManager.retrieveService( (String) execution.getVariable("serviceId") );
-		logger.debug("Check external partner for Service name:" + aLocalWrapperService.getName() );
-		logger.debug("Check external partner for  Service state:" + aLocalWrapperService.getState()  );			
-		logger.debug("Request to External Service Partner for Service: " + aLocalWrapperService.getId() );
+		Service aLocalWrapperProxyService = serviceOrderManager.retrieveService( (String) execution.getVariable("serviceId") );
+		logger.debug("Check external partner for Service name:" + aLocalWrapperProxyService.getName() );
+		logger.debug("Check external partner for  Service state:" + aLocalWrapperProxyService.getState()  );			
+		logger.debug("Request to External Service Partner for Service: " + aLocalWrapperProxyService.getId() );
 
 		logger.debug("Checking Order Status of Order Request id: " + externalServiceOrderId );
-		ServiceSpecification spec = serviceOrderManager.retrieveServiceSpec( aLocalWrapperService.getServiceSpecificationRef().getId() );
+		ServiceSpecification spec = serviceOrderManager.retrieveServiceSpec( aLocalWrapperProxyService.getServiceSpecificationRef().getId() );
 		RelatedParty rpOrg = null;
 		if ( spec.getRelatedParty() != null ) {
 			for (RelatedParty rp : spec.getRelatedParty()) {
@@ -101,26 +103,26 @@ public class ExternalPartnerCheckDeploymentService  implements JavaDelegate {
 		logger.debug("External partner organization:" + orgz.getName()  );	
 		
 		ServiceOrder externalSOrder = partnerOrganizationServicesManager.retrieveServiceOrder( orgz, externalServiceOrderId );
-		ServiceUpdate supd = new ServiceUpdate();
+		ServiceUpdate serviceProxyUpdate = new ServiceUpdate();
 		
 		
 		
 		if (externalSOrder != null ) {
 			logger.info("External partner organization order state:" + externalSOrder.getState()  );	
 			if ( externalSOrder.getState().equals( ServiceOrderStateType.COMPLETED )){
-				supd.setState( ServiceStateType.ACTIVE);
+				serviceProxyUpdate.setState( ServiceStateType.ACTIVE);
 			} else if ( externalSOrder.getState().equals( ServiceOrderStateType.ACKNOWLEDGED ) ||
 					externalSOrder.getState().equals( ServiceOrderStateType.INPROGRESS )){
-				supd.setState( ServiceStateType.RESERVED );
+				serviceProxyUpdate.setState( ServiceStateType.RESERVED );
 			} else if ( externalSOrder.getState().equals( ServiceOrderStateType.CANCELLED ) ||
 					externalSOrder.getState().equals( ServiceOrderStateType.FAILED ) ||
 					externalSOrder.getState().equals( ServiceOrderStateType.REJECTED )){
-				supd.setState( ServiceStateType.TERMINATED );
+				serviceProxyUpdate.setState( ServiceStateType.TERMINATED );
 			}	else if ( externalSOrder.getState().equals( ServiceOrderStateType.INITIAL ) ||
 					externalSOrder.getState().equals( ServiceOrderStateType.PENDING )){
-				supd.setState( ServiceStateType.RESERVED );
+				serviceProxyUpdate.setState( ServiceStateType.RESERVED );
 			}		else if ( externalSOrder.getState().equals( ServiceOrderStateType.PARTIAL )){
-				supd.setState( ServiceStateType.INACTIVE );
+				serviceProxyUpdate.setState( ServiceStateType.INACTIVE );
 			}
 			
 			
@@ -128,39 +130,67 @@ public class ExternalPartnerCheckDeploymentService  implements JavaDelegate {
 			 * update now service characteristics from the remote Service Inventory
 			 */
 			
-			if ( externalSOrder.getState().equals( ServiceOrderStateType.COMPLETED )){
 				for (ServiceOrderItem ext_soi : externalSOrder.getOrderItem()) {
 					for (ServiceRef serviceRef : ext_soi.getService().getSupportingService()) {
 						Service remotePartnerService = partnerOrganizationServicesManager.retrieveServiceFromInventory( orgz, serviceRef.getId() );
 						//we need to create here on our partner, Services in our ServiceInventory that reflect the remote Services in the partnerService Inventory!
-						if (remotePartnerService!=null) {
-							Service addedPartnerService = addServiceFromPartnerOrg( 
-								sorder,
-								externalSOrder,
-								aLocalWrapperService, 
-								spec,
-								orgz, 
-								remotePartnerService, 
-								externalServiceOrderId);
-						
-
-							ServiceRef supportingServiceRef = new ServiceRef();
-							supportingServiceRef.setId( addedPartnerService.getId() );
-							supportingServiceRef.setReferredType( addedPartnerService.getName() );
-							supportingServiceRef.setName( addedPartnerService.getName()  );
-							supd.addSupportingServiceItem(supportingServiceRef);
-						
-							if ( remotePartnerService.getServiceCharacteristic() != null ) {
-								for (Characteristic c : remotePartnerService.getServiceCharacteristic()) {
-									c.setUuid( null );
-									c.setName( orgz.getName()  
-											+ "::" 
-											+ remotePartnerService.getName() 
-											+ "::" 
-											+ c.getName());// we prefix here with the Service Name of external partner.
-									supd.addServiceCharacteristicItem( c );	
+						if (remotePartnerService!=null) {							
+							
+							boolean foundInInventory = false;
+							
+							List<String> serviceids = serviceOrderManager.retrieveServicesOfOrder( sorder.getId()  );
+							for (String sid : serviceids) {
+								Service lservice = serviceOrderManager.retrieveService(sid);
+								Characteristic charexternalPartnerServiceId = lservice.getServiceCharacteristicByName("externalPartnerServiceId");
+								if ((  charexternalPartnerServiceId!= null ) && (  charexternalPartnerServiceId.getValue()!= null )) {
+									if ( charexternalPartnerServiceId.getValue().getValue().equals( remotePartnerService.getId() ) ) {
+										foundInInventory = true;
+										//we can update also the current service with the one from remote service inventory
+										ServiceUpdate supd = new ServiceUpdate();
+										for (Characteristic c : remotePartnerService.getServiceCharacteristic()) {
+											c.setUuid(null);
+											if ( !c.getName().equals("EXEC_ACTION")) {
+												supd.addServiceCharacteristicItem(c);							
+											}
+										}
+										supd.setState( remotePartnerService.getState() );
+										serviceOrderManager.updateService( lservice.getId(), supd , false);
+									}
+									
 								}
 							}
+							
+							if ( !foundInInventory ) {
+								Service addedPartnerService = addServiceFromPartnerOrg( 
+										sorder,
+										externalSOrder,
+										aLocalWrapperProxyService, 
+										spec,
+										orgz, 
+										remotePartnerService, 
+										externalServiceOrderId);
+								
+
+									ServiceRef supportingServiceRef = new ServiceRef();
+									supportingServiceRef.setId( addedPartnerService.getId() );
+									supportingServiceRef.setReferredType( addedPartnerService.getName() );
+									supportingServiceRef.setName( addedPartnerService.getName()  );
+									serviceProxyUpdate.addSupportingServiceItem(supportingServiceRef);
+								
+									if ( remotePartnerService.getServiceCharacteristic() != null ) {
+										for (Characteristic c : remotePartnerService.getServiceCharacteristic()) {
+											c.setUuid( null );
+											c.setName( orgz.getName()  
+													+ "::" 
+													+ remotePartnerService.getName() 
+													+ "::" 
+													+ c.getName());// we prefix here with the Service Name of external partner.
+											serviceProxyUpdate.addServiceCharacteristicItem( c );	
+										}
+									}
+								
+							}
+							
 							
 						} else {
 							logger.error("ExternalPartnerCheckDeploymentService cannot retrieve remotePartnerService!"); 
@@ -169,11 +199,11 @@ public class ExternalPartnerCheckDeploymentService  implements JavaDelegate {
 						
 					}
 				}
-			}
+			
 			
 		}
 		
-		if ( aLocalWrapperService.getState() != supd.getState()) {
+		if ( aLocalWrapperProxyService.getState() != serviceProxyUpdate.getState()) {
 
 			String partnerNotes = "";
 			if ( externalSOrder.getNote()!=null) {
@@ -184,11 +214,11 @@ public class ExternalPartnerCheckDeploymentService  implements JavaDelegate {
 			}			
 			
 			Note noteItem = new Note();
-			noteItem.setText("Update Service Order State to: " + supd.getState() + ". "+  partnerNotes);
+			noteItem.setText("Update Service Order State to: " + serviceProxyUpdate.getState() + ". "+  partnerNotes);
 			noteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
 			noteItem.setAuthor( compname );
-			supd.addNoteItem( noteItem );
-			Service serviceResult = serviceOrderManager.updateService( aLocalWrapperService.getId(), supd, false );
+			serviceProxyUpdate.addNoteItem( noteItem );
+			Service serviceResult = serviceOrderManager.updateService( aLocalWrapperProxyService.getId(), serviceProxyUpdate, false );
 			if ( serviceResult!=null ) {
 				if ( serviceResult.getState().equals(ServiceStateType.ACTIVE)
 						|| serviceResult.getState().equals(ServiceStateType.TERMINATED)) {
@@ -296,19 +326,27 @@ public class ExternalPartnerCheckDeploymentService  implements JavaDelegate {
 				supportingServiceRef.setName( createdService.getName()  );
 				soi.getService().addSupportingServiceItem(supportingServiceRef );	
 				orderItemItem = soi;
+				break;
 				
 			} else {
-				for (ServiceRef soiServiceRef : soi.getService().getSupportingService() ) {
-					if ( soiServiceRef.getId().equals( aLocalWrapperService.getUuid())) {
-						ServiceRef supportingServiceRef = new ServiceRef();
-						supportingServiceRef.setId( createdService.getId() );
-						supportingServiceRef.setReferredType( createdService.getName() );
-						supportingServiceRef.setName( createdService.getName()  );
-						soi.getService().addSupportingServiceItem(supportingServiceRef );	
-						orderItemItem = soi;
-					}			
+				
+				
+				
+				if ( soi.getService().getSupportingService() != null ) {
+					for (ServiceRef soiServiceRef : soi.getService().getSupportingService() ) {
+						if ( soiServiceRef.getId().equals( aLocalWrapperService.getUuid())) {
+							ServiceRef supportingServiceRef = new ServiceRef();
+							supportingServiceRef.setId( createdService.getId() );
+							supportingServiceRef.setReferredType( createdService.getName() );
+							supportingServiceRef.setName( createdService.getName()  );
+							soi.getService().addSupportingServiceItem(supportingServiceRef );	
+							orderItemItem = soi;
+							break;
+						}			
+						
+					}	
 					
-				}				
+				}
 			}
 			
 			
