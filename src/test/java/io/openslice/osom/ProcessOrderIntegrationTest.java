@@ -90,6 +90,10 @@ import io.openslice.tmf.so641.model.ServiceOrder;
 		"CATALOG_SERVICE_QUEUE_ITEM_DELETE: direct:get_mocked_service_id",
 		"CATALOG_UPD_SERVICE = direct:get_mocked_upd_service", "NFV_CATALOG_DEPLOY_NSD_REQ = direct:req_deploy_nsd",
 		
+		
+		"ALARMS_ADD_ALARM=mock:output",
+		"ALARMS_UPDATE_ALARM=mock:output",
+		"ALARMS_GET_ALARM=mock:output",
 		"NFV_CATALOG_GET_DEPLOYMENT_BY_ID = direct:req_deployment_id", 
 		"NFV_CATALOG_UPD_DEPLOYMENT_BY_ID = direct:req_deployment_id", 
 		"uri.to   = mock:output" })
@@ -259,29 +263,29 @@ public class ProcessOrderIntegrationTest {
 	public void testNFVOProcessOrder() throws Exception {
 
 
-		repositoryService.suspendProcessDefinitionByKey("OrderSchedulerProcess"); // this is to stop the timer
+//		repositoryService.suspendProcessDefinitionByKey("OrderSchedulerProcess"); // this is to stop the timer
 		repositoryService.suspendProcessDefinitionByKey("fetchInRpogressOrdersProcess"); // this is to stop the timer
 		
 		
-		/**
-		 * configure here the mocked routes
-		 */
-		RoutesBuilder builder = new RouteBuilder() {
-			@Override
-			public void configure() {
-				from("direct:get_mocked_order").bean(scmocked, "getOrderById");
-				from("direct:get_mocked_spec").bean(scmocked, "getSpecById");
-				from("direct:get_mocked_add_service").bean(scmocked, "getMockedService");
-				from("direct:get_mocked_upd_service").bean(scmocked, "getMockedService");
-				from("direct:get_mocked_upd_order").bean(scmocked, "updateServiceOrder");
-				from("direct:get_mocked_service_id").bean(scmocked, "getServiceById");
-				from("direct:req_deploy_nsd").bean(scmocked, "req_deploy_nsd");
-				from("direct:req_deployment_id").bean(scmocked, "req_deployment_id");
-
-			};
-		};
-
-		camelContext.addRoutes(builder);
+//		/**
+//		 * configure here the mocked routes
+//		 */
+//		RoutesBuilder builder = new RouteBuilder() {
+//			@Override
+//			public void configure() {
+//				from("direct:get_mocked_order").bean(scmocked, "getOrderById");
+//				from("direct:get_mocked_spec").bean(scmocked, "getSpecById");
+//				from("direct:get_mocked_add_service").bean(scmocked, "getMockedService");
+//				from("direct:get_mocked_upd_service").bean(scmocked, "getMockedService");
+//				from("direct:get_mocked_upd_order").bean(scmocked, "updateServiceOrder");
+//				from("direct:get_mocked_service_id").bean(scmocked, "getServiceById");
+//				from("direct:req_deploy_nsd").bean(scmocked, "req_deploy_nsd");
+//				from("direct:req_deployment_id").bean(scmocked, "req_deployment_id");
+//
+//			};
+//		};
+//
+//		camelContext.addRoutes(builder);
 
 		logger.info("waiting 1secs");
 		Thread.sleep(1000); // wait
