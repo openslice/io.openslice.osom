@@ -202,21 +202,27 @@ public class NFVODAY2config implements JavaDelegate {
 						} else if ( vals.get("ACTION_NAME").equalsIgnoreCase("execDay2") ) {
 							NSActionRequestPayload nsp = new NSActionRequestPayload();
 							nsp.setNsInstanceId(nsInstanceId);
-							for (String valkey : vals.keySet() ) {
-								if ( valkey.equals("primitive") ) {
-									nsp.setPrimitive( vals.get("primitive") ); // e.g. fsetup									
-								} else if ( valkey.equals("member_vnf_index") ) {
-									nsp.setVnf_member_index( vals.get("member_vnf_index") ); // e.g. fsetup									
-								} else if ( valkey.equals("vdu_id") ) {
-									nsp.setVdu_id( vals.get("vdu_id") ); // e.g. fsetup									
-								}else if ( valkey.equals("vdu_count_index") ) {
-									nsp.setVdu_count_index( vals.get("vdu_count_index") ); // e.g. fsetup									
-								}else  if ( valkey.contains("param::") ) {
-									nsp.getPrimitive_params().put( valkey , vals.get( valkey )  );
-								}								
+							try {
+								for (String valkey : vals.keySet() ) {
+									if ( valkey.equals("primitive") ) {
+										nsp.setPrimitive( vals.get("primitive") ); // e.g. fsetup									
+									} else if ( valkey.equals("member_vnf_index") ) {
+										nsp.setVnf_member_index( vals.get("member_vnf_index") ); // e.g. fsetup									
+									} else if ( valkey.equals("vdu_id") ) {
+										nsp.setVdu_id( vals.get("vdu_id") ); // e.g. fsetup									
+									}else if ( valkey.equals("vdu_count_index") ) {
+										nsp.setVdu_count_index( vals.get("vdu_count_index") ); // e.g. fsetup									
+									}else  if ( valkey.equals("params") ) {
+										String[] params = vals.get("params").split(";");
+										for (String prm : params) {
+											String[] p = prm.split("=");
+											nsp.getPrimitive_params().put( p[0] , p[1]  );
+										}
+									}								
+								}
+							} catch (Exception e) {
+								e.printStackTrace();
 							}
-							
-							
 							
 							if ( nsp.getPrimitive() != null ) {
 								/**
