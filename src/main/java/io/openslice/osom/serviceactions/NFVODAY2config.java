@@ -199,7 +199,50 @@ public class NFVODAY2config implements JavaDelegate {
 								characteristicAck.setValue( value );			
 							}
 							
-						}						
+						} else if ( vals.get("ACTION_NAME").equalsIgnoreCase("execDay2") ) {
+							NSActionRequestPayload nsp = new NSActionRequestPayload();
+							nsp.setNsInstanceId(nsInstanceId);
+							for (String valkey : vals.keySet() ) {
+								if ( valkey.equals("primitive") ) {
+									nsp.setPrimitive( vals.get("primitive") ); // e.g. fsetup									
+								} else if ( valkey.equals("member_vnf_index") ) {
+									nsp.setVnf_member_index( vals.get("member_vnf_index") ); // e.g. fsetup									
+								} else if ( valkey.equals("vdu_id") ) {
+									nsp.setVdu_id( vals.get("vdu_id") ); // e.g. fsetup									
+								}else if ( valkey.equals("vdu_count_index") ) {
+									nsp.setVdu_count_index( vals.get("vdu_count_index") ); // e.g. fsetup									
+								}else {
+									nsp.getPrimitive_params().put( valkey , vals.get( valkey )  );
+								}								
+							}
+							
+							
+							
+							if ( nsp.getPrimitive() != null ) {
+								/**
+								 * {
+									"nsInstanceId": "8a3db62a-eb0e-48d9-be9b-548f7f034512",
+									"member_vnf_index": "?",
+									"primitive": "?",
+									"primitive_params": {
+										"?": "?"
+									}
+								}
+								 */
+								
+								String payload = mapper.writeValueAsString(nsp) ;	
+								logger.debug("ACTION_NAME execDay2 NFVODAY2config NSActionRequestPayload= " + payload );						
+								String actionresult = serviceOrderManager.nfvoDay2Action(nsp);
+								if ( actionresult.contains("ACCEPTED") ) {
+									n.setText( n.getText() + "ACCEPTED for ACTION_NAME execDay2" );
+									
+								} else {
+									n.setText( n.getText() + " " + actionresult );								
+								}
+							}
+							
+							
+						}
 						
 					}
 					
