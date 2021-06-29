@@ -242,9 +242,17 @@ public class NFVODAY2config implements JavaDelegate {
 								String actionresult = serviceOrderManager.nfvoDay2Action(nsp);
 								if ( actionresult.contains("ACCEPTED") ) {
 									n.setText( n.getText() + "ACCEPTED for ACTION_NAME execDay2" );
+									characteristicAck.setValueType(  "TEXT"  );
+									Any value = new Any();
+									value.setValue( "ACCEPTED" );		
+									characteristicAck.setValue( value );
 									
 								} else {
-									n.setText( n.getText() + " " + actionresult );								
+									n.setText( n.getText() + " " + actionresult );		
+									characteristicAck.setValueType(  "TEXT"  );
+									Any value = new Any();
+									value.setValue( "ERROR" );		
+									characteristicAck.setValue( value );						
 								}
 							}
 							
