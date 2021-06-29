@@ -162,6 +162,7 @@ public class NFVODAY2config implements JavaDelegate {
 					//first add to a new item the acknowledge
 					Characteristic characteristicAck = new Characteristic();
 					characteristicAck.setName("EXEC_ACTION_LAST_ACK");
+					characteristicAck.setValueType(  EValueType.TEXT.getValue()  );
 					
 					if (  vals.get("ACTION_NAME") != null) {
 						if ( vals.get("ACTION_NAME").equalsIgnoreCase("scaleServiceEqually") ) {
