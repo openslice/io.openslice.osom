@@ -211,7 +211,7 @@ public class NFVODAY2config implements JavaDelegate {
 									nsp.setVdu_id( vals.get("vdu_id") ); // e.g. fsetup									
 								}else if ( valkey.equals("vdu_count_index") ) {
 									nsp.setVdu_count_index( vals.get("vdu_count_index") ); // e.g. fsetup									
-								}else {
+								}else  if ( valkey.contains("param::") ) {
 									nsp.getPrimitive_params().put( valkey , vals.get( valkey )  );
 								}								
 							}
