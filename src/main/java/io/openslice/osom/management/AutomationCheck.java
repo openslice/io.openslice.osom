@@ -25,6 +25,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -43,6 +44,8 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.openslice.osom.lcm.LCMRulesController;
+import io.openslice.osom.lcm.LCMRulesExecutorVariables;
 import io.openslice.tmf.common.model.Any;
 import io.openslice.tmf.common.model.EValueType;
 import io.openslice.tmf.common.model.UserPartRoleType;
@@ -52,6 +55,7 @@ import io.openslice.tmf.common.model.service.ServiceRef;
 import io.openslice.tmf.common.model.service.ServiceRelationship;
 import io.openslice.tmf.common.model.service.ServiceSpecificationRef;
 import io.openslice.tmf.common.model.service.ServiceStateType;
+import io.openslice.tmf.lcm.model.ELCMRulePhase;
 import io.openslice.tmf.prm669.model.RelatedParty;
 import io.openslice.tmf.scm633.model.ServiceSpecCharacteristic;
 import io.openslice.tmf.scm633.model.ServiceSpecCharacteristicValue;
@@ -83,12 +87,16 @@ public class AutomationCheck implements JavaDelegate {
 	private ServiceOrderManager serviceOrderManager;
 
 
+	@Autowired
+	private LCMRulesController lcmRulesController;
+	
+	
 	@Value("${spring.application.name}")
 	private String compname;
 	
 	public void execute(DelegateExecution execution) {
 
-		logger.info("Process Orders by Orchetrator:" + execution.getVariableNames().toString());
+		logger.info("Process Orders by Orchestrator:" + execution.getVariableNames().toString());
 
 		if (execution.getVariable("orderid") instanceof String) {
 			logger.info("Will process/orchestrate order with id = " + execution.getVariable("orderid"));
@@ -128,7 +136,7 @@ public class AutomationCheck implements JavaDelegate {
 					
 					//List<Service> createdServices = new ArrayList<>();
 					
-					logger.debug("<--------------- related specs -------------->");
+					logger.debug("<--------------- related Service Specs -------------->");
 					for (ServiceSpecRelationship specRels : spec.getServiceSpecRelationship()) {
 						logger.debug("\tService specRelsId:" + specRels.getId());
 						
@@ -289,24 +297,24 @@ public class AutomationCheck implements JavaDelegate {
 		
 		
 		if ( partnerOrg != null  ) {
-			createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.AUTOMATICALLY_MANAGED, partnerOrg);
+			createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.AUTOMATICALLY_MANAGED, partnerOrg, parentService);
 			if ( createdServ!=null ) {
 				servicesHandledByExternalSP.add(createdServ.getId());
 			}				
 			
 		} else if ( specrel.getType().equals("CustomerFacingServiceSpecification") && (specrel.isIsBundle()!=null) && specrel.isIsBundle() ) {
-			createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.AUTOMATICALLY_MANAGED, null);			
+			createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.AUTOMATICALLY_MANAGED, null, parentService);			
 			if ( createdServ!=null ) {
 				servicesLocallyAutomated.add(createdServ.getId());
 			}
 		} else if ( specrel.getType().equals("CustomerFacingServiceSpecification") && (specrel.findSpecCharacteristicByName("OSAUTOMATED") != null )  ) {
-			createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.AUTOMATICALLY_MANAGED, null);			
+			createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.AUTOMATICALLY_MANAGED, null, parentService);			
 			if ( createdServ!=null ) {
 				servicesLocallyAutomated.add(createdServ.getId());
 			}
 		}	
 		else if (specrel.getType().equals("ResourceFacingServiceSpecification")) {
-			createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.AUTOMATICALLY_MANAGED, null);
+			createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.AUTOMATICALLY_MANAGED, null, parentService);
 			if ( createdServ!=null ) {
 				if ( specrel.findSpecCharacteristicByName( "NSDID" ) != null ){
 					servicesHandledByNFVOAutomated.add(createdServ.getId());						
@@ -317,7 +325,7 @@ public class AutomationCheck implements JavaDelegate {
 			}
 		}		
 		else {
-			createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.MANUALLY_BY_SERVICE_PROVIDER, null);
+			createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.MANUALLY_BY_SERVICE_PROVIDER, null, parentService);
 			if ( createdServ!=null ) {
 				servicesHandledManual.add(createdServ.getId());							
 			}
@@ -392,7 +400,8 @@ public class AutomationCheck implements JavaDelegate {
 	 * @return 
 	 */
 	private Service createServiceByServiceSpec(ServiceOrder sor, ServiceOrderItem soi,
-			ServiceSpecification spec, EServiceStartMode startMode, RelatedParty partnerOrg) {
+			ServiceSpecification spec, EServiceStartMode startMode, 
+			RelatedParty partnerOrg, Service parentService) {
 
 		ServiceCreate serviceToCreate = new ServiceCreate();
 		String servicename = spec.getName();
@@ -439,37 +448,67 @@ public class AutomationCheck implements JavaDelegate {
 			}			
 		}
 		
-		if (soi.getService().getServiceCharacteristic() != null ) {
-			for (ServiceSpecCharacteristic c : spec.getServiceSpecCharacteristic()) {
-				
-				boolean characteristicFound = false;
+		//we need to be careful here with the bundle and the related Service Specs, to properly propagate the rules inside
+		//first copy into the newly created service any characteristic values from the order
+		for (ServiceSpecCharacteristic c : spec.getServiceSpecCharacteristic()) {
+			
+			boolean characteristicFound = false;
+			for (Characteristic orderCharacteristic : soi.getService().getServiceCharacteristic()) {
+				String specCharacteristicToSearch = spec.getName() + "::" +c.getName();
+				 if ( orderCharacteristic.getName().equals( specCharacteristicToSearch )) { //copy only characteristics that are related from the order
+					serviceToCreate.addServiceCharacteristicItem( addServiceCharacteristicItem(c, orderCharacteristic) );
+					characteristicFound = true;
+					break;
+				}
+			}
+			
+			if (!characteristicFound) { //fallback to find simple name (i.e. not starting with service spec name)
 				for (Characteristic orderCharacteristic : soi.getService().getServiceCharacteristic()) {
-					String specCharacteristicToSearch = spec.getName() + "::" +c.getName();
-					 if ( orderCharacteristic.getName().equals( specCharacteristicToSearch )) { //copy only characteristics that are related from the order
+					String specCharacteristicToSearch = c.getName();
+					 if ( orderCharacteristic.getName().equals( specCharacteristicToSearch )) { //copy only characteristics that are related from the order							 
+						
 						serviceToCreate.addServiceCharacteristicItem( addServiceCharacteristicItem(c, orderCharacteristic) );
 						characteristicFound = true;
 						break;
 					}
 				}
 				
-				if (!characteristicFound) { //fallback to find simple name (i.e. not starting with service spec name)
-					for (Characteristic orderCharacteristic : soi.getService().getServiceCharacteristic()) {
-						String specCharacteristicToSearch = c.getName();
-						 if ( orderCharacteristic.getName().equals( specCharacteristicToSearch )) { //copy only characteristics that are related from the order							 
-							
-							serviceToCreate.addServiceCharacteristicItem( addServiceCharacteristicItem(c, orderCharacteristic) );
-							characteristicFound = true;
-							break;
-						}
-					}
-					
-				}
 			}
 			
+		}	
+		
+		if ( serviceToCreate.getServiceCharacteristic() == null ) {
+			serviceToCreate.setServiceCharacteristic( new ArrayList<>() );			
 		}
+		copyRemainingSpecCharacteristicsToServiceCharacteristic(spec ,serviceToCreate.getServiceCharacteristic() );	//copy to service the rest of the characteristics that do not exists yet from the above search	
 		
 		
-		Service createdService = serviceOrderManager.createService(serviceToCreate, sor, spec);
+		if ( parentService != null ) { //if parentService is not Null, then we need the value of the corresponding characteristic from the parent into this service	
+			for (Characteristic cchild : serviceToCreate.getServiceCharacteristic() ) {
+				for (Characteristic c : parentService.getServiceCharacteristic() ) {
+					String childCharacteristicToMatch = serviceToCreate.getName() + "::" +cchild.getName();
+					if ( c.getName().equals( childCharacteristicToMatch )) { //assign only characteristics values that are related from the parent service							 
+						cchild.getValue().setValue( c.getValue().getValue() );
+						break;
+					}
+				}				
+			}			
+		}	
+		
+
+//		:execute any LCM rules "PRE_PROVISION" phase for the SPEC;
+		LCMRulesExecutorVariables vars = new LCMRulesExecutorVariables(spec, sor, serviceToCreate);
+		
+		logger.debug("===============BEFORE lcmRulesController.execPhas for spec:" + spec.getName() + " =============================");
+		vars = lcmRulesController.execPhase( ELCMRulePhase.PRE_PROVISION, vars );
+
+		//logger.debug("vars= " + vars.getServiceToCreate());
+		logger.debug("===============AFTER lcmRulesController.execPhas =============================");
+		
+		Service createdService = serviceOrderManager.createService( 
+				vars.getServiceToCreate() , 
+				vars.getSorder(), 
+				spec);
 		return createdService;
 	}
 
@@ -485,5 +524,79 @@ public class AutomationCheck implements JavaDelegate {
 		serviceCharacteristicItem.setValue( val );
 		
 		return serviceCharacteristicItem;
+	}
+	
+	/**
+	 * 
+	 * will copy any remaining service spec characteristics that where not included in the initial order
+	 * 
+	 * @param sourceSpecID
+	 * @param destServiceCharacteristic
+	 */
+	private void copyRemainingSpecCharacteristicsToServiceCharacteristic(ServiceSpecification sourceSpec, @Valid List<Characteristic> destServiceCharacteristic) {
+		
+		
+		for (ServiceSpecCharacteristic sourceCharacteristic : sourceSpec.getServiceSpecCharacteristic()) {
+			if (  sourceCharacteristic.getValueType() != null ) {
+				boolean charfound = false;
+				for (Characteristic destchar : destServiceCharacteristic) {
+					if ( destchar.getName().equals(sourceCharacteristic.getName())) {
+						charfound = true;
+						break;
+					}
+				}
+				
+				if (!charfound) {
+				
+					Characteristic newChar = new Characteristic();
+					newChar.setName( sourceCharacteristic.getName() );
+					newChar.setValueType( sourceCharacteristic.getValueType() );
+					
+					if ( sourceCharacteristic.getValueType().equals( EValueType.ARRAY.getValue() ) ||
+							sourceCharacteristic.getValueType().equals( EValueType.SET.getValue() ) ) {
+						String valString = "";
+						for (ServiceSpecCharacteristicValue specchar : sourceCharacteristic.getServiceSpecCharacteristicValue()) {
+							if ( ( specchar.isIsDefault()!= null) && specchar.isIsDefault() ) {
+								if ( !valString.equals("")) {
+									valString = valString + ",";
+								}
+								valString = valString + "{\"value\":\"" + specchar.getValue().getValue() + "\",\"alias\":\"" + specchar.getValue().getAlias() + "\"}";
+							}
+							
+						}
+						
+						newChar.setValue( new Any( "[" + valString + "]", "") );
+						
+						
+					} else {
+						for (ServiceSpecCharacteristicValue specchar : sourceCharacteristic.getServiceSpecCharacteristicValue()) {
+							if ( ( specchar.isIsDefault()!= null) && specchar.isIsDefault() ) {
+								newChar.setValue( new Any(
+										specchar.getValue().getValue(), 
+										specchar.getValue().getAlias()) );
+								break;
+							}else {
+								if (specchar.isIsDefault()== null){
+
+								logger.info("specchar is null value: " + sourceCharacteristic.getName() );
+								}
+							}
+
+						}						
+					}
+					
+					//sourceCharacteristic.getServiceSpecCharacteristicValue()
+					
+					if ( newChar.getValue() !=null) {
+						destServiceCharacteristic.add(newChar );
+					}
+					
+				}
+				
+			}
+			
+			
+		}
+		
 	}
 }

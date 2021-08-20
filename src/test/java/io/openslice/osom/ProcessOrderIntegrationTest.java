@@ -22,18 +22,28 @@ package io.openslice.osom;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.doCallRealMethod;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.tools.Diagnostic;
+import javax.tools.DiagnosticCollector;
+import javax.tools.JavaCompiler;
+import javax.tools.JavaFileObject;
+import javax.tools.StandardJavaFileManager;
+import javax.tools.ToolProvider;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -41,20 +51,14 @@ import javax.xml.stream.XMLStreamReader;
 import org.apache.camel.CamelContext;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.component.mock.MockEndpoint;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.flowable.common.engine.api.io.InputStreamProvider;
-import org.flowable.dmn.api.DmnDecisionTable;
 import org.flowable.dmn.api.DmnRepositoryService;
 import org.flowable.dmn.api.DmnRuleService;
 import org.flowable.dmn.api.ExecuteDecisionBuilder;
 import org.flowable.dmn.engine.DmnEngine;
-import org.flowable.dmn.engine.DmnEngines;
 import org.flowable.dmn.engine.test.DmnDeployment;
-import org.flowable.dmn.engine.test.FlowableDmnRule;
 import org.flowable.dmn.model.DmnDefinition;
 import org.flowable.dmn.xml.converter.DmnXMLConverter;
 import org.flowable.engine.RepositoryService;
@@ -63,39 +67,48 @@ import org.flowable.engine.TaskService;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.spring.impl.test.FlowableSpringExtension;
 import org.flowable.task.api.Task;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import io.openslice.osom.lcm.LCMRulesExecutor;
+import io.openslice.osom.lcm.LCMRulesExecutorVariables;
 import io.openslice.osom.management.ServiceOrderManager;
+import io.openslice.tmf.common.model.Any;
+import io.openslice.tmf.common.model.EValueType;
+import io.openslice.tmf.common.model.service.Characteristic;
+import io.openslice.tmf.lcm.model.LCMRuleSpecification;
+import io.openslice.tmf.scm633.model.ServiceSpecCharacteristic;
+import io.openslice.tmf.scm633.model.ServiceSpecCharacteristicValue;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
+import io.openslice.tmf.sim638.model.Service;
+import io.openslice.tmf.sim638.model.ServiceCreate;
 import io.openslice.tmf.so641.model.ServiceOrder;
+import io.openslice.tmf.so641.model.ServiceOrderItem;
 
 @ExtendWith(FlowableSpringExtension.class)
 @SpringBootTest(properties = { "CATALOG_GET_SERVICEORDER_BY_ID = direct:get_mocked_order",
 		"CATALOG_GET_SERVICESPEC_BY_ID = direct:get_mocked_spec", "CATALOG_ADD_SERVICE = direct:get_mocked_add_service",
 		"CATALOG_UPD_SERVICEORDER_BY_ID = direct:get_mocked_upd_order",
 		"CATALOG_GET_SERVICE_BY_ID = direct:get_mocked_service_id",
-		"CATALOG_SERVICE_QUEUE_ITEMS_GET: direct:get_mocked_service_id",
+		"CATALOG_SERVICE_QUEUE_ITEMS_GET: direct:get_mocked_service_queueitems",
 		"CATALOG_SERVICE_QUEUE_ITEM_UPD: direct:get_mocked_service_id",
 		"CATALOG_SERVICE_QUEUE_ITEM_DELETE: direct:get_mocked_service_id",
-		"CATALOG_UPD_SERVICE = direct:get_mocked_upd_service", "NFV_CATALOG_DEPLOY_NSD_REQ = direct:req_deploy_nsd",
-		
-		
+		"CATALOG_UPD_SERVICE = direct:get_mocked_upd_service", 
+		"NFV_CATALOG_DEPLOY_NSD_REQ = direct:req_deploy_nsd",
+		"CATALOG_GET_LCMRULE_BY_ID = direct:get_mocked_lcmrulebyid",		
+		"CATALOG_GET_LCMRULES_BY_SPECID_PHASE = direct:get_mocked_lcmrulesbyspecid",				
+		"CATALOG_SERVICES_OF_PARTNERS = direct:get_mocked_service_queueitems",			
+		"CATALOG_SERVICES_TO_TERMINATE = direct:get_mocked_service_queueitems",	
+		"CATALOG_GET_SERVICEORDER_IDS_BY_STATE = direct:get_mocked_service_queueitems",		
 		"ALARMS_ADD_ALARM=mock:output",
 		"ALARMS_UPDATE_ALARM=mock:output",
 		"ALARMS_GET_ALARM=mock:output",
 		"NFV_CATALOG_GET_DEPLOYMENT_BY_ID = direct:req_deployment_id", 
 		"NFV_CATALOG_UPD_DEPLOYMENT_BY_ID = direct:req_deployment_id", 
+		"NFV_CATALOG_GET_NSD_BY_ID = direct:req_nsd_id", 
 		"uri.to   = mock:output" })
 @ActiveProfiles("testing")
 public class ProcessOrderIntegrationTest {
@@ -112,6 +125,26 @@ public class ProcessOrderIntegrationTest {
 
 	@Autowired
 	private CamelContext camelContext;
+	
+	RoutesBuilder builder = new RouteBuilder() {
+		@Override
+		public void configure() {
+			from("direct:get_mocked_order").bean(scmocked, "getOrderById");
+			from("direct:get_mocked_spec").bean(scmocked, "getSpecById");
+			from("direct:get_mocked_add_service").bean(scmocked, "getMockedAddService");
+			from("direct:get_mocked_upd_service").bean(scmocked, "getMockedService");
+			from("direct:get_mocked_upd_order").bean(scmocked, "updateServiceOrder");
+			from("direct:get_mocked_service_id").bean(scmocked, "getServiceById");
+			from("direct:get_mocked_service_queueitems").bean(scmocked, "getServiceQueueItems");
+			from("direct:get_mocked_lcmrulebyid").bean(scmocked, "getLCMRulebyID");
+			from("direct:get_mocked_lcmrulesbyspecid").bean(scmocked, "getLCMRulesbySpecIDPhase(${header.servicespecid}, ${header.phasename})");
+			from("direct:req_deploy_nsd").bean(scmocked, "req_deploy_nsd");
+			from("direct:req_deployment_id").bean(scmocked, "req_deployment_id");
+			from("direct:req_nsd_id").bean(scmocked, "req_nsd_id");
+
+		};
+	};
+
 
 //    @MockBean(name = "orchestrationService" )
 //    @Autowired
@@ -125,39 +158,29 @@ public class ProcessOrderIntegrationTest {
 	@Test
 	// @Deployment(resources = { "processes/ServiceOrder.bpmn" })
 	public void startProcess() throws Exception {
+		logger.debug("===============TEST START startProcess =============================");
 		// doCallRealMethod().when( orchestrationServiceMocked).execute( Mockito.any() )
 		// ;
 
 		/**
 		 * configure here the mocked routes
 		 */
-		RoutesBuilder builder = new RouteBuilder() {
-			@Override
-			public void configure() {
-				from("direct:get_mocked_order").bean(scmocked, "getOrderById");
-				from("direct:get_mocked_spec").bean(scmocked, "getSpecById");
-				from("direct:get_mocked_add_service").bean(scmocked, "getMockedService");
-				from("direct:get_mocked_upd_service").bean(scmocked, "getMockedService");
-				from("direct:get_mocked_upd_order").bean(scmocked, "updateServiceOrder");
-				from("direct:get_mocked_service_id").bean(scmocked, "getServiceById");
-				from("direct:req_deploy_nsd").bean(scmocked, "req_deploy_nsd");
-				from("direct:req_deployment_id").bean(scmocked, "req_deployment_id");
-
-			};
-		};
 
 		camelContext.addRoutes(builder);
 
 		logger.info("waiting 1secs");
 		Thread.sleep(1000); // wait
+		 scmocked.getRunningServices().clear();
+		ServiceSpecification spec = serviceOrderManager.retrieveServiceSpec("f2b74f90-4140-4895-80d1-ef243398117b");
+		ServiceSpecification specCirros = serviceOrderManager.retrieveServiceSpec("99176116-17cf-464f-96f7-86e685914666");
+		ServiceOrder sorder = serviceOrderManager.retrieveServiceOrder("a842a6fd-a9df-4d0e-9e17-922954a100c6");
+		assertThat(sorder).isInstanceOf(ServiceOrder.class);
+		assertThat(spec).isInstanceOf(ServiceSpecification.class);
 
-		assertThat(serviceOrderManager.retrieveServiceOrder("b0661e27-020f-4026-84ab-5c265bac47e7"))
-				.isInstanceOf(ServiceOrder.class);
-		assertThat(serviceOrderManager.retrieveServiceOrder("93b9928c-de35-4495-a157-1100f6e71c92"))
-				.isInstanceOf(ServiceOrder.class);
-		assertThat(serviceOrderManager.retrieveServiceSpec("59d08753-e1b1-418b-9e3e-d3a3bb573051"))
-				.isInstanceOf(ServiceSpecification.class);
-
+		assertThat(spec.getServiceSpecCharacteristic().size()  ).isEqualTo(11);
+		assertThat(specCirros.getServiceSpecCharacteristic().size()  ).isEqualTo(10);
+		assertThat(sorder.getOrderItem().stream().findFirst().get().getService().getServiceCharacteristic().size()  ).isEqualTo(2);
+		
 		assertThat(repositoryService.createProcessDefinitionQuery().count()).isEqualTo(11);
 		assertThat(taskService.createTaskQuery().count()).isEqualTo(0);
 
@@ -166,10 +189,10 @@ public class ProcessOrderIntegrationTest {
 		repositoryService.suspendProcessDefinitionByKey("OrderSchedulerProcess"); // this is to stop the timer
 
 		Map<String, Object> variables = new HashMap<>();
-		variables.put("orderid", "93b9928c-de35-4495-a157-1100f6e71c92");
+		variables.put("orderid", "a842a6fd-a9df-4d0e-9e17-922954a100c6");
 		runtimeService.startProcessInstanceByKey("StartOrderProcess", variables);
-		logger.info("waiting 1sec");
-		Thread.sleep(2000); // wait
+		logger.info("waiting 10sec");
+		Thread.sleep(7000); // wait
 
 		for (ProcessInstance pi : runtimeService.createProcessInstanceQuery().list()) {
 			logger.info(" pi.id " + pi.toString());
@@ -178,6 +201,37 @@ public class ProcessOrderIntegrationTest {
 		for (Task task : taskService.createTaskQuery().list()) {
 			logger.info(" task.name " + task.getName());
 		}
+		
+		if (scmocked.getRunningServices().size() == 0) {
+			Thread.sleep(3000); // wait a little more :-)			
+		}
+		
+		//check here that the running services contain equal characteristics to the original
+		assertThat( scmocked.getRunningServices().size()  ).isEqualTo(2);
+		Service aservice = null;
+		Service aserviceCirros = null;
+		for (String suuid : scmocked.getRunningServices().keySet()) {
+			if ( scmocked.getRunningServices().get( suuid ).getName().equals("Cirros Test") ){
+				aservice = scmocked.getRunningServices().get( suuid );
+			} else if ( scmocked.getRunningServices().get( suuid ).getName().equals("cirros_2vnf_ns") ){
+				aserviceCirros = scmocked.getRunningServices().get( suuid );
+			}				
+		}
+		assertThat( aservice  ).isNotNull();
+		assertThat( aservice.getServiceCharacteristic().size()  ).isEqualTo(11);
+		assertThat( aserviceCirros  ).isNotNull();
+		assertThat( aserviceCirros.getServiceCharacteristic().size()  ).isEqualTo(10);
+
+		assertThat(  aservice.getServiceCharacteristicByName("cirros_2vnf_ns::OSM_CONFIG").getValue().getValue() ).contains( "cccccccc-8219-4580-9697-bf4a8f0a08f9" );
+		assertThat(  aservice.getServiceCharacteristicByName("cirros_2vnf_ns::SSHKEY").getValue().getValue() ).isEqualTo( "MCKEYTESTINORDERExampleConcatSSHKEY_EnhancedByRule" );
+		//check that the cirros_2vnf_ns::SSHKEY value from the service order has been passed properly to the related RFS service
+		assertThat(  aserviceCirros.getServiceCharacteristicByName("OSM_CONFIG").getValue().getValue() ).contains( "cccccccc-8219-4580-9697-bf4a8f0a08f9" );
+		assertThat(  aserviceCirros.getServiceCharacteristicByName("SSHKEY").getValue().getValue() ).isEqualTo( "MCKEYTESTINORDERExampleConcatSSHKEY_EnhancedByRule" );
+		
+		
+		//we will further check LCM rules!
+		
+		
 
 //		assertThat( scmocked.getRequeestedDescriptor() ).isNotNull();
 //		assertThat( scmocked.getRequeestedDescriptor().getId() ).isEqualTo( 123456789 );
@@ -188,9 +242,10 @@ public class ProcessOrderIntegrationTest {
 
 		assertThat(taskService.createTaskQuery().count()).isEqualTo(0);
 
-		logger.info("waiting 1secs");
-		Thread.sleep(1000); // wait
+		logger.info("waiting 3secs");
+		Thread.sleep(3000); // wait
 
+		logger.debug("===============TEST END startProcess =============================");
 	}
 
 	@Autowired
@@ -202,24 +257,27 @@ public class ProcessOrderIntegrationTest {
 //	@Autowired
 //	@Rule
 //	public FlowableDmnRule flowableSpringRule;
-
-	@Test
-	@DmnDeployment(resources = "dmn/genericdecisions.dmn")
-	public void uniqueHitPolicy() {
-//		DmnEngine admnEngine = flowableSpringRule.getDmnEngine();
-		DmnRuleService dmnRuleService = dmnEngine.getDmnRuleService();
-
-		ExecuteDecisionBuilder ex = ruleService.createExecuteDecisionBuilder().decisionKey("decisionKJ");
-
-		Map<String, Object> result = ex.variable("Uplink_throughput_per_UE__Guaranteed_uplink_throughput", 8).executeWithSingleResult();
-
-		assertEquals(64.0, result.get("cirros_ue_uplink"));
-		assertEquals(512.0, result.get("cirros_slice_uplink"));
-	}
+//
+//	@Test
+//	@DmnDeployment(resources = "dmn/genericdecisions.dmn")
+//	public void uniqueHitPolicy() {
+//		logger.debug("===============TEST START uniqueHitPolicy =============================");
+////		DmnEngine admnEngine = flowableSpringRule.getDmnEngine();
+//		DmnRuleService dmnRuleService = dmnEngine.getDmnRuleService();
+//
+//		ExecuteDecisionBuilder ex = ruleService.createExecuteDecisionBuilder().decisionKey("decisionKJ");
+//
+//		Map<String, Object> result = ex.variable("Uplink_throughput_per_UE__Guaranteed_uplink_throughput", 8).executeWithSingleResult();
+//
+//		assertEquals(64.0, result.get("cirros_ue_uplink"));
+//		assertEquals(512.0, result.get("cirros_slice_uplink"));
+//		logger.debug("===============TEST END uniqueHitPolicy =============================");
+//	}
 
 	@Test
 	public void programmaticallyCreate() throws XMLStreamException, FileNotFoundException {
 
+		logger.debug("===============TEST START programmaticallyCreate =============================");
 		try {
 
 			File initialFile = new File("src/test/resources/ondemand_decisions.dmn");
@@ -256,12 +314,16 @@ public class ProcessOrderIntegrationTest {
 		} finally {
 
 		}
+		
+
+		logger.debug("===============TEST END programmaticallyCreate =============================");
 	}
 	
 	
 	@Test
 	public void testNFVOProcessOrder() throws Exception {
 
+		logger.debug("===============TEST START testNFVOProcessOrder =============================");
 
 //		repositoryService.suspendProcessDefinitionByKey("OrderSchedulerProcess"); // this is to stop the timer
 		repositoryService.suspendProcessDefinitionByKey("fetchInRpogressOrdersProcess"); // this is to stop the timer
@@ -290,11 +352,11 @@ public class ProcessOrderIntegrationTest {
 		logger.info("waiting 1secs");
 		Thread.sleep(1000); // wait
 
-		assertThat(serviceOrderManager.retrieveServiceOrder("b0661e27-020f-4026-84ab-5c265bac47e7"))
+		assertThat(serviceOrderManager.retrieveServiceOrder("a842a6fd-a9df-4d0e-9e17-922954a100c6"))
 				.isInstanceOf(ServiceOrder.class);
 		
 		Map<String, Object> variables = new HashMap<>();
-		variables.put("orderid", "93b9928c-de35-4495-a157-1100f6e71c92");
+		variables.put("orderid", "a842a6fd-a9df-4d0e-9e17-922954a100c6");
 		runtimeService.startProcessInstanceByKey("StartOrderProcess", variables);
 		logger.info("waiting 1sec");
 		Thread.sleep(1000); // wait
@@ -311,6 +373,216 @@ public class ProcessOrderIntegrationTest {
 		logger.info("waiting 10secs");
 		Thread.sleep(10000); // wait
 
+		logger.debug("===============TEST END testNFVOProcessOrder =============================");
 	}
+	
+	@Test
+	public void testExecRuleSpec() throws Exception {
 
+		logger.debug("===============TEST START testExecRuleSpec =============================");
+		
+		
+		String sspectex = scmocked.getSpecById("f2b74f90-4140-4895-80d1-ef243398117b");		
+		ServiceSpecification aServiceSpec = SCMocked.toJsonObj( sspectex, ServiceSpecification.class);		
+		assertNotNull(aServiceSpec);
+		
+		// The class name
+        // The file will have the same name
+        // and we will also use it to put it as temporary directory name
+        final String className = "javademo";
+
+        // A temporary directory where the java code and class will be located
+        Path temp = Paths.get(System.getProperty("java.io.tmpdir"), className);
+        Files.createDirectories(temp);
+
+        // Creation of the java source file
+        // You could also extends the SimpleJavaFileObject object as shown in the doc.
+        // See SimpleJavaFileObject at https://docs.oracle.com/javase/8/docs/api/javax/tools/JavaCompiler.html
+        Path javaSourceFile = Paths.get(temp.normalize().toAbsolutePath().toString(), className + ".java");
+        System.out.println("The java source file is loacted at "+javaSourceFile);
+        String code = ""
+        		+ "import io.openslice.tmf.scm633.model.ServiceSpecification; \n"
+        		+ "import io.openslice.tmf.scm633.model.ServiceSpecCharacteristic; \n"
+        		+ "\n"
+        		+ "public class " + className + " {\n" +
+                "public static void run(ServiceSpecification spec) {\n" +
+                "       System.out.println(\"Hello from RULE1= \" + spec.getName() ); \n" +
+                "\n\n" +
+                "for (ServiceSpecCharacteristic schar : spec.getServiceSpecCharacteristic()) {\n" +
+                "System.out.println( \"Hello from RULE1=\" + schar.getName() );\n" +
+                "}\n" +
+                "\n" +
+		
+                "    }" +
+                "\n"
+        		+ 
+                "public static ServiceSpecification evaluate(ServiceSpecification spec) {\n" +
+                "       spec.setName( spec.getName() + \"_changed\" ); \n"
+                + "return spec;\n" +
+                "    }" +
+                "}";
+        
+        
+        
+        Files.write(javaSourceFile, code.getBytes());
+
+        // Verification of the presence of the compilation tool archive
+        final String toolsJarFileName = "tools.jar";
+        final String javaHome = System.getProperty("java.home");
+        Path toolsJarFilePath = Paths.get(javaHome, "lib", toolsJarFileName);
+        if (!Files.exists(toolsJarFilePath)){
+            System.out.println("The tools jar file ("+toolsJarFileName+") could not be found at ("+toolsJarFilePath+").");
+        }
+
+
+		File lcmtest1java = new File("src/test/resources/ExecRule_1.java");
+        Path templcmtest1java = Paths.get( lcmtest1java.getAbsolutePath().toString() ).getParent() ;
+		
+        // The compile part
+        // Definition of the files to compile
+        File[] files1 = {javaSourceFile.toFile(), lcmtest1java};
+        // Get the compiler
+        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+        // Get the file system manager of the compiler
+        StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
+        // Create a compilation unit (files)
+        Iterable<? extends JavaFileObject> compilationUnits =
+                fileManager.getJavaFileObjectsFromFiles(Arrays.asList(files1));
+        // A feedback object (diagnostic) to get errors
+        DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
+        // Compilation unit can be created and called only once
+        JavaCompiler.CompilationTask task = compiler.getTask(
+                null,
+                fileManager,
+                diagnostics,
+                null,
+                null,
+                compilationUnits
+        );
+        // The compile task is called
+        task.call();
+        // Printing of any compile problems
+        for (Diagnostic diagnostic : diagnostics.getDiagnostics()) {
+            System.out.format("Error on line %d in %s%n",
+                    diagnostic.getLineNumber(),
+                    diagnostic.getSource());        	
+        }
+        
+        assertThat( diagnostics.getDiagnostics().size() ).isEqualTo(0); 
+
+        // Close the compile resources
+        fileManager.close();
+
+        // Now that the class was created, we will load it and run it
+        ClassLoader classLoader = ProcessOrderIntegrationTest.class.getClassLoader();
+        
+        
+        @SuppressWarnings("resource")
+		URLClassLoader urlClassLoader = new URLClassLoader(
+                new URL[] { temp.toUri().toURL(), templcmtest1java.toUri().toURL() },
+                classLoader);
+        Class javaDemoClass = urlClassLoader.loadClass(className);
+        Method method = javaDemoClass.getMethod("run",  ServiceSpecification.class);
+        ArrayList<Object> methodArgs = new ArrayList<Object>();
+        methodArgs.add( aServiceSpec );
+        Object obj = javaDemoClass.getDeclaredConstructor().newInstance();
+        method.invoke(obj, methodArgs.toArray());
+        
+        method = javaDemoClass.getMethod("evaluate",  ServiceSpecification.class);
+        Object response = method.invoke(obj, methodArgs.toArray());	
+		assertNotNull(response);
+		assertThat(response).isInstanceOf(ServiceSpecification.class);
+		assertThat( ((ServiceSpecification)response).getName()).isEqualTo("Cirros Test_changed");
+                
+        Class javaLcmTest1Class = urlClassLoader.loadClass("ExecRule_1");
+        method = javaLcmTest1Class.getMethod("run",  LCMRulesExecutorVariables.class);
+        methodArgs = new ArrayList<Object>();
+        ServiceCreate servc = new ServiceCreate();
+        servc.setServiceCharacteristic( new ArrayList<>() );
+        for (ServiceSpecCharacteristic sourceCharacteristic : aServiceSpec.getServiceSpecCharacteristic()) {
+        	Characteristic newChar = new Characteristic();
+			newChar.setName( sourceCharacteristic.getName() );
+			newChar.setValueType( sourceCharacteristic.getValueType() );
+			
+			if ( sourceCharacteristic.getValueType().equals( EValueType.ARRAY.getValue() ) ||
+					sourceCharacteristic.getValueType().equals( EValueType.SET.getValue() ) ) {
+				String valString = "";
+				for (ServiceSpecCharacteristicValue specchar : sourceCharacteristic.getServiceSpecCharacteristicValue()) {
+					if ( ( specchar.isIsDefault()!= null) && specchar.isIsDefault() ) {
+						if ( !valString.equals("")) {
+							valString = valString + ",";
+						}
+						valString = valString + "{\"value\":\"" + specchar.getValue().getValue() + "\",\"alias\":\"" + specchar.getValue().getAlias() + "\"}";
+					}
+					
+				}				
+				newChar.setValue( new Any( "[" + valString + "]", "") );
+			} else {
+				for (ServiceSpecCharacteristicValue specchar : sourceCharacteristic.getServiceSpecCharacteristicValue()) {
+					if ( ( specchar.isIsDefault()!= null) && specchar.isIsDefault() ) {
+						newChar.setValue( new Any(
+								specchar.getValue().getValue(), 
+								specchar.getValue().getAlias()) );
+						break;
+					}
+				}						
+			}
+			
+			
+			if ( newChar.getValue() !=null) {
+				servc.getServiceCharacteristic().add(newChar );
+			}
+        }
+        
+        LCMRulesExecutorVariables vars = new LCMRulesExecutorVariables(aServiceSpec, new ServiceOrder(), servc);
+        methodArgs.add( vars );
+        obj = javaLcmTest1Class.getDeclaredConstructor().newInstance();
+
+        response = method.invoke(obj, methodArgs.toArray());
+		assertThat(response).isInstanceOf( LCMRulesExecutorVariables.class);
+		vars = (LCMRulesExecutorVariables) response;
+		
+		assertThat(
+				vars.getServiceToCreate().getServiceCharacteristic()
+					.stream()
+					.filter(c -> c.getName().equals("cirros_2vnf_ns::OSM_CONFIG"))
+					.findFirst().get().getValue().getValue()
+				).contains("cccccccc-8219-4580-9697-bf4a8f0a08f9");
+		
+		
+		LCMRulesExecutor lcmRulesExecutor = new LCMRulesExecutor();
+		LCMRuleSpecification lcs = scmocked.getLCMRulebyIDJson("40f027b5-24a9-4db7-b422-a963c9feeb7a");
+	    vars = lcmRulesExecutor.executeLCMRuleCode(  lcs, vars);
+
+		assertThat(
+				vars.getServiceToCreate().getServiceCharacteristic()
+					.stream()
+					.filter(c -> c.getName().equals("cirros_2vnf_ns::OSM_CONFIG"))
+					.findFirst().get().getValue().getValue()
+				).contains("cccccccc-8219-4580-9697-bf4a8f0a08f9");
+		
+
+		lcs = scmocked.getLCMRulebyIDJson("75cebf16-1699-486f-8304-d6512f90c910");
+	    vars = lcmRulesExecutor.executeLCMRuleCode(  lcs, vars);
+
+
+		assertThat(
+				vars.getServiceToCreate().getServiceCharacteristic()
+					.stream()
+					.filter(c -> c.getName().equals("cirros_2vnf_ns::OSM_CONFIG"))
+					.findFirst().get().getValue().getValue()
+				).contains("cccccccc-8219-4580-9697-bf4a8f0a08f9");
+		assertThat(
+				vars.getServiceToCreate().getServiceCharacteristic()
+					.stream()
+					.filter(c -> c.getName().equals("cirros_2vnf_ns::SSHKEY"))
+					.findFirst().get().getValue().getValue()
+				).isEqualTo("MYKEYXExampleConcatSSHKEY_EnhancedByRule");
+		
+
+		logger.debug("===============TEST END testExecRuleSpec =============================");
+	}
+	
+
+	
 }

@@ -100,14 +100,15 @@ public class DependencyRulesSolver {
 //			Map<String, Object> result = ex.variable("cameras", 3).executeWithSingleResult();
 			
 			
-			ExecuteDecisionBuilder ex = ruleService.createExecuteDecisionBuilder().decisionKey("decisionKJ");
+			// this loads genericdecisions.dmn.. commented for now. Perhasp useful in future!
+			//ExecuteDecisionBuilder ex = ruleService.createExecuteDecisionBuilder().decisionKey("decisionKJ");
 
-			Map<String, Object> result = ex.variables(variables).executeWithSingleResult();
+			//Map<String, Object> result = ex.variables(variables).executeWithSingleResult();
 			
-			if ( result!= null ) {
-				result.putAll( variables );
-				return result;				
-			}
+//			if ( result!= null ) {
+//				result.putAll( variables );
+//				return result;				
+//			}
 
 //		} catch (FileNotFoundException e) {
 //			e.printStackTrace();

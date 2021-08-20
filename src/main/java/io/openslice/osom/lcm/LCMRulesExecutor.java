@@ -1,0 +1,181 @@
+package io.openslice.osom.lcm;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import javax.tools.Diagnostic;
+import javax.tools.DiagnosticCollector;
+import javax.tools.JavaCompiler;
+import javax.tools.JavaFileObject;
+import javax.tools.StandardJavaFileManager;
+import javax.tools.ToolProvider;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import io.openslice.osom.OsomSpringBoot;
+import io.openslice.tmf.lcm.model.LCMRuleSpecification;
+import io.openslice.tmf.scm633.model.ServiceSpecification;
+
+/**
+ * @author ctranoris
+ *
+ */
+public class LCMRulesExecutor {
+
+	private static final transient Log logger = LogFactory.getLog( LCMRulesExecutor.class.getName() );
+	
+	public LCMRulesExecutorVariables executeLCMRuleCode(LCMRuleSpecification lcmspec, LCMRulesExecutorVariables vars) {
+
+		logger.info("executeLCMRuleCode lcmspecId =" + lcmspec.getId() + "lcmspec =" + lcmspec.getName()   );
+		
+		//Prepare code
+		final String className =  "ExecRule_"+lcmspec.getId().replace("-", "_");
+		
+		String code=
+				//"package " + className + "; \n\n" +	
+				"import io.openslice.osom.lcm.LcmBaseExecutor;\n\n" 
+				+ "public class "+className+" extends LcmBaseExecutor{\n\n" +	
+				"""
+						@Override
+						public void exec() {						
+						//SNIP STARTS
+						"""
+				+ lcmspec.getCode()
+				+"""
+					//SNIP ENDS
+					}
+				}
+			
+				""";
+		
+		logger.debug("code dump:");
+		logger.debug( code );
+		try {
+			vars = execudeCode(className, code, vars);		
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		
+		
+		
+		return vars;
+	}
+
+	/**
+	 * @param className
+	 * @param code
+	 * @param vars
+	 * @return
+	 * @throws IOException 
+	 * @throws ClassNotFoundException 
+	 * @throws SecurityException 
+	 * @throws NoSuchMethodException 
+	 * @throws InvocationTargetException 
+	 * @throws IllegalArgumentException 
+	 * @throws IllegalAccessException 
+	 * @throws InstantiationException 
+	 */
+	private LCMRulesExecutorVariables execudeCode(String className, String code, LCMRulesExecutorVariables vars) throws IOException, ClassNotFoundException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		 // A temporary directory where the java code and class will be located
+        Path temp = Paths.get(System.getProperty("java.io.tmpdir"),  "openslice", className);
+        Files.createDirectories(temp);
+		
+        // Creation of the java source file
+        // You could also extends the SimpleJavaFileObject object as shown in the doc.
+        // See SimpleJavaFileObject at https://docs.oracle.com/javase/8/docs/api/javax/tools/JavaCompiler.html
+        Path javaSourceFile = Paths.get(temp.normalize().toAbsolutePath().toString(), className + ".java");
+        Files.write(javaSourceFile, code.getBytes());
+
+        logger.debug("The java source file is loacted at "+javaSourceFile);
+        // Verification of the presence of the compilation tool archive
+        final String toolsJarFileName = "tools.jar";
+        final String javaHome = System.getProperty("java.home");
+        Path toolsJarFilePath = Paths.get(javaHome, "lib", toolsJarFileName);
+        if (!Files.exists(toolsJarFilePath)){
+        	logger.warn( "The tools jar file ("+toolsJarFileName+") could not be found at ("+toolsJarFilePath+").");
+        }
+		
+        // The compile part
+        // Definition of the files to compile
+        File[] files1 = {javaSourceFile.toFile()};
+        
+        // Get the compiler
+        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+        logger.debug("compiler =  "+ compiler);
+        // Get the file system manager of the compiler
+        StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
+        // Create a compilation unit (files)
+        Iterable<? extends JavaFileObject> compilationUnits =
+                fileManager.getJavaFileObjectsFromFiles(Arrays.asList(files1));
+        // A feedback object (diagnostic) to get errors
+        DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
+        // Compilation unit can be created and called only once
+        JavaCompiler.CompilationTask task = compiler.getTask(
+                null,
+                fileManager,
+                diagnostics,
+                null,
+                null,
+                compilationUnits
+        );
+        logger.debug("task1 =  "+ task);
+        // The compile task is called
+        task.call();
+        logger.debug("task2 =  "+ task);
+        // Printing of any compile problems
+        for (Diagnostic diagnostic : diagnostics.getDiagnostics()) {
+        	logger.error( String.format("Error on line %d in %s, %s, %s %n",
+                    diagnostic.getLineNumber(),
+                    diagnostic.getSource(),
+                    diagnostic.getCode(),
+                    diagnostic.getMessage(null) ));
+        	
+        	
+        }
+        
+
+        logger.debug("task3 =  "+ task);
+        if ( diagnostics.getDiagnostics().size()>0 ) {
+            logger.error("execudeCode compile error. Will just return");
+        	return vars;
+        }
+        
+        // Close the compile resources
+        fileManager.close();
+
+        // Now that the class was created, we will load it and run it
+        ClassLoader classLoader = LCMRulesExecutor.class.getClassLoader();
+        logger.debug("classLoader =  "+ classLoader);
+        @SuppressWarnings("resource")
+		URLClassLoader urlClassLoader = new URLClassLoader(
+                new URL[] { temp.toUri().toURL()  },
+                classLoader);
+        Class javaDemoClass = urlClassLoader.loadClass(className);
+        logger.debug("javaDemoClass =  "+ javaDemoClass);
+        Object obj = javaDemoClass.getDeclaredConstructor().newInstance();
+        logger.debug("obj =  "+ obj);
+        
+        Method method = javaDemoClass.getMethod("run",  LCMRulesExecutorVariables.class);
+        logger.debug("method =  "+ method);
+        ArrayList<Object> methodArgs = new ArrayList<Object>();
+        methodArgs.add( vars );
+        Object response = method.invoke(obj, methodArgs.toArray());
+        if ( response instanceof LCMRulesExecutorVariables ) {
+        	return (LCMRulesExecutorVariables) response;
+        }
+        
+		return vars;
+	}
+
+}

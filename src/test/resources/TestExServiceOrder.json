@@ -1,628 +1,119 @@
 {
-  "uuid": "b0661e27-020f-4026-84ab-5c265bac47e7",
-  "orderDate": "2019-11-19T08:18:18.048Z",
-  "requestedCompletionDate": "2019-11-19T08:18:17.989Z",
-  "requestedStartDate": "2019-11-19T08:18:17.989Z",
-  "startDate": "2019-12-13T13:27:49Z",
-  "expectedCompletionDate": "2019-12-23T13:27:49Z",
+  "uuid": "a842a6fd-a9df-4d0e-9e17-922954a100c6",
+  "orderDate": "2021-08-18T21:55:05+03:00",
+  "completionDate": null,
+  "expectedCompletionDate": "2021-08-19T21:55:01+03:00",
+  "requestedCompletionDate": "2021-08-19T21:55:01+03:00",
+  "requestedStartDate": "2021-08-18T21:55:01+03:00",
+  "startDate": "2021-08-18T21:55:01+03:00",
   "@baseType": "BaseRootEntity",
+  "@schemaLocation": null,
   "@type": "ServiceOrder",
-  "id": "b0661e27-020f-4026-84ab-5c265bac47e7",
-  "category": "Experimentation",
-  "description": "Experimentation Descr",
+  "href": null,
+  "id": "a842a6fd-a9df-4d0e-9e17-922954a100c6",
+  "category": null,
+  "description": null,
+  "externalId": null,
+  "notificationContact": null,
+  "priority": null,
   "note": [
     {
-      "uuid": "b6720ab2-af2c-4bf1-98b6-682052ccf75d",
+      "uuid": "1567e358-ff96-4bc5-8978-9677d8ec17db",
+      "date": "2021-08-18T21:55:05+03:00",
       "@baseType": "BaseEntity",
-      "text": "test note"
+      "@schemaLocation": null,
+      "@type": null,
+      "href": null,
+      "author": "SO641API-addServiceOrder",
+      "system": null,
+      "text": "Service Order ACKNOWLEDGED"
     }
   ],
   "orderItem": [
     {
-      "uuid": "47f8ce29-ae70-420a-912f-b01c93aaf0a1",
+      "uuid": "7501ebe7-4f3c-48a3-a3ed-978a279c31a0",
       "@baseType": "BaseEntity",
-      "id": "47f8ce29-ae70-420a-912f-b01c93aaf0a1",
+      "@schemaLocation": null,
+      "@type": null,
+      "href": null,
+      "id": "7501ebe7-4f3c-48a3-a3ed-978a279c31a0",
       "action": "add",
       "orderItemRelationship": [],
-      "state": "initial",
+      "state": "ACKNOWLEDGED",
       "service": {
-        "uuid": "143deea7-02b6-4f73-9657-8a5ba25fe25a",
+        "uuid": "30883a98-53fa-4b70-b37e-a3823037df85",
         "serviceSpecification": {
           "@baseType": "BaseEntity",
-          "name": "BundleExampleSpec",
-          "id": "d8515f8f-786c-432b-9a74-5037e54c7974"
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "name": "Cirros Test",
+          "version": "0.1.0",
+          "targetServiceSchema": null,
+          "@referredType": null,
+          "id": "f2b74f90-4140-4895-80d1-ef243398117b"
         },
         "@baseType": "BaseEntity",
-        "id": "143deea7-02b6-4f73-9657-8a5ba25fe25a",
+        "@schemaLocation": null,
+        "@type": null,
+        "href": null,
+        "name": "Cirros Test",
+        "id": "30883a98-53fa-4b70-b37e-a3823037df85",
+        "category": null,
+        "serviceType": null,
         "place": [],
         "relatedParty": [],
-               "serviceCharacteristic": [
+        "serviceCharacteristic": [
           {
-            "uuid": "44d312f1-4f7c-4a88-b8e3-a1ae7bcfe4e9",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "cirros_2vnf_nsd::Vendor",
-            "valueType": "TEXT",
-            "value": {
-              "value": "OSM",
-              "alias": "Vendor"
-            }
-          },
-          {
-            "uuid": "11b8f506-603b-40dc-9c46-03825ce819e5",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "Network Slice Customer network functions",
-            "valueType": "SET",
-            "value": {
-              "value": "[{\"value\":\"UPF\",\"alias\":\"UPF\"}]",
-              "alias": ""
-            }
-          },
-          {
-            "uuid": "4022a2ab-3c92-444d-9ea6-e9c954e391be",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "Downlink throughput per UE: Maximum downlink throughput",
-            "valueType": "INTEGER",
-            "value": {
-              "value": "50000",
-              "alias": null
-            }
-          },
-          {
-            "uuid": "8f2bdd7a-bfef-422a-bf2b-9e11f423bfa0",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "Slice quality of service parameters: 3GPP 5QI",
-            "valueType": "ARRAY",
-            "value": {
-              "value": "[{\"value\":\"9\",\"alias\":\"Video (Buffered Streaming) TCP-based (e.g., www, email, chat, ftp, p2p file sharing, progressive video, etc.)\"},{\"value\":\"7\",\"alias\":\"Voice, Video (Live Streaming) Interactive Gaming\"},{\"value\":\"6\",\"alias\":\"Video (Buffered Streaming) TCP-based (e.g., www, email, chat, ftp, p2p file sharing, progressive video, etc.)\"},{\"value\":\"1\",\"alias\":\"Conversational Voice\"},{\"value\":\"8\",\"alias\":\"Video (Buffered Streaming) TCP-based (e.g., www, email, chat, ftp, p2p file sharing, progressive video, etc.)\"},{\"value\":\"5\",\"alias\":\"IMS Signalling\"},{\"value\":\"2\",\"alias\":\"Conversational Video (Live Streaming)\"}]",
-              "alias": ""
-            }
-          },
-          {
-            "uuid": "63c6def6-2e0f-4377-9bb1-5adf60c33ead",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "cirros_2vnf_nsd::ObMANOprovider_Name",
-            "valueType": "TEXT",
-            "value": {
-              "value": "uop",
-              "alias": ""
-            }
-          },
-          {
-            "uuid": "0b6f0939-e7f6-40ff-92b2-9df3b80cfc8f",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "V2X communication mode",
-            "valueType": "INTEGER",
-            "value": {
-              "value": "0",
-              "alias": "NO"
-            }
-          },
-          {
-            "uuid": "4c3babab-7c73-400d-ad3c-8a38661cdc56",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "Downlink throughput per UE: Guaranteed downlink throughput",
-            "valueType": "INTEGER",
-            "value": {
-              "value": "192",
-              "alias": null
-            }
-          },
-          {
-            "uuid": "b4e43ec1-8b9a-420a-8719-cfacda85ce49",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "Mission critical support",
-            "valueType": "BINARY",
-            "value": {
-              "value": "0",
-              "alias": "non-mission-critical"
-            }
-          },
-          {
-            "uuid": "ce26b2d9-ddbb-4b7d-928a-a97b1425c0b5",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "cirros_2vnf_nsd::NSDID",
-            "valueType": "TEXT",
-            "value": {
-              "value": "5",
-              "alias": "id"
-            }
-          },
-          {
-            "uuid": "f433fb91-1cb2-4a8c-9c2d-8a80fb16bb16",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "Isolation level: Physical Isolation",
-            "valueType": "ENUM",
-            "value": {
-              "value": "0",
-              "alias": "Process and threads Isolation"
-            }
-          },
-          {
-            "uuid": "dbccf987-5c02-4ec9-a051-27499ee5caee",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "Energy efficiency: Network slice energy efficiency",
-            "valueType": "INTEGER",
-            "value": {
-              "value": "40",
-              "alias": "(Urban area)"
-            }
-          },
-          {
-            "uuid": "92a73ce0-c576-407e-ac3d-2b1a355ed6cb",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "User management openness",
-            "valueType": "BINARY",
-            "value": {
-              "value": "0",
-              "alias": "not supported"
-            }
-          },
-          {
-            "uuid": "3d6e6fd4-2a15-4da5-a617-f07b6fabbe4e",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "Area of Service",
-            "valueType": "SET",
-            "value": {
-              "value": "[{\"value\":\"GR\",\"alias\":\"GREECE\"}]",
-              "alias": ""
-            }
-          },
-          {
-            "uuid": "80f75a27-f650-4782-be71-ff3f45f31666",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "IMSIs",
-            "valueType": "TEXT",
-            "value": {
-              "value": "0000",
-              "alias": null
-            }
-          },
-          {
-            "uuid": "d0924190-c790-47c0-bd6a-a128408dba99",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "Area of Service: Region specification",
-            "valueType": "SET",
-            "value": {
-              "value": "[{\"value\":\"1\",\"alias\":\"PATRAS\"}]",
-              "alias": null
-            }
-          },
-          {
-            "uuid": "c1828692-9bad-4785-8b09-d9432b6f25d5",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "Mission critical support: Mission-critical service support",
-            "valueType": "ARRAY",
-            "value": {
-              "value": "[{\"value\":\"1\",\"alias\":\"MCPTT\"}]",
-              "alias": ""
-            }
-          },
-          {
-            "uuid": "e0bd60f9-f3a1-4253-bd31-26cdb4519bae",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "Downlink throughput per network slice: Maximum downlink throughput",
-            "valueType": "INTEGER",
-            "value": {
-              "value": "192",
-              "alias": null
-            }
-          },
-          {
-            "uuid": "748d2044-ed8b-492f-8d94-36ce8b006e2f",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "NB-IoT support",
-            "valueType": "BINARY",
-            "value": {
-              "value": "0",
-              "alias": "Not supported"
-            }
-          },
-          {
-            "uuid": "25b7ebd9-df49-4e3f-90e2-6d99c8a4ace4",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "Maximum supported packet size",
-            "valueType": "INTEGER",
-            "value": {
-              "value": "1500",
-              "alias": null
-            }
-          },
-          {
-            "uuid": "6c618e58-01a9-484e-bf69-076f2b68fcc2",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "cirros_2vnf_nsd::PackagingFormat",
-            "valueType": "TEXT",
-            "value": {
-              "value": "OSMvFIVE",
-              "alias": "PackagingFormat"
-            }
-          },
-          {
-            "uuid": "c86b75c5-5844-412d-9903-d68b642e04f8",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "Performance monitoring: Availability",
-            "valueType": "SET",
-            "value": {
-              "value": "[{\"value\":\"0\",\"alias\":\"None\"}]",
-              "alias": ""
-            }
-          },
-          {
-            "uuid": "0e8f14c7-102b-43fe-8b1b-5a42eb9da92d",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "User data access: Data access",
-            "valueType": "ARRAY",
-            "value": {
-              "value": "[{\"value\":\"0\",\"alias\":\"Direct internet access\"}]",
-              "alias": null
-            }
-          },
-          {
-            "uuid": "91468432-04aa-40dc-9715-50f14a481722",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "Simultaneous use of the network slice",
-            "valueType": "INTEGER",
-            "value": {
-              "value": "0",
-              "alias": "Can be used with any slice"
-            }
-          },
-          {
-            "uuid": "3467c2e6-abe2-4b1b-a1fe-f621e9dc7358",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "cirros_2vnf_nsd::PackageLocation",
-            "valueType": "TEXT",
-            "value": {
-              "value": "/osapi/packages/ed3692a2-33ef-4a68-9a53-b9c5117cb8fe/cirros_2vnf_ns.tar.gz",
-              "alias": "PackageLocation"
-            }
-          },
-          {
-            "uuid": "dde78e43-db8f-49f3-a96a-43387863a9ba",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "Mission critical support: Mission-critical capability support",
-            "valueType": "ARRAY",
-            "value": {
-              "value": "[{\"value\":\"1\",\"alias\":\"Inter-user prioritization\"}]",
-              "alias": ""
-            }
-          },
-          {
-            "uuid": "515a2398-1aa7-437f-ab1e-499d6825ac88",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "Location based message delivery",
-            "valueType": "BINARY",
-            "value": {
-              "value": "0",
-              "alias": "Not supported"
-            }
-          },
-          {
-            "uuid": "524ff319-b6b1-422e-92d4-91404987f082",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "Uplink throughput per UE: Guaranteed uplink throughput",
-            "valueType": "INTEGER",
-            "value": {
-              "value": "192",
-              "alias": "not specified"
-            }
-          },
-          {
-            "uuid": "3eca93e5-e594-42ba-99ac-046745ce1429",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "cirros_2vnf_nsd::OnBoardingStatus",
-            "valueType": "TEXT",
-            "value": {
-              "value": "ONBOARDED",
-              "alias": ""
-            }
-          },
-          {
-            "uuid": "b229e37a-9fa1-416e-a984-f4703c25bca7",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "Isolation level: Isolation",
-            "valueType": "ENUM",
-            "value": {
-              "value": "0",
-              "alias": "No Isolation"
-            }
-          },
-          {
-            "uuid": "c8cb766b-63fe-4303-84d8-cacf91ffd909",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "Radio spectrum",
-            "valueType": "ARRAY",
-            "value": {
-              "value": "[{\"value\":\"n77\",\"alias\":\"UL: 3300 MHz – 4200 MHz DL: 3300 MHz – 4200 MHz TDD\"}]",
-              "alias": ""
-            }
-          },
-          {
-            "uuid": "f1a2c196-a647-403f-8765-0c942b97efb4",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "Root cause investigation",
-            "valueType": "INTEGER",
-            "value": {
-              "value": "0",
-              "alias": "not available"
-            }
-          },
-          {
-            "uuid": "4e944aeb-e68f-4437-a687-8179072723e3",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "Session and Service Continuity support",
-            "valueType": "ARRAY",
-            "value": {
-              "value": "[{\"value\":\"1\",\"alias\":\"SSC mode 1\"}]",
-              "alias": ""
-            }
-          },
-          {
-            "uuid": "43f5006d-53ba-4c96-8618-33af7c76c3c2",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "User data access: Tunnelling mechanism",
-            "valueType": "ARRAY",
-            "value": {
-              "value": "[{\"value\":\"0\",\"alias\":\"L2TP Tunnel\"},{\"value\":\"2\",\"alias\":\"VPN Tunnel\"}]",
-              "alias": ""
-            }
-          },
-          {
-            "uuid": "3f1cd351-c331-41b9-b09f-c25064a3ec19",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "Number of terminals",
-            "valueType": "INTEGER",
-            "value": {
-              "value": "100",
-              "alias": "terminals"
-            }
-          },
-          {
-            "uuid": "b7551d35-958e-4502-ab76-585f79385420",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "Number of connections",
-            "valueType": "INTEGER",
-            "value": {
-              "value": "10000",
-              "alias": "sessions"
-            }
-          },
-          {
-            "uuid": "59af44fb-7131-4439-8ea6-540462cec8c6",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "Isolation level: Logical Isolation",
-            "valueType": "ENUM",
+            "uuid": "9beae187-1621-482c-b1b5-b97c2b990ca7",
             "value": {
               "value": "1",
-              "alias": "Virtual resource isolation"
-            }
-          },
-          {
-            "uuid": "a7837cc9-5943-46c0-b621-1382dd6ee639",
+              "alias": "GOLD"
+            },
             "@baseType": "BaseEntity",
             "@schemaLocation": null,
             "@type": null,
             "href": null,
-            "name": "MMTel support",
-            "valueType": "BINARY",
-            "value": {
-              "value": "1",
-              "alias": "Supported"
-            }
+            "name": "Quality Class",
+            "valueType": "ENUM"
           },
+          
           {
-            "uuid": "c64bcffd-c607-4ec8-b58d-e007c778ea49",
+            "uuid": "fffae187-1621-482c-b1b5-b97c2b990fff",
+            "value": {
+              "value": "MCKEYTESTINORDER",
+              "alias": ""
+            },
             "@baseType": "BaseEntity",
             "@schemaLocation": null,
             "@type": null,
             "href": null,
-            "name": "Group communication support",
-            "valueType": "ENUM",
-            "value": {
-              "value": "0",
-              "alias": "not available"
-            }
-          },
-          {
-            "uuid": "58c545ca-cac5-49c7-a754-2d49607e44f7",
-            "@baseType": "BaseEntity",
-            "@schemaLocation": null,
-            "@type": null,
-            "href": null,
-            "name": "PackageLocation",
-            "valueType": "TEXT",
-            "value": {
-              "value": "/osapi/packages/ed3692a2-33ef-4a68-9a53-b9c5117cb8fe/cirros_2vnf_ns.tar.gz",
-              "alias": "PackageLocation"
-            }
+            "name": "cirros_2vnf_ns::SSHKEY",
+            "valueType": "TEXT"
           }
         ],
         "state": "feasibilityChecked",
-        "supportingResource": [
-          {
-            "uuid": "ca297dd6-ae63-44d5-a168-dcb29297fad9",
-            "@baseType": "BaseEntity",
-            "name": "resourceName",
-            "id": "resourceid"
-          }
-        ],
-        "serviceRelationship": [
-          {
-            "uuid": "044537c2-11bd-44c3-b7d5-f9abb883b685",
-            "@baseType": "BaseEntity",
-            "relationshipType": "aggregation",
-            "service": {
-              "uuid": "83c7df7f-ddbc-4b77-ad7f-393d5972d595",
-              "@baseType": "BaseEntity",
-              "name": "Spec2",
-              "id": "a7ff2349-ccab-42a1-9212-51d4a1912247"
-            }
-          },
-          {
-            "uuid": "d4715e75-8f49-4bcc-9283-d921412280a7",
-            "@baseType": "BaseEntity",
-            "relationshipType": "aggregation",
-            "service": {
-              "uuid": "c993e6e0-d618-4a3e-9201-c616ddff4e7c",
-              "@baseType": "BaseEntity",
-              "name": "Spec1",
-              "id": "59d08753-e1b1-418b-9e3e-d3a3bb573051"
-            }
-          },
-          {
-            "uuid": "14715e75-8f49-4bcc-9283-d921412280a7",
-            "@baseType": "BaseEntity",
-            "relationshipType": "aggregation",
-            "service": {
-              "uuid": "1993e6e0-d618-4a3e-9201-c616ddff4e7c",
-              "@baseType": "BaseEntity",
-              "name": "Spec3",
-              "id": "81a08735-e1b1-418b-9e3e-d3a3bb573007"
-            }
-          }
-        ],
-        "supportingService": [
-          {
-            "uuid": "c993e6e0-d618-4a3e-9201-c616ddff4e7c",
-            "@baseType": "BaseEntity",
-            "name": "Spec1",
-            "id": "59d08753-e1b1-418b-9e3e-d3a3bb573051"
-          },
-          {
-            "uuid": "83c7df7f-ddbc-4b77-ad7f-393d5972d595",
-            "@baseType": "BaseEntity",
-            "name": "Spec2",
-            "id": "a7ff2349-ccab-42a1-9212-51d4a1912247"
-          },
-          {
-              "uuid": "1993e6e0-d618-4a3e-9201-c616ddff4e7c",
-              "@baseType": "BaseEntity",
-              "name": "Spec3",
-              "id": "81a08735-e1b1-418b-9e3e-d3a3bb573007"
-          }
-        ]
-      }
+        "supportingResource": [],
+        "serviceRelationship": [],
+        "supportingService": []
+      },
+      "appointment": null
     }
   ],
   "orderRelationship": [],
   "relatedParty": [
     {
-      "uuid": "1898a824-cf46-4c10-b343-1a66bfef67d0",
+      "uuid": "2c37b4bf-4f26-49a2-b9da-842b12d9276f",
       "@baseType": "BaseRootEntity",
+      "@schemaLocation": null,
       "@type": "io.openslice.tmf.prm669.model.RelatedParty",
-      "name": "osadmin",
+      "href": null,
+      "name": "admin",
       "role": "REQUESTER",
       "@referredType": "SimpleUsername_Individual",
-      "id": "1898a824-cf46-4c10-b343-1a66bfef67d0"
+      "id": "admin",
+      "extendedInfo": null
     }
   ],
-  "state": "initial"
+  "state": "ACKNOWLEDGED"
 }

@@ -23,6 +23,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+import javax.validation.Valid;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
@@ -33,7 +38,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.openslice.model.DeploymentDescriptor;
 import io.openslice.model.DeploymentDescriptorStatus;
+import io.openslice.model.NetworkServiceDescriptor;
+import io.openslice.tmf.lcm.model.LCMRuleSpecification;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
+import io.openslice.tmf.sim638.model.ServiceCreate;
 import io.openslice.tmf.so641.model.ServiceOrder;
 
 public class SCMocked {
@@ -42,6 +50,9 @@ public class SCMocked {
 	private static final transient Log logger = LogFactory.getLog(SCMocked.class.getName());
 
 
+	private static Map<String, io.openslice.tmf.sim638.model.Service> runningServices = new HashMap<>();
+	
+	
 	private DeploymentDescriptor requeestedDescriptor;
 	
 	/**
@@ -72,7 +83,7 @@ public class SCMocked {
 
 		logger.info( "getSpecById id= " + id );
 		String sspectext = null;
-		if ( id.equals( "d8515f8f-786c-432b-9a74-5037e54c7974" )) {
+		if ( id.equals( "f2b74f90-4140-4895-80d1-ef243398117b" )) {
 			File sspec = new File( "src/test/resources/TestExBundleSpec.json" );
 			InputStream in = new FileInputStream( sspec );
 			sspectext = IOUtils.toString(in, "UTF-8");			
@@ -97,11 +108,15 @@ public class SCMocked {
 			InputStream in = new FileInputStream( sspec );
 			sspectext = IOUtils.toString(in, "UTF-8");			
 		} else if ( id.equals( "22e399d3-b152-4966-9d0f-20e5b2ec42c4" )) {
-			File sspec = new File( "src/test/resources/NFVO_Example_RFS.json.json" );
+			File sspec = new File( "src/test/resources/NFVO_Example_RFS.json" );
 			InputStream in = new FileInputStream( sspec );
 			sspectext = IOUtils.toString(in, "UTF-8");			
 		} else if ( id.equals( "0399516f-e9ae-4c8e-8f7a-b13ad9a1bd00" )) {
-			File sspec = new File( "src/test/resources/NFVO_Examplejson" );
+			File sspec = new File( "src/test/resources/NFVO_Example.json" );
+			InputStream in = new FileInputStream( sspec );
+			sspectext = IOUtils.toString(in, "UTF-8");			
+		} else if ( id.equals( "99176116-17cf-464f-96f7-86e685914666" )) {
+			File sspec = new File( "src/test/resources/cirros_2vnf_ns_RFS.json" );
 			InputStream in = new FileInputStream( sspec );
 			sspectext = IOUtils.toString(in, "UTF-8");			
 		}
@@ -122,14 +137,40 @@ public class SCMocked {
 		return sspectext;		
 	}
 	
+	
+	public String getMockedAddService(@Valid String aservice)  throws IOException {
+		//normally this is a ServiceCreate
+		
+		io.openslice.tmf.sim638.model.Service serviceInstance = toJsonObj( (String)aservice, io.openslice.tmf.sim638.model.Service.class); 
+		
+		logger.info( "getMockedAddService() service name: " + serviceInstance.getName()  );
+
+		serviceInstance.setUuid( UUID.randomUUID().toString() );
+		
+		runningServices.put(serviceInstance.getUuid() , serviceInstance);
+		logger.info( "getMockedAddService() runningServices.sizes: " + runningServices.size()  );
+		
+		String sspectext = null;
+		
+		sspectext = toJsonString(serviceInstance);
+		return sspectext;		
+	}
+	
+	
 	public String updateServiceOrder(String so)  throws IOException {
 
 		logger.info( "updateServiceOrder so= " + so );
-		String sspectext = null;
 		
-		File sspec = new File( "src/test/resources/TestService.json" );
-		InputStream in = new FileInputStream( sspec );
-		sspectext = IOUtils.toString(in, "UTF-8");
+		ServiceOrder sorder = toJsonObj(so, ServiceOrder.class);
+		
+		
+		String sspectext = null;
+//		
+//		File sspec = new File( "src/test/resources/TestService.json" );
+//		InputStream in = new FileInputStream( sspec );
+//		sspectext = IOUtils.toString(in, "UTF-8");
+
+		sspectext = toJsonString(sorder);
 		return sspectext;		
 	}
 
@@ -137,12 +178,63 @@ public class SCMocked {
 	public String getServiceById(String id)  throws IOException {
 
 		logger.info( "getServiceById id = " + id );
+
 		String sspectext = null;
+		
+		if ( runningServices.get(id) != null ) {
+			io.openslice.tmf.sim638.model.Service serviceInstance = runningServices.get(id);
+			sspectext = toJsonString(serviceInstance);
+			return sspectext;		
+		}
+		
 		
 		File sspec = new File( "src/test/resources/TestService.json" );
 		InputStream in = new FileInputStream( sspec );
 		sspectext = IOUtils.toString(in, "UTF-8");
 		return sspectext;		
+	}
+	
+	public String getLCMRulebyID(String id) throws IOException {		
+		logger.info( "getLCMRulebyID id = " + id );
+
+		String sspectext = null;
+		
+		if ( id.equals("40f027b5-24a9-4db7-b422-a963c9feeb7a") ) {
+			File sspec = new File( "src/test/resources/LcmCirrosRule1Test.json" );
+			InputStream in = new FileInputStream( sspec );
+			sspectext = IOUtils.toString(in, "UTF-8");
+			return sspectext;			
+		}else if ( id.equals("75cebf16-1699-486f-8304-d6512f90c910") ) {
+			File sspec = new File( "src/test/resources/LcmCirrosRule2Test.json" );
+			InputStream in = new FileInputStream( sspec );
+			sspectext = IOUtils.toString(in, "UTF-8");
+			return sspectext;			
+		}
+		
+		return "";			
+	}
+	
+	public LCMRuleSpecification getLCMRulebyIDJson(String id) throws IOException {		
+		String s = getLCMRulebyID( id); 
+		
+		return toJsonObj(s, LCMRuleSpecification.class);
+	}
+
+	public String getLCMRulesbySpecIDPhase(String specid, String phaseName) throws IOException {	
+		logger.info( "getLCMRulesbySpecIDPhase specid = " + specid );	
+				
+		String sspectext = null;
+
+		if ( specid.equals("f2b74f90-4140-4895-80d1-ef243398117b") ) {
+			File sspec = new File( "src/test/resources/LcmRuleListSpecTest.json" );
+			InputStream in = new FileInputStream( sspec );
+			sspectext = IOUtils.toString(in, "UTF-8");
+			return sspectext;		
+			
+		}
+		
+
+		return "[]";	
 	}
 	
 	public String req_deploy_nsd( String ddreq )  throws IOException {
@@ -164,6 +256,20 @@ public class SCMocked {
 		ddresp.setId(ddreqId);
 		ddresp.setStatus( DeploymentDescriptorStatus.RUNNING );
 		return toJsonString(ddresp);		
+	}
+	
+	
+	public String req_nsd_id( Long ddreqId )  throws IOException {
+
+		logger.info( "req_nsd_id = " + ddreqId );
+		
+		NetworkServiceDescriptor sor = new NetworkServiceDescriptor();
+		sor.setId(ddreqId);
+		return toJsonString(sor);		
+	}
+	
+	public String getServiceQueueItems() throws IOException {		
+		return "[]";		
 	}
 	
 	 static String toJsonString(Object object) throws IOException {
@@ -189,4 +295,16 @@ public class SCMocked {
 	public void setRequeestedDescriptor(DeploymentDescriptor requeestedDescriptor) {
 		this.requeestedDescriptor = requeestedDescriptor;
 	}
+
+
+
+	/**
+	 * @return the runningServices
+	 */
+	public Map<String, io.openslice.tmf.sim638.model.Service> getRunningServices() {
+		return runningServices;
+	}
+
+
+	
 }

@@ -241,7 +241,7 @@ public class NFVOrchestrationService implements JavaDelegate {
 		
 
 		String instantiationconfig = "{}";
-		Characteristic configCharacteristic = aService.getServiceCharacteristicByName( "CONFIG" );
+		Characteristic configCharacteristic = aService.getServiceCharacteristicByName( "OSM_CONFIG" );
 		if ( (configCharacteristic!=null) &&
 				(configCharacteristic.getValue()  != null) &&
 				(configCharacteristic.getValue().getValue() != null)
@@ -250,55 +250,55 @@ public class NFVOrchestrationService implements JavaDelegate {
 			try {
 				instantiationconfig = configCharacteristic.getValue().getValue();
 			}catch (Exception e) {
-				logger.error("cannot extract CONFIG");
+				logger.error("cannot extract OSM_CONFIG");
 				e.printStackTrace();
 			}
 		} else {
 			configCharacteristic = null;
 		}
 		
-		/**
-		 * we will pass all characteristics if there is NO additionalParamsForVnf already added in confi param
-		 * {  additionalParamsForVnf: [ {member-vnf-index: "1", additionalParams: {touch_filename: your-value,  touch_filename2: your-value2} }]   }'
-		 */
-		if ( ( !instantiationconfig.contains("additionalParamsForVnf") ) &&
-				(ddreq.getExperiment() !=null ) &&
-				(ddreq.getExperiment().getConstituentVxF() !=null )){
-			
-			
-			String serviceParams="";
-			for (Characteristic chars : aService.getServiceCharacteristic()  ) {
-				if ( ( chars.getValue()!= null ) && ( !chars.getName().equals("CONFIG") )) {
-					if (!chars.getName().contains( "Primitive::") ) {
-						serviceParams = serviceParams + "\"" + chars.getName() + "\" : \"" + chars.getValue().getValue() + "\",";						
-					}					
-				}				
-			}
-			serviceParams = serviceParams + " \"_lastParam\": \"_last\"";
-			
-
-			serviceParams = "\"additionalParams\": {" + serviceParams + "}";
-			
-			StringBuilder additionalParamsForVnf = new StringBuilder();
-
-			additionalParamsForVnf.append(" \"additionalParamsForVnf\": [ ");
-			for (ConstituentVxF cvxf : ddreq.getExperiment().getConstituentVxF()) {
-				additionalParamsForVnf.append("{ \"member-vnf-index\": \"" + cvxf.getMembervnfIndex()  + "\", " + serviceParams + "}") ;
-				additionalParamsForVnf.append(",");
-			}
-			
-			int k = additionalParamsForVnf.lastIndexOf(",");
-			if ( k>=0 ) { 
-				additionalParamsForVnf.delete( k, k+1 );
-			}
-			additionalParamsForVnf.append(" ] ");
-
-			String acomma="";
-			if ( configCharacteristic!=null ) {
-				acomma = ",";
-			}
-			instantiationconfig = instantiationconfig.replaceFirst( Pattern.quote("{") , "{" + additionalParamsForVnf.toString() +  acomma );	
-		}
+//		/**
+//		 * we will pass all characteristics if there is NO additionalParamsForVnf already added in confi param
+//		 * {  additionalParamsForVnf: [ {member-vnf-index: "1", additionalParams: {touch_filename: your-value,  touch_filename2: your-value2} }]   }'
+//		 */
+//		if ( ( !instantiationconfig.contains("additionalParamsForVnf") ) &&
+//				(ddreq.getExperiment() !=null ) &&
+//				(ddreq.getExperiment().getConstituentVxF() !=null )){
+//			
+//			
+//			String serviceParams="";
+//			for (Characteristic chars : aService.getServiceCharacteristic()  ) {
+//				if ( ( chars.getValue()!= null ) && ( !chars.getName().equals("OSM_CONFIG") )) {
+//					if (!chars.getName().contains( "Primitive::") ) {
+//						serviceParams = serviceParams + "\"" + chars.getName() + "\" : \"" + chars.getValue().getValue() + "\",";						
+//					}					
+//				}				
+//			}
+//			serviceParams = serviceParams + " \"_lastParam\": \"_last\"";
+//			
+//
+//			serviceParams = "\"additionalParams\": {" + serviceParams + "}";
+//			
+//			StringBuilder additionalParamsForVnf = new StringBuilder();
+//
+//			additionalParamsForVnf.append(" \"additionalParamsForVnf\": [ ");
+//			for (ConstituentVxF cvxf : ddreq.getExperiment().getConstituentVxF()) {
+//				additionalParamsForVnf.append("{ \"member-vnf-index\": \"" + cvxf.getMembervnfIndex()  + "\", " + serviceParams + "}") ;
+//				additionalParamsForVnf.append(",");
+//			}
+//			
+//			int k = additionalParamsForVnf.lastIndexOf(",");
+//			if ( k>=0 ) { 
+//				additionalParamsForVnf.delete( k, k+1 );
+//			}
+//			additionalParamsForVnf.append(" ] ");
+//
+//			String acomma="";
+//			if ( configCharacteristic!=null ) {
+//				acomma = ",";
+//			}
+//			instantiationconfig = instantiationconfig.replaceFirst( Pattern.quote("{") , "{" + additionalParamsForVnf.toString() +  acomma );	
+//		}
 		
 		Characteristic sshk= aService.getServiceCharacteristicByName( "SSHKEY" );
 		if ( (sshk!=null) && 
@@ -319,7 +319,7 @@ public class NFVOrchestrationService implements JavaDelegate {
 		instantiationconfig = instantiationconfig.replaceFirst( Pattern.quote("{") , "{\"nsName\": \"" + "Service_Order_" + orderid + "\",");	
 
 		/**
-		 * for now only if CONFIG is not empty we will pass all parameters!. WE still Need nsdId and probably vimId
+		 * for now only if OSM_CONFIG is not empty we will pass all parameters!. WE still Need nsdId and probably vimId
 		 */
 		if ( configCharacteristic!=null) { 
 			ddreq.setInstantiationconfig(instantiationconfig);
