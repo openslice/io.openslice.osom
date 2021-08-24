@@ -1,5 +1,8 @@
 package io.openslice.osom.lcm;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.openslice.tmf.lcm.model.LCMRuleSpecification;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
 import io.openslice.tmf.sim638.model.ServiceCreate;
@@ -16,6 +19,7 @@ public class LCMRulesExecutorVariables {
 	private ServiceCreate serviceToCreate;
 	private ServiceSpecification spec;
 	private ServiceOrder sorder;
+	private List<String> compileDiagnosticErrors;
 
 
 	/**
@@ -27,5 +31,6 @@ public class LCMRulesExecutorVariables {
 		this.serviceToCreate = serviceToCreate;
 		this.spec = spec;
 		this.sorder = sorder;
+		this.compileDiagnosticErrors = new ArrayList<>();
 	}
 }

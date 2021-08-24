@@ -95,7 +95,7 @@ public class SCMocked {
 			File sspec = new File( "src/test/resources/TestExSpec2.json" );
 			InputStream in = new FileInputStream( sspec );
 			sspectext = IOUtils.toString(in, "UTF-8");			
-		} else if ( id.equals( "81a08735-e1b1-418b-9e3e-d3a3bb573007" )) {
+		} else if ( id.equals( "0d5551e6-069f-43b7-aa71-10530f290239" )) {
 			File sspec = new File( "src/test/resources/TestExSpec3.json" );
 			InputStream in = new FileInputStream( sspec );
 			sspectext = IOUtils.toString(in, "UTF-8");			
@@ -209,7 +209,14 @@ public class SCMocked {
 			InputStream in = new FileInputStream( sspec );
 			sspectext = IOUtils.toString(in, "UTF-8");
 			return sspectext;			
+		} else if ( id.equals("8b7b8339-0c33-4731-af9c-c98adadbe777") ) {
+			File sspec = new File( "src/test/resources/LcmCirrosRule3Test.json" );
+			InputStream in = new FileInputStream( sspec );
+			sspectext = IOUtils.toString(in, "UTF-8");
+			return sspectext;			
 		}
+		
+		
 		
 		return "";			
 	}

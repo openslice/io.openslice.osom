@@ -32,6 +32,7 @@ public abstract class LcmBaseExecutor {
 		try {
 			this.exec();			
 		}catch (Exception e) {
+			vars.getCompileDiagnosticErrors().add( e.getLocalizedMessage());
 			e.printStackTrace();
 		}
 		return this.vars;
@@ -60,17 +61,19 @@ public abstract class LcmBaseExecutor {
 		this.vars = vars;
 	}
 
+	
 
-	public String getCharValString(String charName) {
-		logger.debug("getCharValString " + charName);
+
+	public String getCharValFromStringType(String charName) {
+		logger.debug("getCharValFromStringType " + charName);
 		Optional<Characteristic> c = getCharacteristicByName(charName, this.vars.getServiceToCreate().getServiceCharacteristic() );		
 		
 		if ( c.isPresent()) {
-			logger.debug("getCharValString " + c.get().getValue().getValue());
+			logger.debug("getCharValFromStringType " + c.get().getValue().getValue());
 			return c.get().getValue().getValue();
 		}
 
-		logger.debug("getCharValString NULL ");
+		logger.debug("getCharValFromStringType NULL ");
 		return null;	
 		
 	}
@@ -93,12 +96,13 @@ public abstract class LcmBaseExecutor {
 	}
 
 
-	public void setCharValString(String charName, String newValue) {
-		logger.debug("setCharValString " + charName +" = " + newValue);
+	public void setCharValFromStringType(String charName, String newValue) {
+		logger.debug("setCharValFromStringType " + charName +" = " + newValue);
 		Optional<Characteristic> c = getCharacteristicByName(charName, this.vars.getServiceToCreate().getServiceCharacteristic() );
-		c.ifPresent( val -> val.getValue().setValue(newValue) );
+		c.ifPresent( val -> val.getValue().setValue( newValue ) );
 		
 	}
+
 
 	public void setCharValNumber(String charName, int newValue) {
 
@@ -134,5 +138,20 @@ public abstract class LcmBaseExecutor {
 
 		logger.debug("getCharValNumber NULL ");
 		return -1;	
+	}
+	
+	
+	public String getCharValAsString(String charName) {
+		logger.debug("getCharValAsString " + charName);
+		Optional<Characteristic> c = getCharacteristicByName(charName, this.vars.getServiceToCreate().getServiceCharacteristic() );		
+		
+		if ( c.isPresent()) {
+			logger.debug("getCharValAsString " + c.get().getValue().getValue());
+			return c.get().getValue().getValue();
+		}
+
+		logger.debug("getCharValAsString NULL ");
+		return null;	
+		
 	}
 }

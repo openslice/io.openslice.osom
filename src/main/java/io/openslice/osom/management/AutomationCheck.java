@@ -552,8 +552,8 @@ public class AutomationCheck implements JavaDelegate {
 					newChar.setName( sourceCharacteristic.getName() );
 					newChar.setValueType( sourceCharacteristic.getValueType() );
 					
-					if ( sourceCharacteristic.getValueType().equals( EValueType.ARRAY.getValue() ) ||
-							sourceCharacteristic.getValueType().equals( EValueType.SET.getValue() ) ) {
+					if (  sourceCharacteristic.getValueType() != null && sourceCharacteristic.getValueType().equals( EValueType.ARRAY.getValue() ) ||
+							 sourceCharacteristic.getValueType() != null && sourceCharacteristic.getValueType().equals( EValueType.SET.getValue() ) ) {
 						String valString = "";
 						for (ServiceSpecCharacteristicValue specchar : sourceCharacteristic.getServiceSpecCharacteristicValue()) {
 							if ( ( specchar.isIsDefault()!= null) && specchar.isIsDefault() ) {
@@ -588,6 +588,11 @@ public class AutomationCheck implements JavaDelegate {
 					//sourceCharacteristic.getServiceSpecCharacteristicValue()
 					
 					if ( newChar.getValue() !=null) {
+						destServiceCharacteristic.add(newChar );
+					} else {
+						newChar.setValue( new Any(
+								"", 
+								"") );
 						destServiceCharacteristic.add(newChar );
 					}
 					

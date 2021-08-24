@@ -50,7 +50,7 @@ public class LCMRulesExecutor {
 						public void exec() {						
 						//SNIP STARTS
 						"""
-				+ lcmspec.getCode()
+				+ preprocess( lcmspec.getCode() )
 				+"""
 					//SNIP ENDS
 					}
@@ -70,6 +70,39 @@ public class LCMRulesExecutor {
 		
 		
 		return vars;
+	}
+	
+	
+	/**
+	 * 
+	 * Any code preprocessing before compilation
+	 * @param aCode
+	 * @return
+	 */
+	private String preprocess(final String aCode) {
+		String newCode = aCode;
+		newCode = preprocess_ClearAllEVALVariables(aCode );
+		return newCode;
+	}
+	
+	
+	/**
+	 * 
+	 * inside Strings we may have parameters from the code. 
+	 * The parameters are in the form $EVAL_param3_EVAL$
+	 * They should be properly replaced inside the String
+	 * @param newValue
+	 * @return
+	 */
+	private String preprocess_ClearAllEVALVariables(String newValue) {
+		String anewValue = newValue;
+		logger.debug("clearEVALVariables before " + newValue);
+				
+		anewValue = anewValue.replace("$QUOTESTR$", "\"");
+		anewValue = anewValue.replace("$$XVALS_", " \"\"\" +");
+		anewValue = anewValue.replace("_XVALE$$", "+ \"\"\"\n");
+		logger.debug("clearEVALVariables after " + anewValue);
+		return anewValue;
 	}
 
 	/**
@@ -134,19 +167,21 @@ public class LCMRulesExecutor {
         task.call();
         logger.debug("task2 =  "+ task);
         // Printing of any compile problems
+        vars.getCompileDiagnosticErrors().clear();
         for (Diagnostic diagnostic : diagnostics.getDiagnostics()) {
-        	logger.error( String.format("Error on line %d in %s, %s, %s %n",
+        	String err =  String.format("Error on line %d in %s, %s, %s %n",
                     diagnostic.getLineNumber(),
                     diagnostic.getSource(),
                     diagnostic.getCode(),
-                    diagnostic.getMessage(null) ));
-        	
+                    diagnostic.getMessage(null) );
+        	logger.error( err );
+        	vars.getCompileDiagnosticErrors().add(err);
         	
         }
         
 
         logger.debug("task3 =  "+ task);
-        if ( diagnostics.getDiagnostics().size()>0 ) {
+        if ( vars.getCompileDiagnosticErrors().size()>0 ) {
             logger.error("execudeCode compile error. Will just return");
         	return vars;
         }
