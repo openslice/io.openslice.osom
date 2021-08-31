@@ -502,8 +502,19 @@ public class AutomationCheck implements JavaDelegate {
 		logger.debug("===============BEFORE lcmRulesController.execPhas for spec:" + spec.getName() + " =============================");
 		vars = lcmRulesController.execPhase( ELCMRulePhase.PRE_PROVISION, vars );
 
-		//logger.debug("vars= " + vars.getServiceToCreate());
+		logger.debug("vars= " + vars );		
 		logger.debug("===============AFTER lcmRulesController.execPhas =============================");
+		
+		if ( vars.getCompileDiagnosticErrors().size()>0 ) {
+			noteItem = new Note();
+			String msg = "LCM Rule execution error by AutomationCheck. ";
+			for (String tmsg :  vars.getCompileDiagnosticErrors()) {
+				msg = msg + "\n"+ tmsg;
+			}
+			noteItem.setText( msg );
+			noteItem.setAuthor( compname );
+			vars.getServiceToCreate().addNoteItem(noteItem);
+		}
 		
 		Service createdService = serviceOrderManager.createService( 
 				vars.getServiceToCreate() , 

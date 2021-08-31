@@ -1,12 +1,12 @@
 {
   "uuid": "0d5551e6-069f-43b7-aa71-10530f290239",
-  "lastUpdate": "2021-08-24T02:31:48Z",
+  "lastUpdate": "2021-08-25T15:31:06Z",
   "@baseType": "BaseEntity",
   "@schemaLocation": null,
   "@type": "CustomerFacingServiceSpecification",
   "href": null,
   "name": "Upstream journalist case",
-  "description": "Example: “Upstream journalist case”\nA service provider (SP) wants to provide an upstream video service on demand (“pay as you go”)\nalso in case of an unplanned incident (e.g. “Breaking news”)\nOn the spot, live\nQuick setup\nPremium service (pricing: high)\nThis is based on 5G Day Session 2: 5G as a Service (5GaaS) – easy access for 3rd parties to 5G technology from 8th OSM Hackfest",
+  "description": "Example: “Upstream journalist case”\nA service provider (SP) wants to provide an upstream video service on demand (“pay as you go”)\nalso in case of an unplanned incident (e.g. “Breaking news”)\nOn the spot, live\nQuick setup\nPremium service (pricing: high)\nThis is based on 5G Day Session 2: 5G as a Service (5GaaS) – easy access for 3rd parties to 5G technology (Piotr Zuraniewski - TNO) from 8th OSM Hackfest",
   "lifecycleStatus": "In design",
   "version": "0.1.0",
   "validFor": {
@@ -63,7 +63,7 @@
       "serviceSpecCharRelationship": [],
       "serviceSpecCharacteristicValue": [
         {
-          "uuid": "db9f1873-d66c-4297-9b3b-ad576940ba0e",
+          "uuid": "9130f796-a693-4c14-9d9b-c4873e354117",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -110,7 +110,7 @@
       "serviceSpecCharRelationship": [],
       "serviceSpecCharacteristicValue": [
         {
-          "uuid": "3d4ca3d9-49fb-440f-a1c2-fcdfa84d35fb",
+          "uuid": "0d7d39ab-6a2c-45e1-a70d-c2a765f25826",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -140,6 +140,229 @@
       "id": "9e6ce9af-c18c-4774-aa33-5382ea7f007a"
     },
     {
+      "uuid": "646be409-5073-4fea-a5c6-d230295f68ad",
+      "@baseType": "BaseRootEntity",
+      "@schemaLocation": null,
+      "@type": "io.openslice.tmf.scm633.model.ServiceSpecCharacteristic",
+      "href": null,
+      "name": "Area of Service",
+      "configurable": true,
+      "description": null,
+      "extensible": null,
+      "isUnique": null,
+      "maxCardinality": 1,
+      "minCardinality": 0,
+      "regex": null,
+      "valueType": "SET",
+      "serviceSpecCharRelationship": [],
+      "serviceSpecCharacteristicValue": [
+        {
+          "uuid": "85f4d0eb-a562-451c-b836-c3d98d1040ec",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": true,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "INTEGER",
+          "validFor": {
+            "endDateTime": "2041-08-25T15:31:06Z",
+            "startDateTime": "2021-08-25T15:31:06Z"
+          },
+          "value": {
+            "value": "GR",
+            "alias": "Greece"
+          }
+        },
+        {
+          "uuid": "0d38887f-71c6-4824-b1d3-04f66a3732db",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": false,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "INTEGER",
+          "validFor": {
+            "endDateTime": "2041-08-25T15:31:06Z",
+            "startDateTime": "2021-08-25T15:31:06Z"
+          },
+          "value": {
+            "value": "LI",
+            "alias": "Lithouania"
+          }
+        },
+        {
+          "uuid": "fab83c04-051a-454a-a8c2-7b7b151cc018",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": false,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "INTEGER",
+          "validFor": {
+            "endDateTime": "2041-08-25T15:31:06Z",
+            "startDateTime": "2021-08-25T15:31:06Z"
+          },
+          "value": {
+            "value": "FR",
+            "alias": "France"
+          }
+        },
+        {
+          "uuid": "38060274-3935-4c8d-85de-a90677988d4f",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": true,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "INTEGER",
+          "validFor": {
+            "endDateTime": "2041-08-25T15:31:06Z",
+            "startDateTime": "2021-08-25T15:31:06Z"
+          },
+          "value": {
+            "value": "ES",
+            "alias": "Spain"
+          }
+        },
+        {
+          "uuid": "c43f3f52-3061-46d6-a1a7-5fc43f873bdd",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": false,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "INTEGER",
+          "validFor": {
+            "endDateTime": "2041-08-25T15:31:06Z",
+            "startDateTime": "2021-08-25T15:31:06Z"
+          },
+          "value": {
+            "value": "DE",
+            "alias": "Germany"
+          }
+        },
+        {
+          "uuid": "00279fcd-3aa7-4fc4-85d1-63d4ff10421a",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": false,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "INTEGER",
+          "validFor": {
+            "endDateTime": "2041-08-25T15:31:06Z",
+            "startDateTime": "2021-08-25T15:31:06Z"
+          },
+          "value": {
+            "value": "RO",
+            "alias": "Romania"
+          }
+        },
+        {
+          "uuid": "26c58e68-eac4-4a31-9773-a00e39cce0ad",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": true,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "INTEGER",
+          "validFor": {
+            "endDateTime": "2041-08-25T15:31:06Z",
+            "startDateTime": "2021-08-25T15:31:06Z"
+          },
+          "value": {
+            "value": "IT",
+            "alias": "Italy"
+          }
+        },
+        {
+          "uuid": "2f6e2bd5-a05f-4299-9959-3c3a3b7db867",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": false,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "INTEGER",
+          "validFor": {
+            "endDateTime": "2041-08-25T15:31:06Z",
+            "startDateTime": "2021-08-25T15:31:06Z"
+          },
+          "value": {
+            "value": "PT",
+            "alias": "Portugal"
+          }
+        },
+        {
+          "uuid": "78eceb95-42a7-49b0-bee6-c412ffbd4f27",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": false,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "INTEGER",
+          "validFor": {
+            "endDateTime": "2041-08-25T15:31:06Z",
+            "startDateTime": "2021-08-25T15:31:06Z"
+          },
+          "value": {
+            "value": "UK",
+            "alias": "United Kingdom"
+          }
+        }
+      ],
+      "validFor": {
+        "endDateTime": "2041-08-25T15:28:37Z",
+        "startDateTime": "2021-08-25T15:28:37Z"
+      },
+      "@valueSchemaLocation": null,
+      "id": "646be409-5073-4fea-a5c6-d230295f68ad"
+    },
+    {
       "uuid": "1e1416c7-3862-4453-abb9-e07800476a88",
       "@baseType": "BaseRootEntity",
       "@schemaLocation": null,
@@ -157,7 +380,7 @@
       "serviceSpecCharRelationship": [],
       "serviceSpecCharacteristicValue": [
         {
-          "uuid": "59dbb557-4866-4027-9a1f-983aed2bdf15",
+          "uuid": "eb1cb7f0-cd33-4491-89c3-8d4d87bf3639",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -179,7 +402,7 @@
           }
         },
         {
-          "uuid": "dd742fbf-9dca-4c6b-91c4-088ca15d6f65",
+          "uuid": "6dc288d2-64a0-4790-bb28-7b488c35f5ff",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -201,7 +424,7 @@
           }
         },
         {
-          "uuid": "c21c3975-5af7-4aae-a4bf-bc0d21924f28",
+          "uuid": "fac67fa0-1139-4322-80cc-45d37cd794cc",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -218,12 +441,12 @@
             "startDateTime": "2019-12-13T21:52:24Z"
           },
           "value": {
-            "value": "3",
-            "alias": "8K"
+            "value": "0",
+            "alias": "SD"
           }
         },
         {
-          "uuid": "7feea15d-8021-4e27-bc13-a2c0ee97a398",
+          "uuid": "4a98f282-fcdc-4b65-ac18-61e286cdd2e9",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -240,8 +463,8 @@
             "startDateTime": "2019-12-13T21:52:24Z"
           },
           "value": {
-            "value": "0",
-            "alias": "SD"
+            "value": "3",
+            "alias": "8K"
           }
         }
       ],
@@ -270,12 +493,12 @@
       "serviceSpecCharRelationship": [],
       "serviceSpecCharacteristicValue": [
         {
-          "uuid": "550e90fb-5b22-44ef-a425-f65ea0f75f07",
+          "uuid": "666f0dc6-3a07-42ed-8299-28a106e818c8",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
           "href": null,
-          "isDefault": false,
+          "isDefault": true,
           "rangeInterval": null,
           "regex": null,
           "unitOfMeasure": "sec",
@@ -287,12 +510,12 @@
             "startDateTime": "2019-12-13T22:03:31Z"
           },
           "value": {
-            "value": "0.1",
-            "alias": "Live (0.1s)"
+            "value": "1",
+            "alias": "Live (1s)"
           }
         },
         {
-          "uuid": "a246bf05-bfb8-4cd8-9258-7a34aadf2c9b",
+          "uuid": "16516591-3856-4c70-94cd-69c6bb3c8ae6",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -314,12 +537,12 @@
           }
         },
         {
-          "uuid": "d12525ce-8160-4703-9fb5-09f5146cac53",
+          "uuid": "66f1a801-6e6a-41ea-9018-0420a6fe8cf3",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
           "href": null,
-          "isDefault": true,
+          "isDefault": false,
           "rangeInterval": null,
           "regex": null,
           "unitOfMeasure": "sec",
@@ -331,8 +554,8 @@
             "startDateTime": "2019-12-13T22:03:31Z"
           },
           "value": {
-            "value": "1",
-            "alias": "Live (1s)"
+            "value": "0.1",
+            "alias": "Live (0.1s)"
           }
         }
       ],
@@ -361,7 +584,7 @@
       "serviceSpecCharRelationship": [],
       "serviceSpecCharacteristicValue": [
         {
-          "uuid": "14b248af-a82a-46a1-8793-2c4a2ee54662",
+          "uuid": "95f10ff7-30bb-44a5-ac5f-fe82e6ab0248",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -391,6 +614,97 @@
       "id": "83b7fa9f-28c0-405e-8042-bd7340639ee4"
     },
     {
+      "uuid": "1e5c4b8a-f309-42db-bfc6-267b5a8ffec5",
+      "@baseType": "BaseRootEntity",
+      "@schemaLocation": null,
+      "@type": "io.openslice.tmf.scm633.model.ServiceSpecCharacteristic",
+      "href": null,
+      "name": "test actions_array",
+      "configurable": true,
+      "description": "test ",
+      "extensible": null,
+      "isUnique": null,
+      "maxCardinality": 1,
+      "minCardinality": 0,
+      "regex": null,
+      "valueType": "ARRAY",
+      "serviceSpecCharRelationship": [],
+      "serviceSpecCharacteristicValue": [
+        {
+          "uuid": "32ef3757-b099-4201-aa10-78f549c4c47d",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": true,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "INTEGER",
+          "validFor": {
+            "endDateTime": "2041-08-25T15:10:30Z",
+            "startDateTime": "2021-08-25T15:10:30Z"
+          },
+          "value": {
+            "value": "100",
+            "alias": "PARAM1"
+          }
+        },
+        {
+          "uuid": "d4f8c7a5-971c-46fe-9bf3-8b8c8e329477",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": true,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "INTEGER",
+          "validFor": {
+            "endDateTime": "2041-08-25T15:10:30Z",
+            "startDateTime": "2021-08-25T15:10:30Z"
+          },
+          "value": {
+            "value": "33",
+            "alias": "param3"
+          }
+        },
+        {
+          "uuid": "35e47191-9ba1-48fb-a6eb-ced7f28ada1d",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": true,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "INTEGER",
+          "validFor": {
+            "endDateTime": "2041-08-25T15:10:30Z",
+            "startDateTime": "2021-08-25T15:10:30Z"
+          },
+          "value": {
+            "value": "22",
+            "alias": "param2"
+          }
+        }
+      ],
+      "validFor": {
+        "endDateTime": "2040-09-17T09:09:27Z",
+        "startDateTime": "2020-09-17T09:09:27Z"
+      },
+      "@valueSchemaLocation": null,
+      "id": "1e5c4b8a-f309-42db-bfc6-267b5a8ffec5"
+    },
+    {
       "uuid": "9e8e3bd1-c4e3-4bbf-99f4-ef969bf557a3",
       "@baseType": "BaseRootEntity",
       "@schemaLocation": null,
@@ -408,7 +722,7 @@
       "serviceSpecCharRelationship": [],
       "serviceSpecCharacteristicValue": [
         {
-          "uuid": "a1cc9737-a328-4c4c-a142-0b6bdf0e6c9a",
+          "uuid": "501d70d3-006f-4f53-abb9-267f957f1f67",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -438,97 +752,6 @@
       "id": "9e8e3bd1-c4e3-4bbf-99f4-ef969bf557a3"
     },
     {
-      "uuid": "91e4f843-b857-429f-8ad6-98b404fbb3a7",
-      "@baseType": "BaseRootEntity",
-      "@schemaLocation": null,
-      "@type": "io.openslice.tmf.scm633.model.ServiceSpecCharacteristic",
-      "href": null,
-      "name": "test actions (array)",
-      "configurable": true,
-      "description": "test ",
-      "extensible": null,
-      "isUnique": null,
-      "maxCardinality": 1,
-      "minCardinality": 0,
-      "regex": null,
-      "valueType": "ARRAY",
-      "serviceSpecCharRelationship": [],
-      "serviceSpecCharacteristicValue": [
-        {
-          "uuid": "0dcbe411-075c-4909-ba93-083352d77027",
-          "@baseType": "BaseEntity",
-          "@schemaLocation": null,
-          "@type": null,
-          "href": null,
-          "isDefault": true,
-          "rangeInterval": null,
-          "regex": null,
-          "unitOfMeasure": null,
-          "valueFrom": null,
-          "valueTo": null,
-          "valueType": "INTEGER",
-          "validFor": {
-            "endDateTime": "2040-09-17T10:52:22Z",
-            "startDateTime": "2020-09-17T10:52:22Z"
-          },
-          "value": {
-            "value": "100",
-            "alias": "PARAM1"
-          }
-        },
-        {
-          "uuid": "415ad642-23e9-4997-8ccd-c43745a982a3",
-          "@baseType": "BaseEntity",
-          "@schemaLocation": null,
-          "@type": null,
-          "href": null,
-          "isDefault": true,
-          "rangeInterval": null,
-          "regex": null,
-          "unitOfMeasure": null,
-          "valueFrom": null,
-          "valueTo": null,
-          "valueType": "INTEGER",
-          "validFor": {
-            "endDateTime": "2040-09-17T10:52:22Z",
-            "startDateTime": "2020-09-17T10:52:22Z"
-          },
-          "value": {
-            "value": "33",
-            "alias": "param3"
-          }
-        },
-        {
-          "uuid": "ce9b058d-7f8d-425d-8dad-d255558f49a4",
-          "@baseType": "BaseEntity",
-          "@schemaLocation": null,
-          "@type": null,
-          "href": null,
-          "isDefault": true,
-          "rangeInterval": null,
-          "regex": null,
-          "unitOfMeasure": null,
-          "valueFrom": null,
-          "valueTo": null,
-          "valueType": "INTEGER",
-          "validFor": {
-            "endDateTime": "2040-09-17T10:52:22Z",
-            "startDateTime": "2020-09-17T10:52:22Z"
-          },
-          "value": {
-            "value": "22",
-            "alias": "param2"
-          }
-        }
-      ],
-      "validFor": {
-        "endDateTime": "2040-09-17T09:09:27Z",
-        "startDateTime": "2020-09-17T09:09:27Z"
-      },
-      "@valueSchemaLocation": null,
-      "id": "91e4f843-b857-429f-8ad6-98b404fbb3a7"
-    },
-    {
       "uuid": "7376c065-086a-4d31-9775-f313805811e7",
       "@baseType": "BaseRootEntity",
       "@schemaLocation": null,
@@ -546,7 +769,29 @@
       "serviceSpecCharRelationship": [],
       "serviceSpecCharacteristicValue": [
         {
-          "uuid": "a4a1cd72-9e87-4119-b28f-32af2e7824d8",
+          "uuid": "6ad584a2-f4db-4375-bc3c-b77bff9f6224",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": null,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "INTEGER",
+          "validFor": {
+            "endDateTime": "2039-12-13T21:52:29Z",
+            "startDateTime": "2019-12-13T21:52:29Z"
+          },
+          "value": {
+            "value": "2310",
+            "alias": "Thessaloniki"
+          }
+        },
+        {
+          "uuid": "e0e9d53b-fcc4-461e-b8b9-f0eb222787ce",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -568,7 +813,7 @@
           }
         },
         {
-          "uuid": "13c72310-0fea-4cac-b257-6de3f26d84cd",
+          "uuid": "5f49ce48-c463-4e84-ae56-32965b94da49",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -587,28 +832,6 @@
           "value": {
             "value": "210",
             "alias": "Athens"
-          }
-        },
-        {
-          "uuid": "501637b8-2e2d-4843-935b-6c584379af1a",
-          "@baseType": "BaseEntity",
-          "@schemaLocation": null,
-          "@type": null,
-          "href": null,
-          "isDefault": null,
-          "rangeInterval": null,
-          "regex": null,
-          "unitOfMeasure": null,
-          "valueFrom": null,
-          "valueTo": null,
-          "valueType": "INTEGER",
-          "validFor": {
-            "endDateTime": "2039-12-13T21:52:29Z",
-            "startDateTime": "2019-12-13T21:52:29Z"
-          },
-          "value": {
-            "value": "2310",
-            "alias": "Thessaloniki"
           }
         }
       ],
@@ -661,7 +884,7 @@
       "serviceSpecCharRelationship": [],
       "serviceSpecCharacteristicValue": [
         {
-          "uuid": "5cc9f079-aab2-47ce-9a24-3c2332d701d2",
+          "uuid": "229c1617-381d-48ed-a3ee-69f8f6f0d0ee",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -683,7 +906,7 @@
           }
         },
         {
-          "uuid": "306f27cd-c411-4fc3-98e8-78cedcdb7d86",
+          "uuid": "cacfa6ca-ec22-45fc-a8bc-ab3203291afc",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -730,7 +953,7 @@
       "serviceSpecCharRelationship": [],
       "serviceSpecCharacteristicValue": [
         {
-          "uuid": "daf80cdc-bb0b-4a8d-b6be-d6308f8d72cf",
+          "uuid": "3c6bc255-1c51-414a-b0d1-2a742dec2661",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -752,29 +975,7 @@
           }
         },
         {
-          "uuid": "464aa730-36f7-461c-a6f1-db9992c28bde",
-          "@baseType": "BaseEntity",
-          "@schemaLocation": null,
-          "@type": null,
-          "href": null,
-          "isDefault": null,
-          "rangeInterval": null,
-          "regex": null,
-          "unitOfMeasure": null,
-          "valueFrom": null,
-          "valueTo": null,
-          "valueType": "TEXT",
-          "validFor": {
-            "endDateTime": "2039-12-13T21:31:31Z",
-            "startDateTime": "2019-12-13T21:31:31Z"
-          },
-          "value": {
-            "value": "b5f9e566-a5ad-4afe-91f0-3ac33008b3c8",
-            "alias": "CloudVille nova zone"
-          }
-        },
-        {
-          "uuid": "bb788b34-3cf3-4678-aad1-4c55fa50f333",
+          "uuid": "aed6fc22-8935-46d4-a7f9-358f1da5b2ef",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -794,6 +995,28 @@
             "value": "ffaea117-66b5-4a0a-9c21-bcef21564224",
             "alias": "CloudVille NFV-AZ2"
           }
+        },
+        {
+          "uuid": "f74ab769-04fb-4745-9a85-a4ea1b2395c4",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": null,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "TEXT",
+          "validFor": {
+            "endDateTime": "2039-12-13T21:31:31Z",
+            "startDateTime": "2019-12-13T21:31:31Z"
+          },
+          "value": {
+            "value": "b5f9e566-a5ad-4afe-91f0-3ac33008b3c8",
+            "alias": "CloudVille nova zone"
+          }
         }
       ],
       "validFor": {
@@ -802,6 +1025,188 @@
       },
       "@valueSchemaLocation": null,
       "id": "7204eaaa-afdf-4680-bf69-df0d35897698"
+    },
+    {
+      "uuid": "761864c2-352a-4cff-84de-3c24d95bd181",
+      "@baseType": "BaseRootEntity",
+      "@schemaLocation": null,
+      "@type": "io.openslice.tmf.scm633.model.ServiceSpecCharacteristic",
+      "href": null,
+      "name": "test actions_set",
+      "configurable": true,
+      "description": "test",
+      "extensible": null,
+      "isUnique": null,
+      "maxCardinality": 1,
+      "minCardinality": 0,
+      "regex": null,
+      "valueType": "SET",
+      "serviceSpecCharRelationship": [],
+      "serviceSpecCharacteristicValue": [
+        {
+          "uuid": "7cd67fdc-80cc-4d0b-846c-334fa60a54db",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": true,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "INTEGER",
+          "validFor": {
+            "endDateTime": "2041-08-25T15:10:23Z",
+            "startDateTime": "2021-08-25T15:10:23Z"
+          },
+          "value": {
+            "value": "10",
+            "alias": "test param 3"
+          }
+        },
+        {
+          "uuid": "615ba685-f3f3-4b9a-bca1-2fecb9907e79",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": false,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "INTEGER",
+          "validFor": {
+            "endDateTime": "2041-08-25T15:10:23Z",
+            "startDateTime": "2021-08-25T15:10:23Z"
+          },
+          "value": {
+            "value": "100",
+            "alias": "test param 2"
+          }
+        },
+        {
+          "uuid": "0cc4a04c-70ea-4cd3-b36e-ab066596b3e9",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": true,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "INTEGER",
+          "validFor": {
+            "endDateTime": "2041-08-25T15:10:23Z",
+            "startDateTime": "2021-08-25T15:10:23Z"
+          },
+          "value": {
+            "value": "1000",
+            "alias": "test param 4"
+          }
+        },
+        {
+          "uuid": "1fbc5d9f-a75a-47b3-ad94-636a7a749ab1",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": false,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "INTEGER",
+          "validFor": {
+            "endDateTime": "2041-08-25T15:10:23Z",
+            "startDateTime": "2021-08-25T15:10:23Z"
+          },
+          "value": {
+            "value": "1",
+            "alias": "test param 1"
+          }
+        }
+      ],
+      "validFor": {
+        "endDateTime": "2040-09-17T09:30:10Z",
+        "startDateTime": "2020-09-17T09:30:10Z"
+      },
+      "@valueSchemaLocation": null,
+      "id": "761864c2-352a-4cff-84de-3c24d95bd181"
+    },
+    {
+      "uuid": "ef42d5b4-e6a0-4df2-9de7-1bd60c0c681b",
+      "@baseType": "BaseRootEntity",
+      "@schemaLocation": null,
+      "@type": "io.openslice.tmf.scm633.model.ServiceSpecCharacteristic",
+      "href": null,
+      "name": "High Availability",
+      "configurable": true,
+      "description": null,
+      "extensible": null,
+      "isUnique": null,
+      "maxCardinality": 1,
+      "minCardinality": 0,
+      "regex": null,
+      "valueType": "BOOLEAN",
+      "serviceSpecCharRelationship": [],
+      "serviceSpecCharacteristicValue": [
+        {
+          "uuid": "ec2efec0-4b25-4c83-b92e-3f895555a09b",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": true,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "BOOLEAN",
+          "validFor": {
+            "endDateTime": "2041-08-25T13:47:59Z",
+            "startDateTime": "2021-08-25T13:47:59Z"
+          },
+          "value": {
+            "value": "FALSE",
+            "alias": null
+          }
+        },
+        {
+          "uuid": "7f008749-aff0-4f93-ba6a-cf7e00757877",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": false,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "BOOLEAN",
+          "validFor": {
+            "endDateTime": "2041-08-25T13:47:59Z",
+            "startDateTime": "2021-08-25T13:47:59Z"
+          },
+          "value": {
+            "value": "TRUE",
+            "alias": null
+          }
+        }
+      ],
+      "validFor": {
+        "endDateTime": "2041-08-25T13:46:21Z",
+        "startDateTime": "2021-08-25T13:46:21Z"
+      },
+      "@valueSchemaLocation": null,
+      "id": "ef42d5b4-e6a0-4df2-9de7-1bd60c0c681b"
     },
     {
       "uuid": "478a7af5-200d-4ef8-9cdd-f18bf59e8e1d",
@@ -821,7 +1226,7 @@
       "serviceSpecCharRelationship": [],
       "serviceSpecCharacteristicValue": [
         {
-          "uuid": "8277e6e9-39b0-4070-9ac5-352bddde228e",
+          "uuid": "be1e4836-473a-483f-9a90-b79d5c4c5fb9",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -843,7 +1248,7 @@
           }
         },
         {
-          "uuid": "0bd4775e-99eb-4dd8-9671-f20181ae1b72",
+          "uuid": "123a4416-45fa-4063-b8ac-e633358135f3",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -888,27 +1293,7 @@
       "regex": null,
       "valueType": "TEXT",
       "serviceSpecCharRelationship": [],
-      "serviceSpecCharacteristicValue": [
-        {
-          "uuid": "bad6210b-7b23-4f03-806c-1f6aac251957",
-          "@baseType": "BaseEntity",
-          "@schemaLocation": null,
-          "@type": null,
-          "href": null,
-          "isDefault": false,
-          "rangeInterval": null,
-          "regex": null,
-          "unitOfMeasure": null,
-          "valueFrom": null,
-          "valueTo": null,
-          "valueType": "TEXT",
-          "validFor": {
-            "endDateTime": "2041-08-16T20:01:32Z",
-            "startDateTime": "2021-08-16T20:01:32Z"
-          },
-          "value": null
-        }
-      ],
+      "serviceSpecCharacteristicValue": [],
       "validFor": {
         "endDateTime": "2041-08-16T20:00:24Z",
         "startDateTime": "2021-08-16T20:00:24Z"
@@ -934,7 +1319,7 @@
       "serviceSpecCharRelationship": [],
       "serviceSpecCharacteristicValue": [
         {
-          "uuid": "e9a2330f-1a5f-45cb-b960-f01bc23b1671",
+          "uuid": "2ed187bc-aa54-4a45-b5ab-9d4f8f46bde4",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -981,7 +1366,7 @@
       "serviceSpecCharRelationship": [],
       "serviceSpecCharacteristicValue": [
         {
-          "uuid": "05750b25-9f59-4ad3-a87f-62d4a0af22af",
+          "uuid": "befe3a39-143e-4388-8077-e744c26316d1",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -994,8 +1379,8 @@
           "valueTo": null,
           "valueType": "TEXT",
           "validFor": {
-            "endDateTime": "2039-12-13T21:56Z",
-            "startDateTime": "2019-12-13T21:56Z"
+            "endDateTime": "2041-08-25T13:46:09Z",
+            "startDateTime": "2021-08-25T13:46:09Z"
           },
           "value": {
             "value": "naas:latest",
@@ -1009,119 +1394,6 @@
       },
       "@valueSchemaLocation": null,
       "id": "293b486c-d5cc-42f3-bc38-c176f9cdffff"
-    },
-    {
-      "uuid": "491c6b8b-0d7d-4331-aa5f-161f262e2562",
-      "@baseType": "BaseRootEntity",
-      "@schemaLocation": null,
-      "@type": "io.openslice.tmf.scm633.model.ServiceSpecCharacteristic",
-      "href": null,
-      "name": "test actions (set)",
-      "configurable": true,
-      "description": "test",
-      "extensible": null,
-      "isUnique": null,
-      "maxCardinality": 1,
-      "minCardinality": 0,
-      "regex": null,
-      "valueType": "SET",
-      "serviceSpecCharRelationship": [],
-      "serviceSpecCharacteristicValue": [
-        {
-          "uuid": "adbf86f6-f61a-4ba5-aa33-a4f13a2d7e53",
-          "@baseType": "BaseEntity",
-          "@schemaLocation": null,
-          "@type": null,
-          "href": null,
-          "isDefault": true,
-          "rangeInterval": null,
-          "regex": null,
-          "unitOfMeasure": null,
-          "valueFrom": null,
-          "valueTo": null,
-          "valueType": "INTEGER",
-          "validFor": {
-            "endDateTime": "2040-09-17T10:52:19Z",
-            "startDateTime": "2020-09-17T10:52:19Z"
-          },
-          "value": {
-            "value": "1000",
-            "alias": "test param 4"
-          }
-        },
-        {
-          "uuid": "16522686-914e-454a-8fad-d2a48375a436",
-          "@baseType": "BaseEntity",
-          "@schemaLocation": null,
-          "@type": null,
-          "href": null,
-          "isDefault": true,
-          "rangeInterval": null,
-          "regex": null,
-          "unitOfMeasure": null,
-          "valueFrom": null,
-          "valueTo": null,
-          "valueType": "INTEGER",
-          "validFor": {
-            "endDateTime": "2040-09-17T10:52:19Z",
-            "startDateTime": "2020-09-17T10:52:19Z"
-          },
-          "value": {
-            "value": "10",
-            "alias": "test param 3"
-          }
-        },
-        {
-          "uuid": "baef5c78-6eea-44e2-a90b-1bb74928719e",
-          "@baseType": "BaseEntity",
-          "@schemaLocation": null,
-          "@type": null,
-          "href": null,
-          "isDefault": false,
-          "rangeInterval": null,
-          "regex": null,
-          "unitOfMeasure": null,
-          "valueFrom": null,
-          "valueTo": null,
-          "valueType": "INTEGER",
-          "validFor": {
-            "endDateTime": "2040-09-17T10:52:19Z",
-            "startDateTime": "2020-09-17T10:52:19Z"
-          },
-          "value": {
-            "value": "100",
-            "alias": "test param 2"
-          }
-        },
-        {
-          "uuid": "65af4899-4911-4159-8635-465692029484",
-          "@baseType": "BaseEntity",
-          "@schemaLocation": null,
-          "@type": null,
-          "href": null,
-          "isDefault": false,
-          "rangeInterval": null,
-          "regex": null,
-          "unitOfMeasure": null,
-          "valueFrom": null,
-          "valueTo": null,
-          "valueType": "INTEGER",
-          "validFor": {
-            "endDateTime": "2040-09-17T10:52:19Z",
-            "startDateTime": "2020-09-17T10:52:19Z"
-          },
-          "value": {
-            "value": "1",
-            "alias": "test param 1"
-          }
-        }
-      ],
-      "validFor": {
-        "endDateTime": "2040-09-17T09:30:10Z",
-        "startDateTime": "2020-09-17T09:30:10Z"
-      },
-      "@valueSchemaLocation": null,
-      "id": "491c6b8b-0d7d-4331-aa5f-161f262e2562"
     },
     {
       "uuid": "16f684d2-9f8d-4a8a-8a2b-5b8b5c19f302",
@@ -1141,7 +1413,7 @@
       "serviceSpecCharRelationship": [],
       "serviceSpecCharacteristicValue": [
         {
-          "uuid": "31bab8e7-fe19-41ce-ad34-f02cde1b0be8",
+          "uuid": "8d20343a-31ce-43f8-8323-c905818adce9",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -1188,7 +1460,7 @@
       "serviceSpecCharRelationship": [],
       "serviceSpecCharacteristicValue": [
         {
-          "uuid": "eaaed173-7636-41b0-a1c5-8d181c441c2b",
+          "uuid": "99afdbda-c21c-48ef-98c0-5603f7b3d3af",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -1235,7 +1507,7 @@
       "serviceSpecCharRelationship": [],
       "serviceSpecCharacteristicValue": [
         {
-          "uuid": "fbc774ce-ec9c-421b-9474-7b03dac09856",
+          "uuid": "9f8dfd8f-e019-41c9-9905-16cac77ed4a7",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -1282,7 +1554,7 @@
       "serviceSpecCharRelationship": [],
       "serviceSpecCharacteristicValue": [
         {
-          "uuid": "37d516f8-399a-40fe-a4b4-c7b257236328",
+          "uuid": "5296e435-8dea-4627-b0d3-96e4f54d124d",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -1329,7 +1601,7 @@
       "serviceSpecCharRelationship": [],
       "serviceSpecCharacteristicValue": [
         {
-          "uuid": "2bcdc52b-abd2-4d71-b76d-61dbb3965a95",
+          "uuid": "c491de43-90d1-42f4-b57a-10c2a323a6ed",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,

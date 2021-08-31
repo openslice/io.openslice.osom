@@ -61,7 +61,7 @@ public class LCMRulesExecutor {
 		logger.debug("code dump:");
 		logger.debug( code );
 		try {
-			vars = execudeCode(className, code, vars);		
+			vars = execudeCode(className, code, vars, lcmspec);		
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -109,6 +109,7 @@ public class LCMRulesExecutor {
 	 * @param className
 	 * @param code
 	 * @param vars
+	 * @param lcmspec 
 	 * @return
 	 * @throws IOException 
 	 * @throws ClassNotFoundException 
@@ -119,7 +120,7 @@ public class LCMRulesExecutor {
 	 * @throws IllegalAccessException 
 	 * @throws InstantiationException 
 	 */
-	private LCMRulesExecutorVariables execudeCode(String className, String code, LCMRulesExecutorVariables vars) throws IOException, ClassNotFoundException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+	private LCMRulesExecutorVariables execudeCode(String className, String code, LCMRulesExecutorVariables vars, LCMRuleSpecification lcmspec) throws IOException, ClassNotFoundException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		 // A temporary directory where the java code and class will be located
         Path temp = Paths.get(System.getProperty("java.io.tmpdir"),  "openslice", className);
         Files.createDirectories(temp);
@@ -130,7 +131,7 @@ public class LCMRulesExecutor {
         Path javaSourceFile = Paths.get(temp.normalize().toAbsolutePath().toString(), className + ".java");
         Files.write(javaSourceFile, code.getBytes());
 
-        logger.debug("The java source file is loacted at "+javaSourceFile);
+        logger.debug("For lcmspec " + lcmspec.getName() + " The java source file is located at "+javaSourceFile);
         // Verification of the presence of the compilation tool archive
         final String toolsJarFileName = "tools.jar";
         final String javaHome = System.getProperty("java.home");
@@ -167,9 +168,11 @@ public class LCMRulesExecutor {
         task.call();
         logger.debug("task2 =  "+ task);
         // Printing of any compile problems
-        vars.getCompileDiagnosticErrors().clear();
+        
         for (Diagnostic diagnostic : diagnostics.getDiagnostics()) {
-        	String err =  String.format("Error on line %d in %s, %s, %s %n",
+        	String err =  String.format("LCMRule: %s, Phase: %s -> Error on line %d in %s, %s, %s %n",
+        			lcmspec.getName(),
+        			lcmspec.getLcmrulephase() ,
                     diagnostic.getLineNumber(),
                     diagnostic.getSource(),
                     diagnostic.getCode(),
@@ -181,8 +184,8 @@ public class LCMRulesExecutor {
         
 
         logger.debug("task3 =  "+ task);
-        if ( vars.getCompileDiagnosticErrors().size()>0 ) {
-            logger.error("execudeCode compile error. Will just return");
+        if ( diagnostics.getDiagnostics().size()>0 ) {
+            logger.error("LCMRule:" + lcmspec.getName() + "execudeCode compile error. Will just return");
         	return vars;
         }
         

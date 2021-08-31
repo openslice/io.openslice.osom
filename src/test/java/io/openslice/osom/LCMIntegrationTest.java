@@ -24,6 +24,8 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.builder.RouteBuilder;
@@ -163,8 +165,10 @@ public class LCMIntegrationTest {
 		logger.debug("===============TEST START testLcmBaseExecutorAPIs =============================");
 		/**
 		 * Tests to perform and enhance API
-		 * - More funtions for ValueTypes (enum, Set, Arrays, numbers, etc)
-		 * - Evaluate parameter values inside a json
+		 * - Functions for ValueTypes (enum, Set, Arrays, numbers, etc)
+		 * 		-String, Integer OK
+		 * - Evaluate parameter values inside a json OK
+		 * - Have variables: String, Integer OK
 		 * - Operation for new Service Order (+ include sepc with its parameters..)
 		 * - Operations for REST services
 		 *
@@ -175,7 +179,11 @@ public class LCMIntegrationTest {
 		class LcmBaseExecutorC extends LcmBaseExecutor {
 			@Override
 			public void exec() {				
-			}			
+			}
+
+			
+
+					
 		}
 		
 
@@ -189,10 +197,25 @@ public class LCMIntegrationTest {
 		assertThat( be.getCharValFromStringType("cirros_2vnf_ns::SSHKEY") ).isEqualTo("MYKEYX");
 		assertThat( be.getCharValAsString("cirros_2vnf_ns::SSHKEY") ).isEqualTo("MYKEYX");
 		assertThat( be.getCharValAsString("Quality Class") ).isEqualTo("0");
+		assertThat( be.getCharValFromBooleanType("High Availability") ).isEqualTo(false);
 		
 		
+		sspectex = scmocked.getSpecById("0d5551e6-069f-43b7-aa71-10530f290239");
+		aServiceSpec = SCMocked.toJsonObj( sspectex, ServiceSpecification.class);	
+		aService = setupServiceCreate(aServiceSpec);	
+		be = new LcmBaseExecutorC();
+		vars = new LCMRulesExecutorVariables(aServiceSpec, new ServiceOrder(), aService);
+		be.setVars( vars );
 		
+		be.setCharValFromBooleanType("High Availability", true);
+		assertThat( be.getCharValFromBooleanType("High Availability") ).isEqualTo(true);
+		assertThat( be.checkIfSetContainsValue(be.getCharValFromSetType("Area of Service"), "GR") ).isEqualTo(true);
+		assertThat( be.checkIfSetContainsValue(be.getCharValFromSetType("Area of Service"), "ES") ).isEqualTo(true);
+		assertThat( be.checkIfSetContainsValue(be.getCharValFromSetType("Area of Service"), "IT") ).isEqualTo(true);
+		assertThat( be.checkIfSetContainsValue(be.getCharValFromSetType("Area of Service"), "XXX") ).isEqualTo(false);
+		 
 		
+
 		
 
 		logger.debug("===============TEST END testLcmBaseExecutorAPIs =============================");
@@ -252,6 +275,13 @@ public class LCMIntegrationTest {
 					.filter(c -> c.getName().equals("cirros_2vnf_ns::SSHKEY"))
 					.findFirst().get().getValue().getValue()
 				).isEqualTo("MYKEYXExampleConcatSSHKEY_EnhancedByRule");
+		
+
+		logger.debug("Will make web calls. This is made online.");
+
+		lcs = scmocked.getLCMRulebyIDJson("49e2e679-9dc1-4c7b-abd9-72377d4c1a5d"); 
+	    vars = lcmRulesExecutor.executeLCMRuleCode(  lcs, vars);
+	    
 		
 
 		logger.debug("===============TEST END testExecRuleSpec =============================");

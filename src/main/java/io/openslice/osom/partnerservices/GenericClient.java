@@ -122,8 +122,7 @@ public class GenericClient  {
 		this.oauth2ClientId = oauth2ClientId;
 		this.oauth2ClientSecret = oauth2ClientSecret;
 		this.oauth2Scopes = oauth2Scopes;
-		this.oauth2TokenURI = oauth2TokenURI;
-		
+		this.oauth2TokenURI = oauth2TokenURI;		
 		
 		this.username = username;
 		this.password = password;
@@ -135,20 +134,27 @@ public class GenericClient  {
 
 	public WebClient createWebClient() throws SSLException{
 			
+		if ( oauth2ClientId != null ) {
 
-		InMemoryClientRegistrationRepository clientRegistrations = (InMemoryClientRegistrationRepository) this.clientRegistrations() ;
-		OAuth2AuthorizedClientService clientService = new InMemoryOAuth2AuthorizedClientService(clientRegistrations);
-		OAuth2AuthorizedClientManager authorizedClientManager = this.authorizedClientManager(clientRegistrations, clientService);
+			InMemoryClientRegistrationRepository clientRegistrations = (InMemoryClientRegistrationRepository) this.clientRegistrations() ;
+			OAuth2AuthorizedClientService clientService = new InMemoryOAuth2AuthorizedClientService(clientRegistrations);
+			OAuth2AuthorizedClientManager authorizedClientManager = this.authorizedClientManager(clientRegistrations, clientService);
 
-		
-		ServletOAuth2AuthorizedClientExchangeFilterFunction servletOAuth2AuthorizedClientExchangeFilterFunction =
-				this.servletOAuth2AuthorizedClientExchangeFilterFunction(
-						clientRegistrations,
-						authorizedClientManager);
-		
-		ClientHttpConnector clientHttpConnector =  this.clientHttpConnector() ;
-		
-		return webClient(servletOAuth2AuthorizedClientExchangeFilterFunction, clientHttpConnector);		
+			
+			ServletOAuth2AuthorizedClientExchangeFilterFunction servletOAuth2AuthorizedClientExchangeFilterFunction =
+					this.servletOAuth2AuthorizedClientExchangeFilterFunction(
+							clientRegistrations,
+							authorizedClientManager);
+			
+			ClientHttpConnector clientHttpConnector =  this.clientHttpConnector() ;
+			
+			return webClient(servletOAuth2AuthorizedClientExchangeFilterFunction, clientHttpConnector);		
+			
+		}else {
+
+			ClientHttpConnector clientHttpConnector =  this.clientHttpConnector() ;
+			return webClient( null, clientHttpConnector);	
+		}
 	}
 	
 	
@@ -156,14 +162,22 @@ public class GenericClient  {
 			ServletOAuth2AuthorizedClientExchangeFilterFunction servletOAuth2AuthorizedClientExchangeFilterFunction,
 			ClientHttpConnector clientHttpConnector) {
 
-
-		return WebClient.builder()
+		if ( servletOAuth2AuthorizedClientExchangeFilterFunction != null ) {
+			return WebClient.builder()
+		        	 .exchangeStrategies( getExchangeStrategies() )
+					.baseUrl( this.baseUrl )
+					.clientConnector(clientHttpConnector)
+					.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+					.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+					.apply(servletOAuth2AuthorizedClientExchangeFilterFunction.oauth2Configuration())
+					.filter(logRequest())
+					.filter(logResponse())
+					.build();
+		}else 
+			return WebClient.builder()
 	        	 .exchangeStrategies( getExchangeStrategies() )
 				.baseUrl( this.baseUrl )
 				.clientConnector(clientHttpConnector)
-				.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-				.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-				.apply(servletOAuth2AuthorizedClientExchangeFilterFunction.oauth2Configuration())
 				.filter(logRequest())
 				.filter(logResponse())
 				.build();
@@ -201,15 +215,26 @@ public class GenericClient  {
 
 		log.info("WebClientConfiguration.clientRegistrations()");
 
-		ClientRegistration clientRegistration = ClientRegistration
-				.withRegistrationId( webClientRegistrationId ) //"authOpensliceProvider"
-				.clientId( oauth2ClientId ) //"osapiWebClientId"
-				.clientSecret( oauth2ClientSecret ) //"secret"
-				.scope( oauth2Scopes ) //"admin"
-				.authorizationGrantType( authorizationGrantType) //AuthorizationGrantType.PASSWORD
-				.tokenUri( oauth2TokenURI )//"http://portal.openslice.io/osapi-oauth-server/oauth/token"
-				.build();
-
+		ClientRegistration clientRegistration;
+		
+		if ( oauth2ClientId != null) {
+			clientRegistration = ClientRegistration
+					.withRegistrationId( webClientRegistrationId ) //"authOpensliceProvider"
+					.clientId( oauth2ClientId ) //"osapiWebClientId"
+					.clientSecret( oauth2ClientSecret ) //"secret"
+					.scope( oauth2Scopes ) //"admin"
+					.authorizationGrantType( authorizationGrantType) //AuthorizationGrantType.PASSWORD
+					.tokenUri( oauth2TokenURI )//"http://portal.openslice.io/osapi-oauth-server/oauth/token"
+					.build();
+			
+		} else {
+			clientRegistration = ClientRegistration
+					.withRegistrationId( webClientRegistrationId ) //"authOpensliceProvider"
+					.authorizationGrantType( authorizationGrantType) //AuthorizationGrantType.PASSWORD
+					.build();			
+		}
+		
+		
 		return new InMemoryClientRegistrationRepository(clientRegistration);
 	}
 

@@ -214,7 +214,14 @@ public class SCMocked {
 			InputStream in = new FileInputStream( sspec );
 			sspectext = IOUtils.toString(in, "UTF-8");
 			return sspectext;			
+			
+		} else if ( id.equals("49e2e679-9dc1-4c7b-abd9-72377d4c1a5d") ) {
+			File sspec = new File( "src/test/resources/LcmRule4Test.json" );
+			InputStream in = new FileInputStream( sspec );
+			sspectext = IOUtils.toString(in, "UTF-8");
+			return sspectext;			
 		}
+		
 		
 		
 		
