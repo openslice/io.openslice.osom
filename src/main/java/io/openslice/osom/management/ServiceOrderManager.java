@@ -52,6 +52,7 @@ import io.openslice.tmf.sim638.model.ServiceActionQueueItem;
 import io.openslice.tmf.sim638.model.ServiceCreate;
 import io.openslice.tmf.sim638.model.ServiceUpdate;
 import io.openslice.tmf.so641.model.ServiceOrder;
+import io.openslice.tmf.so641.model.ServiceOrderCreate;
 import io.openslice.tmf.so641.model.ServiceOrderStateType;
 import io.openslice.tmf.so641.model.ServiceOrderUpdate;
 
@@ -94,6 +95,11 @@ public class ServiceOrderManager {
 	
 	@Value("${CATALOG_UPD_SERVICEORDER_BY_ID}")
 	private String CATALOG_UPD_SERVICEORDER_BY_ID = "";
+	
+
+	@Value("${CATALOG_ADD_SERVICEORDER}")
+	private String CATALOG_ADD_SERVICEORDER = "";
+	
 	
 	@Value("${CATALOG_ADD_SERVICE}")
 	private String CATALOG_ADD_SERVICE = "";
@@ -320,6 +326,40 @@ public class ServiceOrderManager {
 		}
 		
 	}
+	
+	public ServiceOrder createServiceOrder(ServiceOrderCreate serviceOrderCreate) {
+		logger.info("will create Service Order "   );
+		try {
+
+			
+			try {
+				Object response = template.
+						requestBody( CATALOG_ADD_SERVICEORDER, toJsonString(serviceOrderCreate));
+				
+				if ( !(response instanceof String)) {
+					logger.error("Service Order object is wrong.");
+					return null;
+				}
+				logger.debug("createServiceOrder response is: " + response);
+				ServiceOrder sor = toJsonObj( (String)response, ServiceOrder.class); 
+				
+				return sor;
+				
+			}catch (Exception e) {
+				logger.error("Cannot createServiceOrder details to catalog. " + e.toString());
+			}
+			return null;
+			
+			
+
+			
+		}catch (Exception e) {
+			logger.error("Cannot createServiceOrder to catalog. " + e.toString());
+		}
+		return null;
+		
+	}
+	
 
 	/**
 	 * get  service spec by id from model via bus

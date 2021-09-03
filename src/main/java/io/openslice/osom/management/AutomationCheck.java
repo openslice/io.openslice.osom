@@ -497,7 +497,7 @@ public class AutomationCheck implements JavaDelegate {
 		
 
 //		:execute any LCM rules "PRE_PROVISION" phase for the SPEC;
-		LCMRulesExecutorVariables vars = new LCMRulesExecutorVariables(spec, sor, serviceToCreate);
+		LCMRulesExecutorVariables vars = new LCMRulesExecutorVariables(spec, sor, soi, serviceToCreate, null, serviceOrderManager);
 		
 		logger.debug("===============BEFORE lcmRulesController.execPhas for spec:" + spec.getName() + " =============================");
 		vars = lcmRulesController.execPhase( ELCMRulePhase.PRE_PROVISION, vars );

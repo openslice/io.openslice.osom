@@ -17,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.openslice.osom.management.ServiceOrderManager;
 import io.openslice.tmf.common.model.Any;
 import io.openslice.tmf.lcm.model.ELCMRulePhase;
 import io.openslice.tmf.lcm.model.LCMRuleSpecification;
@@ -44,7 +45,9 @@ public class LCMRulesController {
 	@Value("${CATALOG_GET_LCMRULES_BY_SPECID_PHASE}")
 	private String CATALOG_GET_LCMRULES_BY_SPECID_PHASE = "";
 	
-	
+
+	@Autowired
+	private ServiceOrderManager serviceOrderManager;
 	
 	/**
 	 * execute rules of a phase

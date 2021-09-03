@@ -3,34 +3,47 @@ package io.openslice.osom.lcm;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.openslice.osom.management.ServiceOrderManager;
 import io.openslice.tmf.lcm.model.LCMRuleSpecification;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
+import io.openslice.tmf.sim638.model.Service;
 import io.openslice.tmf.sim638.model.ServiceCreate;
 import io.openslice.tmf.so641.model.ServiceOrder;
+import io.openslice.tmf.so641.model.ServiceOrderItem;
 import lombok.Data;
+
 /**
- * @author ctranoris
- * this class is used to pass object to execution and also store 
- * their results while they are affected by code execution
+ * @author ctranoris this class is used to pass object to execution and also
+ *         store their results while they are affected by code execution
  */
 @Data
 public class LCMRulesExecutorVariables {
-	
+
 	private ServiceCreate serviceToCreate;
 	private ServiceSpecification spec;
 	private ServiceOrder sorder;
+	private ServiceOrderItem soItem;
+	private Service service;
 	private List<String> compileDiagnosticErrors;
-
+	private ServiceOrderManager serviceOrderManager;
 
 	/**
 	 * @param spec
 	 * @param sorder
 	 * @param serviceToCreate
 	 */
-	public LCMRulesExecutorVariables(ServiceSpecification spec, ServiceOrder sorder, ServiceCreate serviceToCreate) {
+	public LCMRulesExecutorVariables(ServiceSpecification spec, 
+			ServiceOrder sorder, 
+			ServiceOrderItem asoItem, 
+			ServiceCreate serviceToCreate,
+			Service serviceInstance,
+			ServiceOrderManager aServiceOrderManager) {
 		this.serviceToCreate = serviceToCreate;
 		this.spec = spec;
 		this.sorder = sorder;
+		this.soItem = asoItem;
+		this.service = serviceInstance;
+		this.serviceOrderManager = aServiceOrderManager;
 		this.compileDiagnosticErrors = new ArrayList<>();
 	}
 }

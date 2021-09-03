@@ -14,6 +14,7 @@ import javax.validation.Valid;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -24,13 +25,21 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.openslice.osom.management.ServiceOrderManager;
 import io.openslice.osom.partnerservices.GenericClient;
 import io.openslice.tmf.common.model.Any;
 import io.openslice.tmf.common.model.EValueType;
 import io.openslice.tmf.common.model.service.Characteristic;
+import io.openslice.tmf.common.model.service.Note;
+import io.openslice.tmf.lcm.model.LCMRuleSpecification;
+import io.openslice.tmf.prm669.model.RelatedParty;
 import io.openslice.tmf.scm633.model.ServiceSpecCharacteristic;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
+import io.openslice.tmf.sim638.model.Service;
 import io.openslice.tmf.so641.model.ServiceOrder;
+import io.openslice.tmf.so641.model.ServiceOrderCreate;
+import io.openslice.tmf.so641.model.ServiceOrderItemRelationship;
+import io.openslice.tmf.so641.model.ServiceOrderStateType;
 import reactor.core.publisher.Mono;
 
 /**
@@ -41,12 +50,14 @@ import reactor.core.publisher.Mono;
 public abstract class LcmBaseExecutor {
 
 	private LCMRulesExecutorVariables vars;
-	
+
+	private LCMRuleSpecification lcmspec;
 
 	private static final transient Log logger = LogFactory.getLog(LcmBaseExecutor.class.getName());
 
-	public LCMRulesExecutorVariables run(LCMRulesExecutorVariables variables) {
+	public LCMRulesExecutorVariables run(LCMRulesExecutorVariables variables, LCMRuleSpecification lcmspec) {
 		this.vars = variables;
+		this.lcmspec = lcmspec;
 		try {
 			this.exec();
 		} catch (Exception e) {
@@ -60,10 +71,8 @@ public abstract class LcmBaseExecutor {
 	 * this is overriden
 	 */
 	public abstract void exec();
-	
-	
+
 	private void testF() {
-		
 
 	}
 
@@ -208,7 +217,7 @@ public abstract class LcmBaseExecutor {
 		c.ifPresent(val -> val.getValue().setValue("" + newValue));
 
 	}
-	
+
 	public List<String> getCharValFromSetType(String charName) {
 		logger.debug("getCharValFromSetType " + charName);
 		Optional<Characteristic> c = getCharacteristicByName(charName,
@@ -216,24 +225,25 @@ public abstract class LcmBaseExecutor {
 
 		if (c.isPresent() && c.get().getValue() != null) {
 			logger.debug("getCharValFromSetType " + c.get().getValue().getValue());
-			
+
 			String val = c.get().getValue().getValue();
 
 			List<Any> as = null;
-			try {				
-				as = toJsonObj(val, new TypeReference< List<Any>>() {});
-				logger.debug("getCharValFromSetType " + as.toString() ) ;
+			try {
+				as = toJsonObj(val, new TypeReference<List<Any>>() {
+				});
+				logger.debug("getCharValFromSetType " + as.toString());
 
-				ArrayList<String> asret = new ArrayList<>(); 
+				ArrayList<String> asret = new ArrayList<>();
 				for (Any any : as) {
 					asret.add(any.getValue());
 				}
-				return asret ;
+				return asret;
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
+
 //			String[] s = val.split(",");
 //			
 //			ArrayList<String> as = new ArrayList( Arrays.asList( s ) ); 
@@ -243,162 +253,119 @@ public abstract class LcmBaseExecutor {
 
 		logger.debug("getCharValFromSetType NULL ");
 		return null;
-	}	
-	
+	}
+
 	public boolean checkIfSetContainsValue(List<String> charValFromSetType, String value) {
-		
-		if ( charValFromSetType != null ) {
+
+		if (charValFromSetType != null) {
 			for (String s : charValFromSetType) {
-				if ( s.equals(value))
+				if (s.equals(value))
 					return true;
-			}			
+			}
 		}
-		
+
 		return false;
 	}
-	
-	public void logtext(String txt) {
-		logger.info( "From LCM Rule Log: " + txt);
-	}
-	
-	
-	public WebClient getAwebClient(String baseurl,
-			String clientRegId,
-			String aOAUTH2CLIENTID,
-			String aOAUTHSECRET,
-			String scopes,
-			String aTOKEURI,
-			String aUSERNAME,
-			String aPASSWORD
-	) {
-		logger.info( baseurl );
 
-		String[] aOAUTHscopes = null ;
-		if ( scopes != null ) {
+	public void logtext(String txt) {
+		logger.info("From LCM Rule Log: " + txt);
+	}
+
+	public WebClient getAwebClient(String baseurl, String clientRegId, String aOAUTH2CLIENTID, String aOAUTHSECRET,
+			String scopes, String aTOKEURI, String aUSERNAME, String aPASSWORD) {
+		logger.info(baseurl);
+
+		String[] aOAUTHscopes = null;
+		if (scopes != null) {
 			aOAUTHscopes = scopes.split(";");
 		}
-		
-		
+
 		GenericClient oac = new GenericClient(
-				
-				clientRegId, 
-				aOAUTH2CLIENTID, 
-				aOAUTHSECRET, 
-				aOAUTHscopes, 
-				aTOKEURI, 
-				aUSERNAME, 
-				aPASSWORD, 
-				baseurl );
-		
-		
+
+				clientRegId, aOAUTH2CLIENTID, aOAUTHSECRET, aOAUTHscopes, aTOKEURI, aUSERNAME, aPASSWORD, baseurl);
+
 		try {
 			WebClient webClient;
 			webClient = oac.createWebClient();
 			return webClient;
 		} catch (SSLException e) {
-			logger.error(e.getLocalizedMessage()); 
+			logger.error(e.getLocalizedMessage());
 			e.printStackTrace();
 		}
 		return null;
 	}
-	
-	
-	public String rest_block(String verb,
-			String eurl,
-			String headers,
-			String apayload) {
-		return rest_block(verb, eurl, headers, apayload,  null, null, null, null, null, null, null);
-		
+
+	public String rest_block(String verb, String eurl, String headers, String apayload) {
+		return rest_block(verb, eurl, headers, apayload, null, null, null, null, null, null, null);
+
 	}
-	
-	public String  rest_block(String verb,
-			String eurl,
-			String headers,
-			String apayload,
-			String baseurl,
-			String aOAUTH2CLIENTID,
-			String aOAUTHSECRET,
-			String scopes,
-			String aTOKEURI,
-			String aUSERNAME,
+
+	public String rest_block(String verb, String eurl, String headers, String apayload, String baseurl,
+			String aOAUTH2CLIENTID, String aOAUTHSECRET, String scopes, String aTOKEURI, String aUSERNAME,
 			String aPASSWORD) {
 
+		logger.debug(String.format(
+				"verb: %s\n eurl: %s\n headers: %s\n apayload: %s\n baseurl: %s\n aOAUTH2CLIENTID: %s\n aOAUTHSECRET: %s\n scopes: %s\n aTOKEURI: %s\n aUSERNAME: %s\n ",
+				verb, eurl, headers, apayload, baseurl, aOAUTH2CLIENTID, aOAUTHSECRET, scopes, aTOKEURI, aUSERNAME,
+				aPASSWORD));
 
-		logger.debug (String.format("verb: %s\n eurl: %s\n headers: %s\n apayload: %s\n baseurl: %s\n aOAUTH2CLIENTID: %s\n aOAUTHSECRET: %s\n scopes: %s\n aTOKEURI: %s\n aUSERNAME: %s\n ", 
-				verb, eurl, headers, apayload, 
-				 baseurl, 
-				aOAUTH2CLIENTID, aOAUTHSECRET, 
-				scopes, aTOKEURI, aUSERNAME, aPASSWORD));
-		
-		if ( baseurl != null ) {
-			eurl = eurl.replace(baseurl, "" ); // remove the baseurl if present			
+		if (baseurl != null) {
+			eurl = eurl.replace(baseurl, ""); // remove the baseurl if present
 		}
-		
+
 		Consumer<HttpHeaders> httpHeaders = (t) -> {
-			if (headers!=null) {
+			if (headers != null) {
 				String[] hs = headers.split(";");
 				for (String headervals : hs) {
 					String[] ah = headervals.split("=");
-					t.add( ah[0], ah[1]);
+					t.add(ah[0], ah[1]);
 				}
 			}
-			
+
 		};
-		
-		
-		
-		if ( verb.equals("GET") ) {
-			return rest_block_GET( eurl, httpHeaders, apayload,  baseurl, aOAUTH2CLIENTID, aOAUTHSECRET, scopes, aTOKEURI, aUSERNAME, aPASSWORD);
-		}else if ( verb.equals("POST") ) {
-			return rest_block_POST( eurl, httpHeaders, apayload,  baseurl, aOAUTH2CLIENTID, aOAUTHSECRET, scopes, aTOKEURI, aUSERNAME, aPASSWORD);
-		}else if ( verb.equals("PUT") ) {
-			return rest_block_PUT( eurl, httpHeaders, apayload,  baseurl, aOAUTH2CLIENTID, aOAUTHSECRET, scopes, aTOKEURI, aUSERNAME, aPASSWORD);
-		}else if ( verb.equals("PATCH") ) {
-			return rest_block_PATCH( eurl, httpHeaders, apayload,  baseurl, aOAUTH2CLIENTID, aOAUTHSECRET, scopes, aTOKEURI, aUSERNAME, aPASSWORD);
-		}else if ( verb.equals("DELETE") ) {
-			return rest_block_DELETE( eurl, httpHeaders, apayload,  baseurl, aOAUTH2CLIENTID, aOAUTHSECRET, scopes, aTOKEURI, aUSERNAME, aPASSWORD);
+
+		if (verb.equals("GET")) {
+			return rest_block_GET(eurl, httpHeaders, apayload, baseurl, aOAUTH2CLIENTID, aOAUTHSECRET, scopes, aTOKEURI,
+					aUSERNAME, aPASSWORD);
+		} else if (verb.equals("POST")) {
+			return rest_block_POST(eurl, httpHeaders, apayload, baseurl, aOAUTH2CLIENTID, aOAUTHSECRET, scopes,
+					aTOKEURI, aUSERNAME, aPASSWORD);
+		} else if (verb.equals("PUT")) {
+			return rest_block_PUT(eurl, httpHeaders, apayload, baseurl, aOAUTH2CLIENTID, aOAUTHSECRET, scopes, aTOKEURI,
+					aUSERNAME, aPASSWORD);
+		} else if (verb.equals("PATCH")) {
+			return rest_block_PATCH(eurl, httpHeaders, apayload, baseurl, aOAUTH2CLIENTID, aOAUTHSECRET, scopes,
+					aTOKEURI, aUSERNAME, aPASSWORD);
+		} else if (verb.equals("DELETE")) {
+			return rest_block_DELETE(eurl, httpHeaders, apayload, baseurl, aOAUTH2CLIENTID, aOAUTHSECRET, scopes,
+					aTOKEURI, aUSERNAME, aPASSWORD);
 		}
-		
-		
+
 		return null;
 	}
 
-	public String  rest_block_GET(
-			String eurl,
-			Consumer<HttpHeaders> httpHeaders,
-			String apayload,
-			String baseurl,
-			String aOAUTH2CLIENTID,
-			String aOAUTHSECRET,
-			String scopes,
-			String aTOKEURI,
-			String aUSERNAME,
+	public String rest_block_GET(String eurl, Consumer<HttpHeaders> httpHeaders, String apayload, String baseurl,
+			String aOAUTH2CLIENTID, String aOAUTHSECRET, String scopes, String aTOKEURI, String aUSERNAME,
 			String aPASSWORD) {
 
-
 		String clientRegId = "lcmBaseExecutor_WebClient";
-		WebClient webclient = getAwebClient(baseurl, clientRegId, aOAUTH2CLIENTID, aOAUTHSECRET, scopes, aTOKEURI, aUSERNAME, aPASSWORD);
+		WebClient webclient = getAwebClient(baseurl, clientRegId, aOAUTH2CLIENTID, aOAUTHSECRET, scopes, aTOKEURI,
+				aUSERNAME, aPASSWORD);
 		String aresponse = null;
-		if ( webclient!=null ) {
-			
-			try {
-				aresponse  = webclient.get()
-					.uri( eurl )
-					.headers( httpHeaders )
-					.retrieve()
-					.onStatus(HttpStatus::is4xxClientError, response -> {
-						logger.error("4xx eror");
-				        return Mono.error(new RuntimeException("4xx"));
-				      })
-				      .onStatus(HttpStatus::is5xxServerError, response -> {
-				    	  logger.error("5xx eror");
-				        return Mono.error(new RuntimeException("5xx"));
-				      })
-					  .bodyToMono( new ParameterizedTypeReference< String >() {})
-					  .block();
-		
+		if (webclient != null) {
 
-			}catch (Exception e) {
+			try {
+				aresponse = webclient.get().uri(eurl).headers(httpHeaders).retrieve()
+						.onStatus(HttpStatus::is4xxClientError, response -> {
+							logger.error("4xx eror");
+							return Mono.error(new RuntimeException("4xx"));
+						}).onStatus(HttpStatus::is5xxServerError, response -> {
+							logger.error("5xx eror");
+							return Mono.error(new RuntimeException("5xx"));
+						}).bodyToMono(new ParameterizedTypeReference<String>() {
+						}).block();
+
+			} catch (Exception e) {
 				logger.error(" error on web client request for " + eurl);
 				e.printStackTrace();
 				try {
@@ -407,70 +374,8 @@ public abstract class LcmBaseExecutor {
 					e1.printStackTrace();
 				}
 			}
-			 
-			
-		} else  {
-			logger.error("WebClient is null. Cannot be created for " + eurl);
 
-			try {
-				Thread.sleep(3000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		
-
-		return aresponse;
-	}
-	
-	
-	public String  rest_block_POST(
-			String eurl,
-			Consumer<HttpHeaders> httpHeaders,
-			String apayload,
-			String baseurl,
-			String aOAUTH2CLIENTID,
-			String aOAUTHSECRET,
-			String scopes,
-			String aTOKEURI,
-			String aUSERNAME,
-			String aPASSWORD) {
-		String clientRegId = "lcmBaseExecutor_WebClient";
-		WebClient webclient = getAwebClient(baseurl, clientRegId, aOAUTH2CLIENTID, aOAUTHSECRET, scopes, aTOKEURI, aUSERNAME, aPASSWORD);
-		String aresponse = null;
-		if ( webclient!=null ) {
-			
-			try {
-				aresponse  = webclient.post()
-					.uri( eurl )
-					.headers( httpHeaders )
-				     .bodyValue( apayload ) 
-					.retrieve()
-					.onStatus(HttpStatus::is4xxClientError, response -> {
-						logger.error("4xx eror");
-				        return Mono.error(new RuntimeException("4xx"));
-				      })
-				      .onStatus(HttpStatus::is5xxServerError, response -> {
-				    	  logger.error("5xx eror");
-				        return Mono.error(new RuntimeException("5xx"));
-				      })
-					  .bodyToMono( new ParameterizedTypeReference< String >() {})
-					  .block();
-		
-
-			}catch (Exception e) {
-				logger.error(" error on web client request for " + eurl);
-				e.printStackTrace();
-				try {
-					Thread.sleep(3000);
-				} catch (InterruptedException e1) {
-					e1.printStackTrace();
-				}
-			}
-			 
-			
-		} else  {
+		} else {
 			logger.error("WebClient is null. Cannot be created for " + eurl);
 
 			try {
@@ -483,43 +388,28 @@ public abstract class LcmBaseExecutor {
 
 		return aresponse;
 	}
-	
 
-	public String  rest_block_PUT(
-			String eurl,
-			Consumer<HttpHeaders> httpHeaders,
-			String apayload,
-			String baseurl,
-			String aOAUTH2CLIENTID,
-			String aOAUTHSECRET,
-			String scopes,
-			String aTOKEURI,
-			String aUSERNAME,
+	public String rest_block_POST(String eurl, Consumer<HttpHeaders> httpHeaders, String apayload, String baseurl,
+			String aOAUTH2CLIENTID, String aOAUTHSECRET, String scopes, String aTOKEURI, String aUSERNAME,
 			String aPASSWORD) {
 		String clientRegId = "lcmBaseExecutor_WebClient";
-		WebClient webclient = getAwebClient(baseurl, clientRegId, aOAUTH2CLIENTID, aOAUTHSECRET, scopes, aTOKEURI, aUSERNAME, aPASSWORD);
+		WebClient webclient = getAwebClient(baseurl, clientRegId, aOAUTH2CLIENTID, aOAUTHSECRET, scopes, aTOKEURI,
+				aUSERNAME, aPASSWORD);
 		String aresponse = null;
-		if ( webclient!=null ) {
-			
-			try {
-				aresponse  = webclient.put()
-					.uri( eurl )
-					.headers( httpHeaders )
-				      .bodyValue( apayload ) 
-					.retrieve()
-					.onStatus(HttpStatus::is4xxClientError, response -> {
-						logger.error("4xx eror");
-				        return Mono.error(new RuntimeException("4xx"));
-				      })
-				      .onStatus(HttpStatus::is5xxServerError, response -> {
-				    	  logger.error("5xx eror");
-				        return Mono.error(new RuntimeException("5xx"));
-				      })
-					  .bodyToMono( new ParameterizedTypeReference< String >() {})
-					  .block();
-		
+		if (webclient != null) {
 
-			}catch (Exception e) {
+			try {
+				aresponse = webclient.post().uri(eurl).headers(httpHeaders).bodyValue(apayload).retrieve()
+						.onStatus(HttpStatus::is4xxClientError, response -> {
+							logger.error("4xx eror");
+							return Mono.error(new RuntimeException("4xx"));
+						}).onStatus(HttpStatus::is5xxServerError, response -> {
+							logger.error("5xx eror");
+							return Mono.error(new RuntimeException("5xx"));
+						}).bodyToMono(new ParameterizedTypeReference<String>() {
+						}).block();
+
+			} catch (Exception e) {
 				logger.error(" error on web client request for " + eurl);
 				e.printStackTrace();
 				try {
@@ -528,9 +418,8 @@ public abstract class LcmBaseExecutor {
 					e1.printStackTrace();
 				}
 			}
-			 
-			
-		} else  {
+
+		} else {
 			logger.error("WebClient is null. Cannot be created for " + eurl);
 
 			try {
@@ -543,44 +432,28 @@ public abstract class LcmBaseExecutor {
 
 		return aresponse;
 	}
-	
-	
 
-	public String  rest_block_PATCH(
-			String eurl,
-			Consumer<HttpHeaders> httpHeaders,
-			String apayload,
-			String baseurl,
-			String aOAUTH2CLIENTID,
-			String aOAUTHSECRET,
-			String scopes,
-			String aTOKEURI,
-			String aUSERNAME,
+	public String rest_block_PUT(String eurl, Consumer<HttpHeaders> httpHeaders, String apayload, String baseurl,
+			String aOAUTH2CLIENTID, String aOAUTHSECRET, String scopes, String aTOKEURI, String aUSERNAME,
 			String aPASSWORD) {
 		String clientRegId = "lcmBaseExecutor_WebClient";
-		WebClient webclient = getAwebClient(baseurl, clientRegId, aOAUTH2CLIENTID, aOAUTHSECRET, scopes, aTOKEURI, aUSERNAME, aPASSWORD);
+		WebClient webclient = getAwebClient(baseurl, clientRegId, aOAUTH2CLIENTID, aOAUTHSECRET, scopes, aTOKEURI,
+				aUSERNAME, aPASSWORD);
 		String aresponse = null;
-		if ( webclient!=null ) {
-			
-			try {
-				aresponse  = webclient.patch()
-					.uri( eurl )
-					.headers( httpHeaders )
-				    .bodyValue( apayload ) 
-					.retrieve()
-					.onStatus(HttpStatus::is4xxClientError, response -> {
-						logger.error("4xx eror");
-				        return Mono.error(new RuntimeException("4xx"));
-				      })
-				      .onStatus(HttpStatus::is5xxServerError, response -> {
-				    	  logger.error("5xx eror");
-				        return Mono.error(new RuntimeException("5xx"));
-				      })
-					  .bodyToMono( new ParameterizedTypeReference< String >() {})
-					  .block();
-		
+		if (webclient != null) {
 
-			}catch (Exception e) {
+			try {
+				aresponse = webclient.put().uri(eurl).headers(httpHeaders).bodyValue(apayload).retrieve()
+						.onStatus(HttpStatus::is4xxClientError, response -> {
+							logger.error("4xx eror");
+							return Mono.error(new RuntimeException("4xx"));
+						}).onStatus(HttpStatus::is5xxServerError, response -> {
+							logger.error("5xx eror");
+							return Mono.error(new RuntimeException("5xx"));
+						}).bodyToMono(new ParameterizedTypeReference<String>() {
+						}).block();
+
+			} catch (Exception e) {
 				logger.error(" error on web client request for " + eurl);
 				e.printStackTrace();
 				try {
@@ -589,9 +462,8 @@ public abstract class LcmBaseExecutor {
 					e1.printStackTrace();
 				}
 			}
-			 
-			
-		} else  {
+
+		} else {
 			logger.error("WebClient is null. Cannot be created for " + eurl);
 
 			try {
@@ -604,42 +476,28 @@ public abstract class LcmBaseExecutor {
 
 		return aresponse;
 	}
-	
 
-	public String  rest_block_DELETE(
-			String eurl,
-			Consumer<HttpHeaders> httpHeaders,
-			String apayload,
-			String baseurl,
-			String aOAUTH2CLIENTID,
-			String aOAUTHSECRET,
-			String scopes,
-			String aTOKEURI,
-			String aUSERNAME,
+	public String rest_block_PATCH(String eurl, Consumer<HttpHeaders> httpHeaders, String apayload, String baseurl,
+			String aOAUTH2CLIENTID, String aOAUTHSECRET, String scopes, String aTOKEURI, String aUSERNAME,
 			String aPASSWORD) {
 		String clientRegId = "lcmBaseExecutor_WebClient";
-		WebClient webclient = getAwebClient(baseurl, clientRegId, aOAUTH2CLIENTID, aOAUTHSECRET, scopes, aTOKEURI, aUSERNAME, aPASSWORD);
+		WebClient webclient = getAwebClient(baseurl, clientRegId, aOAUTH2CLIENTID, aOAUTHSECRET, scopes, aTOKEURI,
+				aUSERNAME, aPASSWORD);
 		String aresponse = null;
-		if ( webclient!=null ) {
-			
-			try {
-				aresponse  = webclient.delete()
-					.uri( eurl )
-					.headers( httpHeaders )
-					.retrieve()
-					.onStatus(HttpStatus::is4xxClientError, response -> {
-						logger.error("4xx eror");
-				        return Mono.error(new RuntimeException("4xx"));
-				      })
-				      .onStatus(HttpStatus::is5xxServerError, response -> {
-				    	  logger.error("5xx eror");
-				        return Mono.error(new RuntimeException("5xx"));
-				      })
-					  .bodyToMono( new ParameterizedTypeReference< String >() {})
-					  .block();
-		
+		if (webclient != null) {
 
-			}catch (Exception e) {
+			try {
+				aresponse = webclient.patch().uri(eurl).headers(httpHeaders).bodyValue(apayload).retrieve()
+						.onStatus(HttpStatus::is4xxClientError, response -> {
+							logger.error("4xx eror");
+							return Mono.error(new RuntimeException("4xx"));
+						}).onStatus(HttpStatus::is5xxServerError, response -> {
+							logger.error("5xx eror");
+							return Mono.error(new RuntimeException("5xx"));
+						}).bodyToMono(new ParameterizedTypeReference<String>() {
+						}).block();
+
+			} catch (Exception e) {
 				logger.error(" error on web client request for " + eurl);
 				e.printStackTrace();
 				try {
@@ -648,9 +506,8 @@ public abstract class LcmBaseExecutor {
 					e1.printStackTrace();
 				}
 			}
-			 
-			
-		} else  {
+
+		} else {
 			logger.error("WebClient is null. Cannot be created for " + eurl);
 
 			try {
@@ -663,11 +520,223 @@ public abstract class LcmBaseExecutor {
 
 		return aresponse;
 	}
-	
+
+	public String rest_block_DELETE(String eurl, Consumer<HttpHeaders> httpHeaders, String apayload, String baseurl,
+			String aOAUTH2CLIENTID, String aOAUTHSECRET, String scopes, String aTOKEURI, String aUSERNAME,
+			String aPASSWORD) {
+		String clientRegId = "lcmBaseExecutor_WebClient";
+		WebClient webclient = getAwebClient(baseurl, clientRegId, aOAUTH2CLIENTID, aOAUTHSECRET, scopes, aTOKEURI,
+				aUSERNAME, aPASSWORD);
+		String aresponse = null;
+		if (webclient != null) {
+
+			try {
+				aresponse = webclient.delete().uri(eurl).headers(httpHeaders).retrieve()
+						.onStatus(HttpStatus::is4xxClientError, response -> {
+							logger.error("4xx eror");
+							return Mono.error(new RuntimeException("4xx"));
+						}).onStatus(HttpStatus::is5xxServerError, response -> {
+							logger.error("5xx eror");
+							return Mono.error(new RuntimeException("5xx"));
+						}).bodyToMono(new ParameterizedTypeReference<String>() {
+						}).block();
+
+			} catch (Exception e) {
+				logger.error(" error on web client request for " + eurl);
+				e.printStackTrace();
+				try {
+					Thread.sleep(3000);
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				}
+			}
+
+		} else {
+			logger.error("WebClient is null. Cannot be created for " + eurl);
+
+			try {
+				Thread.sleep(3000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		return aresponse;
+	}
+
+	public String getCurrentServiceOrderPropValue(String propertyName, String... props) {
+
+		logger.debug("getCurrentServiceOrderPropValue propertyName=" + propertyName);
+		ServiceOrder serviceOrder = this.vars.getSorder();
+		if (serviceOrder == null) {
+			return null;
+		}
+
+		switch (propertyName) {
+		case "state":
+			return serviceOrder.getState().name();
+		case "id":
+			return serviceOrder.getId();
+		case "externaId":
+			return serviceOrder.getExternalId();
+		case "serviceOrderObjectasJSON":
+			try {
+				return toJsonString(serviceOrder);
+			} catch (IOException e) {
+				logger.error(e.getLocalizedMessage());
+				e.printStackTrace();
+			}
+		default:
+			break;
+		}
+
+		return "";
+	}
+
+	public String getCurrentServicePropValue(String propertyName, String... props) {
+
+		logger.debug("getCurrentServicePropValue propertyName=" + propertyName);
+		Service service = this.vars.getService();
+		if (service == null) {
+			return null;
+		}
+
+		return getServicePropValue(service, propertyName, props);
+	}
+
+	public String getFromPayloadServicePropValue(String jsonpayload, String propertyName, String... props) {
+
+		logger.debug("getFromPayloadServicePropValue propertyName=" + propertyName);
+
+		Service service = null;
+		try {
+			service = toJsonObj(jsonpayload, new TypeReference<Service>() {
+			});
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+
+		if (service == null) {
+			return null;
+		}
+
+		return getServicePropValue(service, propertyName, props);
+	}
+
+	private String getServicePropValue(Service service, String propertyName, String... props) {
+		switch (propertyName) {
+		case "state":
+			return service.getState().name();
+		case "name":
+			return service.getName();
+		case "hasStarted":
+			return service.isHasStarted().toString();
+		case "isServiceEnabled":
+			return service.isIsServiceEnabled().toString();
+		case "serviceType":
+			return service.getServiceType();
+		case "startMode":
+			return service.getStartMode();
+		case "serviceCharacteristicValue":
+			if (props != null && props.length > 0) {
+				Characteristic cp = service.getServiceCharacteristicByName(props[0]);
+				logger.debug("getFromPayloadServicePropValue propertyName=" + propertyName + ',' + props[0]);
+				if (cp != null && cp.getValue() != null) {
+					return cp.getValue().getValue();
+				}
+			}
+			break;
+		case "serviceOrderID":
+			if (service.getServiceOrder() != null) {
+				return service.getServiceOrder().stream().findFirst().get().getId();
+			}
+			break;
+		case "serviceSpecificationID":
+			if (service.getServiceSpecificationRef() != null) {
+				return service.getServiceSpecificationRef().getId();
+			}
+			break;
+		case "serviceObjectasJSON":
+			try {
+				return toJsonString(service);
+			} catch (IOException e) {
+				logger.error(e.getLocalizedMessage());
+				e.printStackTrace();
+			}
+		default:
+			break;
+		}
+
+		return "";
+	}
+
+	public String createServiceOrder(String sorderJson) {
+
+		logger.debug("createServiceOrder sorderJson=" + sorderJson);
+		ServiceOrder contextServiceOrder = this.vars.getSorder();
+		try {
+			ServiceOrderCreate sonew = toJsonObj(sorderJson, new TypeReference<ServiceOrderCreate>() {
+			});
+
+			sonew.setRequestedStartDate(contextServiceOrder.getRequestedStartDate());
+			sonew.setRequestedCompletionDate(contextServiceOrder.getRequestedCompletionDate());
+			sonew.getOrderItem().stream().findFirst().get().setState(ServiceOrderStateType.ACKNOWLEDGED); // will be
+																											// processed
+																											// immediately
+																											// by OSOM
+
+			if (this.vars.getSoItem() != null) {
+				ServiceOrderItemRelationship soitemrel = new ServiceOrderItemRelationship();
+				;
+				soitemrel.setId(this.vars.getSoItem().getId());
+				soitemrel.setRelationshipType("DEPENDENCY");
+				sonew.getOrderItem().stream().findFirst().get().addOrderItemRelationshipItem(soitemrel);
+			}
+
+			if (sonew.getRelatedParty() == null) {
+				RelatedParty rp = new RelatedParty();
+				rp.setName("OSOM LCM");
+				rp.setRole("REQUESTER");
+				sonew.addRelatedPartyItem(rp);
+			}
+
+			if (sonew.getNote() == null) {
+				Note n = new Note();
+				if (this.vars.getSorder() != null) {
+					n.setText(String.format("Order created by LCM rule, %s, of orderid = %s", this.lcmspec.getName(),
+							this.vars.getSorder().getId()));
+				} else {
+					n.setText(String.format("Order created by LCM rule, %s", this.lcmspec.getName()));
+				}
+				sonew.addNoteItem(n);
+			}
+
+			if (this.vars.getServiceOrderManager() != null) {
+				ServiceOrder scorder = this.vars.getServiceOrderManager().createServiceOrder(sonew);
+				return toJsonString(scorder);
+			} else {
+
+				logger.error("createServiceOrder serviceOrderManager is NULL!");
+			}
+
+		} catch (IOException e) {
+			logger.error("createServiceOrder error=" + e.getLocalizedMessage());
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
 	static <T> T toJsonObj(String content, TypeReference<T> typeReference) throws IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 		return mapper.readValue(content, typeReference);
 	}
 
+	static String toJsonString(Object object) throws IOException {
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+		return mapper.writeValueAsString(object);
+	}
 }

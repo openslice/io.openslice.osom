@@ -204,10 +204,12 @@ public class LCMRulesExecutor {
         Object obj = javaDemoClass.getDeclaredConstructor().newInstance();
         logger.debug("obj =  "+ obj);
         
-        Method method = javaDemoClass.getMethod("run",  LCMRulesExecutorVariables.class);
+        Method method = javaDemoClass.getMethod("run",  LCMRulesExecutorVariables.class,  LCMRuleSpecification.class);
         logger.debug("method =  "+ method);
         ArrayList<Object> methodArgs = new ArrayList<Object>();
         methodArgs.add( vars );
+        methodArgs.add( lcmspec );
+        
         Object response = method.invoke(obj, methodArgs.toArray());
         if ( response instanceof LCMRulesExecutorVariables ) {
         	return (LCMRulesExecutorVariables) response;

@@ -52,6 +52,7 @@ import io.openslice.tmf.pm632.model.Organization;
 @SpringBootTest(properties = { "CATALOG_GET_SERVICEORDER_BY_ID = direct:get_mocked_order",
 		"CATALOG_GET_SERVICESPEC_BY_ID = direct:get_mocked_spec", "CATALOG_ADD_SERVICE = direct:get_mocked_add_service",
 		"CATALOG_UPD_SERVICEORDER_BY_ID = direct:get_mocked_upd_order",
+		"CATALOG_ADD_SERVICEORDER = direct:get_mocked_upd_order",
 		"CATALOG_GET_SERVICE_BY_ID = direct:get_mocked_service_id",
 		"CATALOG_GET_SERVICE_BY_ORDERID = direct:get_mocked_service_id",
 		"CATALOG_SERVICE_QUEUE_ITEMS_GET: direct:get_mocked_service_id",

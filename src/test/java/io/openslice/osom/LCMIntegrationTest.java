@@ -58,6 +58,7 @@ import io.openslice.tmf.so641.model.ServiceOrder;
 @SpringBootTest(properties = { "CATALOG_GET_SERVICEORDER_BY_ID = direct:get_mocked_order",
 		"CATALOG_GET_SERVICESPEC_BY_ID = direct:get_mocked_spec", "CATALOG_ADD_SERVICE = direct:get_mocked_add_service",
 		"CATALOG_UPD_SERVICEORDER_BY_ID = direct:get_mocked_upd_order",
+		"CATALOG_ADD_SERVICEORDER = direct:get_mocked_upd_order",
 		"CATALOG_GET_SERVICE_BY_ID = direct:get_mocked_service_id",
 		"CATALOG_SERVICE_QUEUE_ITEMS_GET: direct:get_mocked_service_queueitems",
 		"CATALOG_SERVICE_QUEUE_ITEM_UPD: direct:get_mocked_service_id",
@@ -192,7 +193,7 @@ public class LCMIntegrationTest {
 		ServiceCreate aService = setupServiceCreate(aServiceSpec);	
 		
 		LcmBaseExecutorC be = new LcmBaseExecutorC();
-        LCMRulesExecutorVariables vars = new LCMRulesExecutorVariables(aServiceSpec, new ServiceOrder(), aService);
+        LCMRulesExecutorVariables vars = new LCMRulesExecutorVariables(aServiceSpec, new ServiceOrder(), null, aService, null, null);
 		be.setVars( vars );
 		assertThat( be.getCharValFromStringType("cirros_2vnf_ns::SSHKEY") ).isEqualTo("MYKEYX");
 		assertThat( be.getCharValAsString("cirros_2vnf_ns::SSHKEY") ).isEqualTo("MYKEYX");
@@ -204,7 +205,7 @@ public class LCMIntegrationTest {
 		aServiceSpec = SCMocked.toJsonObj( sspectex, ServiceSpecification.class);	
 		aService = setupServiceCreate(aServiceSpec);	
 		be = new LcmBaseExecutorC();
-		vars = new LCMRulesExecutorVariables(aServiceSpec, new ServiceOrder(), aService);
+		vars = new LCMRulesExecutorVariables(aServiceSpec, new ServiceOrder(), null, aService, null, null);
 		be.setVars( vars );
 		
 		be.setCharValFromBooleanType("High Availability", true);
@@ -231,7 +232,7 @@ public class LCMIntegrationTest {
 		ServiceSpecification aServiceSpec = SCMocked.toJsonObj( sspectex, ServiceSpecification.class);		
 		ServiceCreate aService = setupServiceCreate(aServiceSpec);
 		
-        LCMRulesExecutorVariables vars = new LCMRulesExecutorVariables(aServiceSpec, new ServiceOrder(), aService);
+        LCMRulesExecutorVariables vars = new LCMRulesExecutorVariables(aServiceSpec, new ServiceOrder(), null, aService, null, null);
 		LCMRulesExecutor lcmRulesExecutor = new LCMRulesExecutor();
 		//check LcmCirrosRule3Test code for error (more complex code)
 
@@ -247,7 +248,7 @@ public class LCMIntegrationTest {
 		aService = setupServiceCreate(aServiceSpec);	
   	
 		lcs = scmocked.getLCMRulebyIDJson("40f027b5-24a9-4db7-b422-a963c9feeb7a");
-		vars = new LCMRulesExecutorVariables(aServiceSpec, new ServiceOrder(), aService);
+		vars = new LCMRulesExecutorVariables(aServiceSpec, new ServiceOrder(), null, aService, null, null);
 	    vars = lcmRulesExecutor.executeLCMRuleCode(  lcs, vars);
 	    assertThat( vars.getCompileDiagnosticErrors().size() ).isEqualTo(0);
 	    
@@ -279,10 +280,11 @@ public class LCMIntegrationTest {
 
 		logger.debug("Will make web calls. This is made online.");
 
-		lcs = scmocked.getLCMRulebyIDJson("49e2e679-9dc1-4c7b-abd9-72377d4c1a5d"); 
-	    vars = lcmRulesExecutor.executeLCMRuleCode(  lcs, vars);
+//		lcs = scmocked.getLCMRulebyIDJson("49e2e679-9dc1-4c7b-abd9-72377d4c1a5d"); 
+//	    vars = lcmRulesExecutor.executeLCMRuleCode(  lcs, vars);//this includes a post	    
 	    
-		
+		lcs = scmocked.getLCMRulebyIDJson("c1bd362d-011f-485b-a7d9-3bb05a2f6868"); 
+	    vars = lcmRulesExecutor.executeLCMRuleCode(  lcs, vars);// this includes a GET and payload json to service
 
 		logger.debug("===============TEST END testExecRuleSpec =============================");
 	}
