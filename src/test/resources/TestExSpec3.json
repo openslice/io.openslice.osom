@@ -1,6 +1,6 @@
 {
   "uuid": "0d5551e6-069f-43b7-aa71-10530f290239",
-  "lastUpdate": "2021-08-25T15:31:06Z",
+  "lastUpdate": "2021-09-04T10:04:05Z",
   "@baseType": "BaseEntity",
   "@schemaLocation": null,
   "@type": "CustomerFacingServiceSpecification",
@@ -63,7 +63,7 @@
       "serviceSpecCharRelationship": [],
       "serviceSpecCharacteristicValue": [
         {
-          "uuid": "9130f796-a693-4c14-9d9b-c4873e354117",
+          "uuid": "e2956648-56c0-4de0-bfb4-2254d24e5c4a",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -93,53 +93,6 @@
       "id": "00dc9fa5-0f44-485f-a210-d15d7b2cab71"
     },
     {
-      "uuid": "9e6ce9af-c18c-4774-aa33-5382ea7f007a",
-      "@baseType": "BaseRootEntity",
-      "@schemaLocation": null,
-      "@type": "io.openslice.tmf.scm633.model.ServiceSpecCharacteristic",
-      "href": null,
-      "name": "cirros_2vnf_nsd::PackageLocation",
-      "configurable": false,
-      "description": "NSD PackageLocation",
-      "extensible": null,
-      "isUnique": null,
-      "maxCardinality": 1,
-      "minCardinality": 1,
-      "regex": null,
-      "valueType": "TEXT",
-      "serviceSpecCharRelationship": [],
-      "serviceSpecCharacteristicValue": [
-        {
-          "uuid": "0d7d39ab-6a2c-45e1-a70d-c2a765f25826",
-          "@baseType": "BaseEntity",
-          "@schemaLocation": null,
-          "@type": null,
-          "href": null,
-          "isDefault": true,
-          "rangeInterval": null,
-          "regex": null,
-          "unitOfMeasure": "N/A",
-          "valueFrom": null,
-          "valueTo": null,
-          "valueType": null,
-          "validFor": {
-            "endDateTime": "2040-01-09T22:43:06Z",
-            "startDateTime": "2020-01-09T22:43:06Z"
-          },
-          "value": {
-            "value": "/osapi/packages/ed3692a2-33ef-4a68-9a53-b9c5117cb8fe/cirros_2vnf_ns.tar.gz",
-            "alias": "PackageLocation"
-          }
-        }
-      ],
-      "validFor": {
-        "endDateTime": "2040-01-01T23:07:49Z",
-        "startDateTime": "2020-01-01T23:07:49Z"
-      },
-      "@valueSchemaLocation": null,
-      "id": "9e6ce9af-c18c-4774-aa33-5382ea7f007a"
-    },
-    {
       "uuid": "646be409-5073-4fea-a5c6-d230295f68ad",
       "@baseType": "BaseRootEntity",
       "@schemaLocation": null,
@@ -157,73 +110,7 @@
       "serviceSpecCharRelationship": [],
       "serviceSpecCharacteristicValue": [
         {
-          "uuid": "85f4d0eb-a562-451c-b836-c3d98d1040ec",
-          "@baseType": "BaseEntity",
-          "@schemaLocation": null,
-          "@type": null,
-          "href": null,
-          "isDefault": true,
-          "rangeInterval": null,
-          "regex": null,
-          "unitOfMeasure": null,
-          "valueFrom": null,
-          "valueTo": null,
-          "valueType": "INTEGER",
-          "validFor": {
-            "endDateTime": "2041-08-25T15:31:06Z",
-            "startDateTime": "2021-08-25T15:31:06Z"
-          },
-          "value": {
-            "value": "GR",
-            "alias": "Greece"
-          }
-        },
-        {
-          "uuid": "0d38887f-71c6-4824-b1d3-04f66a3732db",
-          "@baseType": "BaseEntity",
-          "@schemaLocation": null,
-          "@type": null,
-          "href": null,
-          "isDefault": false,
-          "rangeInterval": null,
-          "regex": null,
-          "unitOfMeasure": null,
-          "valueFrom": null,
-          "valueTo": null,
-          "valueType": "INTEGER",
-          "validFor": {
-            "endDateTime": "2041-08-25T15:31:06Z",
-            "startDateTime": "2021-08-25T15:31:06Z"
-          },
-          "value": {
-            "value": "LI",
-            "alias": "Lithouania"
-          }
-        },
-        {
-          "uuid": "fab83c04-051a-454a-a8c2-7b7b151cc018",
-          "@baseType": "BaseEntity",
-          "@schemaLocation": null,
-          "@type": null,
-          "href": null,
-          "isDefault": false,
-          "rangeInterval": null,
-          "regex": null,
-          "unitOfMeasure": null,
-          "valueFrom": null,
-          "valueTo": null,
-          "valueType": "INTEGER",
-          "validFor": {
-            "endDateTime": "2041-08-25T15:31:06Z",
-            "startDateTime": "2021-08-25T15:31:06Z"
-          },
-          "value": {
-            "value": "FR",
-            "alias": "France"
-          }
-        },
-        {
-          "uuid": "38060274-3935-4c8d-85de-a90677988d4f",
+          "uuid": "1423ac7a-bdb5-44dd-b4cb-8278d4308061",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -245,29 +132,7 @@
           }
         },
         {
-          "uuid": "c43f3f52-3061-46d6-a1a7-5fc43f873bdd",
-          "@baseType": "BaseEntity",
-          "@schemaLocation": null,
-          "@type": null,
-          "href": null,
-          "isDefault": false,
-          "rangeInterval": null,
-          "regex": null,
-          "unitOfMeasure": null,
-          "valueFrom": null,
-          "valueTo": null,
-          "valueType": "INTEGER",
-          "validFor": {
-            "endDateTime": "2041-08-25T15:31:06Z",
-            "startDateTime": "2021-08-25T15:31:06Z"
-          },
-          "value": {
-            "value": "DE",
-            "alias": "Germany"
-          }
-        },
-        {
-          "uuid": "00279fcd-3aa7-4fc4-85d1-63d4ff10421a",
+          "uuid": "fad8a832-f810-4287-8d08-aa69d3421976",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -289,12 +154,12 @@
           }
         },
         {
-          "uuid": "26c58e68-eac4-4a31-9773-a00e39cce0ad",
+          "uuid": "85ef658d-5de1-49dd-a4fd-a17f8d717e1b",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
           "href": null,
-          "isDefault": true,
+          "isDefault": false,
           "rangeInterval": null,
           "regex": null,
           "unitOfMeasure": null,
@@ -311,7 +176,95 @@
           }
         },
         {
-          "uuid": "2f6e2bd5-a05f-4299-9959-3c3a3b7db867",
+          "uuid": "809447c5-77c0-4546-b5ad-eb8088c4fb5f",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": false,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "INTEGER",
+          "validFor": {
+            "endDateTime": "2041-08-25T15:31:06Z",
+            "startDateTime": "2021-08-25T15:31:06Z"
+          },
+          "value": {
+            "value": "LI",
+            "alias": "Lithouania"
+          }
+        },
+        {
+          "uuid": "934d0d09-637a-4f06-a070-f8b628963430",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": false,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "INTEGER",
+          "validFor": {
+            "endDateTime": "2041-08-25T15:31:06Z",
+            "startDateTime": "2021-08-25T15:31:06Z"
+          },
+          "value": {
+            "value": "UK",
+            "alias": "United Kingdom"
+          }
+        },
+        {
+          "uuid": "f563ca75-9b81-4a78-b6a9-884bc869bf48",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": false,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "INTEGER",
+          "validFor": {
+            "endDateTime": "2041-08-25T15:31:06Z",
+            "startDateTime": "2021-08-25T15:31:06Z"
+          },
+          "value": {
+            "value": "DE",
+            "alias": "Germany"
+          }
+        },
+        {
+          "uuid": "516ec895-c10c-4699-b79d-afdbae8e6a4a",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": false,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "INTEGER",
+          "validFor": {
+            "endDateTime": "2041-08-25T15:31:06Z",
+            "startDateTime": "2021-08-25T15:31:06Z"
+          },
+          "value": {
+            "value": "FR",
+            "alias": "France"
+          }
+        },
+        {
+          "uuid": "789e651a-5b10-48f1-b7cd-d10c51d95164",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -333,12 +286,12 @@
           }
         },
         {
-          "uuid": "78eceb95-42a7-49b0-bee6-c412ffbd4f27",
+          "uuid": "f226637a-6802-4633-b482-609544ab07ad",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
           "href": null,
-          "isDefault": false,
+          "isDefault": true,
           "rangeInterval": null,
           "regex": null,
           "unitOfMeasure": null,
@@ -350,8 +303,8 @@
             "startDateTime": "2021-08-25T15:31:06Z"
           },
           "value": {
-            "value": "UK",
-            "alias": "United Kingdom"
+            "value": "GR",
+            "alias": "Greece"
           }
         }
       ],
@@ -380,29 +333,7 @@
       "serviceSpecCharRelationship": [],
       "serviceSpecCharacteristicValue": [
         {
-          "uuid": "eb1cb7f0-cd33-4491-89c3-8d4d87bf3639",
-          "@baseType": "BaseEntity",
-          "@schemaLocation": null,
-          "@type": null,
-          "href": null,
-          "isDefault": null,
-          "rangeInterval": null,
-          "regex": null,
-          "unitOfMeasure": null,
-          "valueFrom": null,
-          "valueTo": null,
-          "valueType": "INTEGER",
-          "validFor": {
-            "endDateTime": "2039-12-13T21:52:24Z",
-            "startDateTime": "2019-12-13T21:52:24Z"
-          },
-          "value": {
-            "value": "1",
-            "alias": "FHD"
-          }
-        },
-        {
-          "uuid": "6dc288d2-64a0-4790-bb28-7b488c35f5ff",
+          "uuid": "3a9dbacc-7b23-437e-8a38-8f3dec1b2453",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -424,7 +355,29 @@
           }
         },
         {
-          "uuid": "fac67fa0-1139-4322-80cc-45d37cd794cc",
+          "uuid": "6c63e237-b6c7-42d4-b1ff-f0806a2c3a9a",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": null,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "INTEGER",
+          "validFor": {
+            "endDateTime": "2039-12-13T21:52:24Z",
+            "startDateTime": "2019-12-13T21:52:24Z"
+          },
+          "value": {
+            "value": "1",
+            "alias": "FHD"
+          }
+        },
+        {
+          "uuid": "ed7d123d-98cc-4141-8ffe-ebf13262dcce",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -446,7 +399,7 @@
           }
         },
         {
-          "uuid": "4a98f282-fcdc-4b65-ac18-61e286cdd2e9",
+          "uuid": "548acd09-752f-4db6-811a-90fc5cd0e8fe",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -493,12 +446,12 @@
       "serviceSpecCharRelationship": [],
       "serviceSpecCharacteristicValue": [
         {
-          "uuid": "666f0dc6-3a07-42ed-8299-28a106e818c8",
+          "uuid": "48c94034-0720-4c21-bc7a-d8391d0bb891",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
           "href": null,
-          "isDefault": true,
+          "isDefault": false,
           "rangeInterval": null,
           "regex": null,
           "unitOfMeasure": "sec",
@@ -510,12 +463,12 @@
             "startDateTime": "2019-12-13T22:03:31Z"
           },
           "value": {
-            "value": "1",
-            "alias": "Live (1s)"
+            "value": "0.1",
+            "alias": "Live (0.1s)"
           }
         },
         {
-          "uuid": "16516591-3856-4c70-94cd-69c6bb3c8ae6",
+          "uuid": "a7678bcf-81c4-4463-9b07-1b9ae3de95c1",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -537,12 +490,12 @@
           }
         },
         {
-          "uuid": "66f1a801-6e6a-41ea-9018-0420a6fe8cf3",
+          "uuid": "c6e25d38-7c2e-4bde-b137-3698b6047843",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
           "href": null,
-          "isDefault": false,
+          "isDefault": true,
           "rangeInterval": null,
           "regex": null,
           "unitOfMeasure": "sec",
@@ -554,8 +507,8 @@
             "startDateTime": "2019-12-13T22:03:31Z"
           },
           "value": {
-            "value": "0.1",
-            "alias": "Live (0.1s)"
+            "value": "1",
+            "alias": "Live (1s)"
           }
         }
       ],
@@ -584,7 +537,7 @@
       "serviceSpecCharRelationship": [],
       "serviceSpecCharacteristicValue": [
         {
-          "uuid": "95f10ff7-30bb-44a5-ac5f-fe82e6ab0248",
+          "uuid": "bc27dc77-6a19-4577-9572-a24f086d1831",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -614,97 +567,6 @@
       "id": "83b7fa9f-28c0-405e-8042-bd7340639ee4"
     },
     {
-      "uuid": "1e5c4b8a-f309-42db-bfc6-267b5a8ffec5",
-      "@baseType": "BaseRootEntity",
-      "@schemaLocation": null,
-      "@type": "io.openslice.tmf.scm633.model.ServiceSpecCharacteristic",
-      "href": null,
-      "name": "test actions_array",
-      "configurable": true,
-      "description": "test ",
-      "extensible": null,
-      "isUnique": null,
-      "maxCardinality": 1,
-      "minCardinality": 0,
-      "regex": null,
-      "valueType": "ARRAY",
-      "serviceSpecCharRelationship": [],
-      "serviceSpecCharacteristicValue": [
-        {
-          "uuid": "32ef3757-b099-4201-aa10-78f549c4c47d",
-          "@baseType": "BaseEntity",
-          "@schemaLocation": null,
-          "@type": null,
-          "href": null,
-          "isDefault": true,
-          "rangeInterval": null,
-          "regex": null,
-          "unitOfMeasure": null,
-          "valueFrom": null,
-          "valueTo": null,
-          "valueType": "INTEGER",
-          "validFor": {
-            "endDateTime": "2041-08-25T15:10:30Z",
-            "startDateTime": "2021-08-25T15:10:30Z"
-          },
-          "value": {
-            "value": "100",
-            "alias": "PARAM1"
-          }
-        },
-        {
-          "uuid": "d4f8c7a5-971c-46fe-9bf3-8b8c8e329477",
-          "@baseType": "BaseEntity",
-          "@schemaLocation": null,
-          "@type": null,
-          "href": null,
-          "isDefault": true,
-          "rangeInterval": null,
-          "regex": null,
-          "unitOfMeasure": null,
-          "valueFrom": null,
-          "valueTo": null,
-          "valueType": "INTEGER",
-          "validFor": {
-            "endDateTime": "2041-08-25T15:10:30Z",
-            "startDateTime": "2021-08-25T15:10:30Z"
-          },
-          "value": {
-            "value": "33",
-            "alias": "param3"
-          }
-        },
-        {
-          "uuid": "35e47191-9ba1-48fb-a6eb-ced7f28ada1d",
-          "@baseType": "BaseEntity",
-          "@schemaLocation": null,
-          "@type": null,
-          "href": null,
-          "isDefault": true,
-          "rangeInterval": null,
-          "regex": null,
-          "unitOfMeasure": null,
-          "valueFrom": null,
-          "valueTo": null,
-          "valueType": "INTEGER",
-          "validFor": {
-            "endDateTime": "2041-08-25T15:10:30Z",
-            "startDateTime": "2021-08-25T15:10:30Z"
-          },
-          "value": {
-            "value": "22",
-            "alias": "param2"
-          }
-        }
-      ],
-      "validFor": {
-        "endDateTime": "2040-09-17T09:09:27Z",
-        "startDateTime": "2020-09-17T09:09:27Z"
-      },
-      "@valueSchemaLocation": null,
-      "id": "1e5c4b8a-f309-42db-bfc6-267b5a8ffec5"
-    },
-    {
       "uuid": "9e8e3bd1-c4e3-4bbf-99f4-ef969bf557a3",
       "@baseType": "BaseRootEntity",
       "@schemaLocation": null,
@@ -722,7 +584,7 @@
       "serviceSpecCharRelationship": [],
       "serviceSpecCharacteristicValue": [
         {
-          "uuid": "501d70d3-006f-4f53-abb9-267f957f1f67",
+          "uuid": "c9ce9261-37cf-46ca-84e3-36558a209fbf",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -752,6 +614,379 @@
       "id": "9e8e3bd1-c4e3-4bbf-99f4-ef969bf557a3"
     },
     {
+      "uuid": "e1719ead-6b97-4fa8-9cae-ad2e48d66631",
+      "@baseType": "BaseRootEntity",
+      "@schemaLocation": null,
+      "@type": "io.openslice.tmf.scm633.model.ServiceSpecCharacteristic",
+      "href": null,
+      "name": "cirros_2vnf_nsd::ObMANOprovider_Name",
+      "configurable": false,
+      "description": "NSD Onboarded MANO provider Name",
+      "extensible": null,
+      "isUnique": null,
+      "maxCardinality": 1,
+      "minCardinality": 1,
+      "regex": null,
+      "valueType": "TEXT",
+      "serviceSpecCharRelationship": [],
+      "serviceSpecCharacteristicValue": [
+        {
+          "uuid": "a8a86b84-0b07-4910-a4c9-8ac07dfbb56e",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": true,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": "N/A",
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": null,
+          "validFor": {
+            "endDateTime": "2040-01-09T21:27:43Z",
+            "startDateTime": "2020-01-09T21:27:43Z"
+          },
+          "value": {
+            "value": "uop",
+            "alias": ""
+          }
+        }
+      ],
+      "validFor": {
+        "endDateTime": "2040-01-01T23:07:49Z",
+        "startDateTime": "2020-01-01T23:07:49Z"
+      },
+      "@valueSchemaLocation": null,
+      "id": "e1719ead-6b97-4fa8-9cae-ad2e48d66631"
+    },
+    {
+      "uuid": "16f684d2-9f8d-4a8a-8a2b-5b8b5c19f302",
+      "@baseType": "BaseRootEntity",
+      "@schemaLocation": null,
+      "@type": "io.openslice.tmf.scm633.model.ServiceSpecCharacteristic",
+      "href": null,
+      "name": "cirros_2vnf_nsd::OnBoardingStatus",
+      "configurable": false,
+      "description": "NSDtOnBoardingStatus",
+      "extensible": null,
+      "isUnique": null,
+      "maxCardinality": 1,
+      "minCardinality": 1,
+      "regex": null,
+      "valueType": "TEXT",
+      "serviceSpecCharRelationship": [],
+      "serviceSpecCharacteristicValue": [
+        {
+          "uuid": "e6235da1-f93d-492b-accb-0650ed090174",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": true,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": "N/A",
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": null,
+          "validFor": {
+            "endDateTime": "2040-01-10T14:54:13Z",
+            "startDateTime": "2020-01-10T14:54:13Z"
+          },
+          "value": {
+            "value": "ONBOARDED",
+            "alias": ""
+          }
+        }
+      ],
+      "validFor": {
+        "endDateTime": "2040-01-01T23:07:49Z",
+        "startDateTime": "2020-01-01T23:07:49Z"
+      },
+      "@valueSchemaLocation": null,
+      "id": "16f684d2-9f8d-4a8a-8a2b-5b8b5c19f302"
+    },
+    {
+      "uuid": "4f2a4f1b-35f7-441f-a3f2-b5c250587463",
+      "@baseType": "BaseRootEntity",
+      "@schemaLocation": null,
+      "@type": "io.openslice.tmf.scm633.model.ServiceSpecCharacteristic",
+      "href": null,
+      "name": "cirros_2vnf_nsd::PackagingFormat",
+      "configurable": false,
+      "description": "NSD PackagingFormat",
+      "extensible": null,
+      "isUnique": null,
+      "maxCardinality": 1,
+      "minCardinality": 1,
+      "regex": null,
+      "valueType": "TEXT",
+      "serviceSpecCharRelationship": [],
+      "serviceSpecCharacteristicValue": [
+        {
+          "uuid": "7890d3a4-00b9-4e1c-9282-e3a5e8573858",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": true,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": "N/A",
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": null,
+          "validFor": {
+            "endDateTime": "2040-01-09T22:43:25Z",
+            "startDateTime": "2020-01-09T22:43:25Z"
+          },
+          "value": {
+            "value": "OSMvFIVE",
+            "alias": "PackagingFormat"
+          }
+        }
+      ],
+      "validFor": {
+        "endDateTime": "2040-01-01T23:07:49Z",
+        "startDateTime": "2020-01-01T23:07:49Z"
+      },
+      "@valueSchemaLocation": null,
+      "id": "4f2a4f1b-35f7-441f-a3f2-b5c250587463"
+    },
+    {
+      "uuid": "54fb7ed8-e50c-42c0-b5cc-cd948e2fba0e",
+      "@baseType": "BaseRootEntity",
+      "@schemaLocation": null,
+      "@type": "io.openslice.tmf.scm633.model.ServiceSpecCharacteristic",
+      "href": null,
+      "name": "cirros_2vnf_nsd::Vendor",
+      "configurable": false,
+      "description": "NSD Vendor",
+      "extensible": null,
+      "isUnique": null,
+      "maxCardinality": 1,
+      "minCardinality": 1,
+      "regex": null,
+      "valueType": "TEXT",
+      "serviceSpecCharRelationship": [],
+      "serviceSpecCharacteristicValue": [
+        {
+          "uuid": "e0adc92d-10f7-4e8c-944c-31226400a46d",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": true,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": "N/A",
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": null,
+          "validFor": {
+            "endDateTime": "2040-01-09T22:43:16Z",
+            "startDateTime": "2020-01-09T22:43:16Z"
+          },
+          "value": {
+            "value": "OSM",
+            "alias": "Vendor"
+          }
+        }
+      ],
+      "validFor": {
+        "endDateTime": "2040-01-01T23:07:49Z",
+        "startDateTime": "2020-01-01T23:07:49Z"
+      },
+      "@valueSchemaLocation": null,
+      "id": "54fb7ed8-e50c-42c0-b5cc-cd948e2fba0e"
+    },
+    {
+      "uuid": "5d83e09c-f150-49cf-9f96-c6ca862b9655",
+      "@baseType": "BaseRootEntity",
+      "@schemaLocation": null,
+      "@type": "io.openslice.tmf.scm633.model.ServiceSpecCharacteristic",
+      "href": null,
+      "name": "Maximum Number of cameras",
+      "configurable": true,
+      "description": null,
+      "extensible": null,
+      "isUnique": null,
+      "maxCardinality": 1,
+      "minCardinality": 0,
+      "regex": null,
+      "valueType": "SMALLINT",
+      "serviceSpecCharRelationship": [],
+      "serviceSpecCharacteristicValue": [
+        {
+          "uuid": "e3e25b21-3f7c-4403-b92f-5849cf93ec6f",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": true,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "SMALLINT",
+          "validFor": {
+            "endDateTime": "2041-08-16T12:37:57Z",
+            "startDateTime": "2021-08-16T12:37:57Z"
+          },
+          "value": {
+            "value": "3",
+            "alias": null
+          }
+        }
+      ],
+      "validFor": {
+        "endDateTime": "2039-12-13T21:43:23Z",
+        "startDateTime": "2019-12-13T21:43:23Z"
+      },
+      "@valueSchemaLocation": null,
+      "id": "5d83e09c-f150-49cf-9f96-c6ca862b9655"
+    },
+    {
+      "uuid": "9e6ce9af-c18c-4774-aa33-5382ea7f007a",
+      "@baseType": "BaseRootEntity",
+      "@schemaLocation": null,
+      "@type": "io.openslice.tmf.scm633.model.ServiceSpecCharacteristic",
+      "href": null,
+      "name": "cirros_2vnf_nsd::PackageLocation",
+      "configurable": false,
+      "description": "NSD PackageLocation",
+      "extensible": null,
+      "isUnique": null,
+      "maxCardinality": 1,
+      "minCardinality": 1,
+      "regex": null,
+      "valueType": "TEXT",
+      "serviceSpecCharRelationship": [],
+      "serviceSpecCharacteristicValue": [
+        {
+          "uuid": "7db6db63-255a-4dd0-a189-c08e31ee83d9",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": true,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": "N/A",
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": null,
+          "validFor": {
+            "endDateTime": "2040-01-09T22:43:06Z",
+            "startDateTime": "2020-01-09T22:43:06Z"
+          },
+          "value": {
+            "value": "/osapi/packages/ed3692a2-33ef-4a68-9a53-b9c5117cb8fe/cirros_2vnf_ns.tar.gz",
+            "alias": "PackageLocation"
+          }
+        }
+      ],
+      "validFor": {
+        "endDateTime": "2040-01-01T23:07:49Z",
+        "startDateTime": "2020-01-01T23:07:49Z"
+      },
+      "@valueSchemaLocation": null,
+      "id": "9e6ce9af-c18c-4774-aa33-5382ea7f007a"
+    },
+    {
+      "uuid": "1e5c4b8a-f309-42db-bfc6-267b5a8ffec5",
+      "@baseType": "BaseRootEntity",
+      "@schemaLocation": null,
+      "@type": "io.openslice.tmf.scm633.model.ServiceSpecCharacteristic",
+      "href": null,
+      "name": "test actions_array",
+      "configurable": true,
+      "description": "test ",
+      "extensible": null,
+      "isUnique": null,
+      "maxCardinality": 1,
+      "minCardinality": 0,
+      "regex": null,
+      "valueType": "ARRAY",
+      "serviceSpecCharRelationship": [],
+      "serviceSpecCharacteristicValue": [
+        {
+          "uuid": "87297f29-7e96-4027-9026-9337c5cd8f27",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": true,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "INTEGER",
+          "validFor": {
+            "endDateTime": "2041-08-25T15:10:30Z",
+            "startDateTime": "2021-08-25T15:10:30Z"
+          },
+          "value": {
+            "value": "33",
+            "alias": "param3"
+          }
+        },
+        {
+          "uuid": "05b0017d-6f40-48a2-9344-d6297bcfccd2",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": true,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "INTEGER",
+          "validFor": {
+            "endDateTime": "2041-08-25T15:10:30Z",
+            "startDateTime": "2021-08-25T15:10:30Z"
+          },
+          "value": {
+            "value": "22",
+            "alias": "param2"
+          }
+        },
+        {
+          "uuid": "4bdda9dc-92e8-429d-86e6-ac07a40990f8",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": true,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "INTEGER",
+          "validFor": {
+            "endDateTime": "2041-08-25T15:10:30Z",
+            "startDateTime": "2021-08-25T15:10:30Z"
+          },
+          "value": {
+            "value": "100",
+            "alias": "PARAM1"
+          }
+        }
+      ],
+      "validFor": {
+        "endDateTime": "2040-09-17T09:09:27Z",
+        "startDateTime": "2020-09-17T09:09:27Z"
+      },
+      "@valueSchemaLocation": null,
+      "id": "1e5c4b8a-f309-42db-bfc6-267b5a8ffec5"
+    },
+    {
       "uuid": "7376c065-086a-4d31-9775-f313805811e7",
       "@baseType": "BaseRootEntity",
       "@schemaLocation": null,
@@ -769,7 +1004,7 @@
       "serviceSpecCharRelationship": [],
       "serviceSpecCharacteristicValue": [
         {
-          "uuid": "6ad584a2-f4db-4375-bc3c-b77bff9f6224",
+          "uuid": "dffd13af-d55e-4b17-96dd-04d5ab1078aa",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -791,7 +1026,7 @@
           }
         },
         {
-          "uuid": "e0e9d53b-fcc4-461e-b8b9-f0eb222787ce",
+          "uuid": "4508b3cd-4f94-4996-8afb-da69b0aba4b6",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -813,7 +1048,7 @@
           }
         },
         {
-          "uuid": "5f49ce48-c463-4e84-ae56-32965b94da49",
+          "uuid": "f84f8cae-e040-42c2-a6c4-02dc9f3ca907",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -884,29 +1119,7 @@
       "serviceSpecCharRelationship": [],
       "serviceSpecCharacteristicValue": [
         {
-          "uuid": "229c1617-381d-48ed-a3ee-69f8f6f0d0ee",
-          "@baseType": "BaseEntity",
-          "@schemaLocation": null,
-          "@type": null,
-          "href": null,
-          "isDefault": null,
-          "rangeInterval": null,
-          "regex": null,
-          "unitOfMeasure": null,
-          "valueFrom": null,
-          "valueTo": null,
-          "valueType": "INTEGER",
-          "validFor": {
-            "endDateTime": "2039-12-13T21:57:25Z",
-            "startDateTime": "2019-12-13T21:57:25Z"
-          },
-          "value": {
-            "value": "1",
-            "alias": "Video"
-          }
-        },
-        {
-          "uuid": "cacfa6ca-ec22-45fc-a8bc-ab3203291afc",
+          "uuid": "283c6863-7034-489e-ae0d-780269cff8f2",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -925,6 +1138,28 @@
           "value": {
             "value": "0",
             "alias": "Audio"
+          }
+        },
+        {
+          "uuid": "0e4ad6e4-ced3-4db5-9d83-ac38233fc449",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": null,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "INTEGER",
+          "validFor": {
+            "endDateTime": "2039-12-13T21:57:25Z",
+            "startDateTime": "2019-12-13T21:57:25Z"
+          },
+          "value": {
+            "value": "1",
+            "alias": "Video"
           }
         }
       ],
@@ -953,29 +1188,7 @@
       "serviceSpecCharRelationship": [],
       "serviceSpecCharacteristicValue": [
         {
-          "uuid": "3c6bc255-1c51-414a-b0d1-2a742dec2661",
-          "@baseType": "BaseEntity",
-          "@schemaLocation": null,
-          "@type": null,
-          "href": null,
-          "isDefault": true,
-          "rangeInterval": null,
-          "regex": null,
-          "unitOfMeasure": null,
-          "valueFrom": null,
-          "valueTo": null,
-          "valueType": "TEXT",
-          "validFor": {
-            "endDateTime": "2039-12-13T21:31:31Z",
-            "startDateTime": "2019-12-13T21:31:31Z"
-          },
-          "value": {
-            "value": "691c8956-0369-4b91-b914-b61dccba74db",
-            "alias": "Cloudville"
-          }
-        },
-        {
-          "uuid": "aed6fc22-8935-46d4-a7f9-358f1da5b2ef",
+          "uuid": "c3771b06-01fa-4384-8490-2a6879ca3921",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -997,7 +1210,7 @@
           }
         },
         {
-          "uuid": "f74ab769-04fb-4745-9a85-a4ea1b2395c4",
+          "uuid": "3d5e1fec-90be-4810-8c0c-0957668efcc4",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -1016,6 +1229,28 @@
           "value": {
             "value": "b5f9e566-a5ad-4afe-91f0-3ac33008b3c8",
             "alias": "CloudVille nova zone"
+          }
+        },
+        {
+          "uuid": "82911f83-55b3-4ca4-9aeb-57a4a3fb1a69",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": true,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "TEXT",
+          "validFor": {
+            "endDateTime": "2039-12-13T21:31:31Z",
+            "startDateTime": "2019-12-13T21:31:31Z"
+          },
+          "value": {
+            "value": "691c8956-0369-4b91-b914-b61dccba74db",
+            "alias": "Cloudville"
           }
         }
       ],
@@ -1044,51 +1279,7 @@
       "serviceSpecCharRelationship": [],
       "serviceSpecCharacteristicValue": [
         {
-          "uuid": "7cd67fdc-80cc-4d0b-846c-334fa60a54db",
-          "@baseType": "BaseEntity",
-          "@schemaLocation": null,
-          "@type": null,
-          "href": null,
-          "isDefault": true,
-          "rangeInterval": null,
-          "regex": null,
-          "unitOfMeasure": null,
-          "valueFrom": null,
-          "valueTo": null,
-          "valueType": "INTEGER",
-          "validFor": {
-            "endDateTime": "2041-08-25T15:10:23Z",
-            "startDateTime": "2021-08-25T15:10:23Z"
-          },
-          "value": {
-            "value": "10",
-            "alias": "test param 3"
-          }
-        },
-        {
-          "uuid": "615ba685-f3f3-4b9a-bca1-2fecb9907e79",
-          "@baseType": "BaseEntity",
-          "@schemaLocation": null,
-          "@type": null,
-          "href": null,
-          "isDefault": false,
-          "rangeInterval": null,
-          "regex": null,
-          "unitOfMeasure": null,
-          "valueFrom": null,
-          "valueTo": null,
-          "valueType": "INTEGER",
-          "validFor": {
-            "endDateTime": "2041-08-25T15:10:23Z",
-            "startDateTime": "2021-08-25T15:10:23Z"
-          },
-          "value": {
-            "value": "100",
-            "alias": "test param 2"
-          }
-        },
-        {
-          "uuid": "0cc4a04c-70ea-4cd3-b36e-ab066596b3e9",
+          "uuid": "cf409680-fa96-42f0-99ee-568e7c3d971b",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -1110,7 +1301,29 @@
           }
         },
         {
-          "uuid": "1fbc5d9f-a75a-47b3-ad94-636a7a749ab1",
+          "uuid": "e7a4d765-4791-4f60-b1bd-3f590299d3a9",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": true,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "INTEGER",
+          "validFor": {
+            "endDateTime": "2041-08-25T15:10:23Z",
+            "startDateTime": "2021-08-25T15:10:23Z"
+          },
+          "value": {
+            "value": "10",
+            "alias": "test param 3"
+          }
+        },
+        {
+          "uuid": "60351b4e-686e-45d3-80b6-82759a992cc7",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -1129,6 +1342,28 @@
           "value": {
             "value": "1",
             "alias": "test param 1"
+          }
+        },
+        {
+          "uuid": "881e8cc3-854f-4ff3-b5e8-eaed457f09dd",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": false,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "INTEGER",
+          "validFor": {
+            "endDateTime": "2041-08-25T15:10:23Z",
+            "startDateTime": "2021-08-25T15:10:23Z"
+          },
+          "value": {
+            "value": "100",
+            "alias": "test param 2"
           }
         }
       ],
@@ -1157,7 +1392,7 @@
       "serviceSpecCharRelationship": [],
       "serviceSpecCharacteristicValue": [
         {
-          "uuid": "ec2efec0-4b25-4c83-b92e-3f895555a09b",
+          "uuid": "427fae37-06c8-4bda-ad0f-eddc71669de9",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -1179,7 +1414,7 @@
           }
         },
         {
-          "uuid": "7f008749-aff0-4f93-ba6a-cf7e00757877",
+          "uuid": "2f4e6fd9-8dab-49fa-9110-733281f98942",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -1226,29 +1461,7 @@
       "serviceSpecCharRelationship": [],
       "serviceSpecCharacteristicValue": [
         {
-          "uuid": "be1e4836-473a-483f-9a90-b79d5c4c5fb9",
-          "@baseType": "BaseEntity",
-          "@schemaLocation": null,
-          "@type": null,
-          "href": null,
-          "isDefault": true,
-          "rangeInterval": null,
-          "regex": null,
-          "unitOfMeasure": null,
-          "valueFrom": null,
-          "valueTo": null,
-          "valueType": "INTEGER",
-          "validFor": {
-            "endDateTime": "2040-05-05T15:07:47Z",
-            "startDateTime": "2020-05-05T15:07:47Z"
-          },
-          "value": {
-            "value": "2310",
-            "alias": "Patras"
-          }
-        },
-        {
-          "uuid": "123a4416-45fa-4063-b8ac-e633358135f3",
+          "uuid": "d6e9e89d-e793-4958-a2bd-a4c1e9f2d1de",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -1267,6 +1480,28 @@
           "value": {
             "value": "210",
             "alias": "Athens"
+          }
+        },
+        {
+          "uuid": "f7487da7-dfde-4b56-b00d-035f58aaa46f",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": true,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "INTEGER",
+          "validFor": {
+            "endDateTime": "2040-05-05T15:07:47Z",
+            "startDateTime": "2020-05-05T15:07:47Z"
+          },
+          "value": {
+            "value": "2310",
+            "alias": "Patras"
           }
         }
       ],
@@ -1302,53 +1537,6 @@
       "id": "d83af264-810f-4016-9e28-753783112935"
     },
     {
-      "uuid": "e1719ead-6b97-4fa8-9cae-ad2e48d66631",
-      "@baseType": "BaseRootEntity",
-      "@schemaLocation": null,
-      "@type": "io.openslice.tmf.scm633.model.ServiceSpecCharacteristic",
-      "href": null,
-      "name": "cirros_2vnf_nsd::ObMANOprovider_Name",
-      "configurable": false,
-      "description": "NSD Onboarded MANO provider Name",
-      "extensible": null,
-      "isUnique": null,
-      "maxCardinality": 1,
-      "minCardinality": 1,
-      "regex": null,
-      "valueType": "TEXT",
-      "serviceSpecCharRelationship": [],
-      "serviceSpecCharacteristicValue": [
-        {
-          "uuid": "2ed187bc-aa54-4a45-b5ab-9d4f8f46bde4",
-          "@baseType": "BaseEntity",
-          "@schemaLocation": null,
-          "@type": null,
-          "href": null,
-          "isDefault": true,
-          "rangeInterval": null,
-          "regex": null,
-          "unitOfMeasure": "N/A",
-          "valueFrom": null,
-          "valueTo": null,
-          "valueType": null,
-          "validFor": {
-            "endDateTime": "2040-01-09T21:27:43Z",
-            "startDateTime": "2020-01-09T21:27:43Z"
-          },
-          "value": {
-            "value": "uop",
-            "alias": ""
-          }
-        }
-      ],
-      "validFor": {
-        "endDateTime": "2040-01-01T23:07:49Z",
-        "startDateTime": "2020-01-01T23:07:49Z"
-      },
-      "@valueSchemaLocation": null,
-      "id": "e1719ead-6b97-4fa8-9cae-ad2e48d66631"
-    },
-    {
       "uuid": "293b486c-d5cc-42f3-bc38-c176f9cdffff",
       "@baseType": "BaseRootEntity",
       "@schemaLocation": null,
@@ -1366,7 +1554,7 @@
       "serviceSpecCharRelationship": [],
       "serviceSpecCharacteristicValue": [
         {
-          "uuid": "befe3a39-143e-4388-8077-e744c26316d1",
+          "uuid": "a6761857-effc-4bc3-934b-58299fa50e88",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -1396,165 +1584,24 @@
       "id": "293b486c-d5cc-42f3-bc38-c176f9cdffff"
     },
     {
-      "uuid": "16f684d2-9f8d-4a8a-8a2b-5b8b5c19f302",
+      "uuid": "fd2e1b18-f107-4520-8205-8a42cea806d9",
       "@baseType": "BaseRootEntity",
       "@schemaLocation": null,
       "@type": "io.openslice.tmf.scm633.model.ServiceSpecCharacteristic",
       "href": null,
-      "name": "cirros_2vnf_nsd::OnBoardingStatus",
+      "name": "Current active cameras",
       "configurable": false,
-      "description": "NSDtOnBoardingStatus",
-      "extensible": null,
-      "isUnique": null,
-      "maxCardinality": 1,
-      "minCardinality": 1,
-      "regex": null,
-      "valueType": "TEXT",
-      "serviceSpecCharRelationship": [],
-      "serviceSpecCharacteristicValue": [
-        {
-          "uuid": "8d20343a-31ce-43f8-8323-c905818adce9",
-          "@baseType": "BaseEntity",
-          "@schemaLocation": null,
-          "@type": null,
-          "href": null,
-          "isDefault": true,
-          "rangeInterval": null,
-          "regex": null,
-          "unitOfMeasure": "N/A",
-          "valueFrom": null,
-          "valueTo": null,
-          "valueType": null,
-          "validFor": {
-            "endDateTime": "2040-01-10T14:54:13Z",
-            "startDateTime": "2020-01-10T14:54:13Z"
-          },
-          "value": {
-            "value": "ONBOARDED",
-            "alias": ""
-          }
-        }
-      ],
-      "validFor": {
-        "endDateTime": "2040-01-01T23:07:49Z",
-        "startDateTime": "2020-01-01T23:07:49Z"
-      },
-      "@valueSchemaLocation": null,
-      "id": "16f684d2-9f8d-4a8a-8a2b-5b8b5c19f302"
-    },
-    {
-      "uuid": "4f2a4f1b-35f7-441f-a3f2-b5c250587463",
-      "@baseType": "BaseRootEntity",
-      "@schemaLocation": null,
-      "@type": "io.openslice.tmf.scm633.model.ServiceSpecCharacteristic",
-      "href": null,
-      "name": "cirros_2vnf_nsd::PackagingFormat",
-      "configurable": false,
-      "description": "NSD PackagingFormat",
-      "extensible": null,
-      "isUnique": null,
-      "maxCardinality": 1,
-      "minCardinality": 1,
-      "regex": null,
-      "valueType": "TEXT",
-      "serviceSpecCharRelationship": [],
-      "serviceSpecCharacteristicValue": [
-        {
-          "uuid": "99afdbda-c21c-48ef-98c0-5603f7b3d3af",
-          "@baseType": "BaseEntity",
-          "@schemaLocation": null,
-          "@type": null,
-          "href": null,
-          "isDefault": true,
-          "rangeInterval": null,
-          "regex": null,
-          "unitOfMeasure": "N/A",
-          "valueFrom": null,
-          "valueTo": null,
-          "valueType": null,
-          "validFor": {
-            "endDateTime": "2040-01-09T22:43:25Z",
-            "startDateTime": "2020-01-09T22:43:25Z"
-          },
-          "value": {
-            "value": "OSMvFIVE",
-            "alias": "PackagingFormat"
-          }
-        }
-      ],
-      "validFor": {
-        "endDateTime": "2040-01-01T23:07:49Z",
-        "startDateTime": "2020-01-01T23:07:49Z"
-      },
-      "@valueSchemaLocation": null,
-      "id": "4f2a4f1b-35f7-441f-a3f2-b5c250587463"
-    },
-    {
-      "uuid": "54fb7ed8-e50c-42c0-b5cc-cd948e2fba0e",
-      "@baseType": "BaseRootEntity",
-      "@schemaLocation": null,
-      "@type": "io.openslice.tmf.scm633.model.ServiceSpecCharacteristic",
-      "href": null,
-      "name": "cirros_2vnf_nsd::Vendor",
-      "configurable": false,
-      "description": "NSD Vendor",
-      "extensible": null,
-      "isUnique": null,
-      "maxCardinality": 1,
-      "minCardinality": 1,
-      "regex": null,
-      "valueType": "TEXT",
-      "serviceSpecCharRelationship": [],
-      "serviceSpecCharacteristicValue": [
-        {
-          "uuid": "9f8dfd8f-e019-41c9-9905-16cac77ed4a7",
-          "@baseType": "BaseEntity",
-          "@schemaLocation": null,
-          "@type": null,
-          "href": null,
-          "isDefault": true,
-          "rangeInterval": null,
-          "regex": null,
-          "unitOfMeasure": "N/A",
-          "valueFrom": null,
-          "valueTo": null,
-          "valueType": null,
-          "validFor": {
-            "endDateTime": "2040-01-09T22:43:16Z",
-            "startDateTime": "2020-01-09T22:43:16Z"
-          },
-          "value": {
-            "value": "OSM",
-            "alias": "Vendor"
-          }
-        }
-      ],
-      "validFor": {
-        "endDateTime": "2040-01-01T23:07:49Z",
-        "startDateTime": "2020-01-01T23:07:49Z"
-      },
-      "@valueSchemaLocation": null,
-      "id": "54fb7ed8-e50c-42c0-b5cc-cd948e2fba0e"
-    },
-    {
-      "uuid": "5d83e09c-f150-49cf-9f96-c6ca862b9655",
-      "@baseType": "BaseRootEntity",
-      "@schemaLocation": null,
-      "@type": "io.openslice.tmf.scm633.model.ServiceSpecCharacteristic",
-      "href": null,
-      "name": "Maximum Number of cameras",
-      "configurable": true,
-      "description": null,
+      "description": "measure current active cameras",
       "extensible": null,
       "isUnique": null,
       "maxCardinality": 1,
       "minCardinality": 0,
       "regex": null,
-      "valueType": "SMALLINT",
+      "valueType": "INTEGER",
       "serviceSpecCharRelationship": [],
       "serviceSpecCharacteristicValue": [
         {
-          "uuid": "5296e435-8dea-4627-b0d3-96e4f54d124d",
+          "uuid": "00187fc9-9d5b-475d-81e1-dfc1ee2eeb29",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -1565,23 +1612,23 @@
           "unitOfMeasure": null,
           "valueFrom": null,
           "valueTo": null,
-          "valueType": "SMALLINT",
+          "valueType": "INTEGER",
           "validFor": {
-            "endDateTime": "2041-08-16T12:37:57Z",
-            "startDateTime": "2021-08-16T12:37:57Z"
+            "endDateTime": "2041-09-03T15:58:16Z",
+            "startDateTime": "2021-09-03T15:58:16Z"
           },
           "value": {
-            "value": "3",
+            "value": "0",
             "alias": null
           }
         }
       ],
       "validFor": {
-        "endDateTime": "2039-12-13T21:43:23Z",
-        "startDateTime": "2019-12-13T21:43:23Z"
+        "endDateTime": "2041-09-03T15:57:36Z",
+        "startDateTime": "2021-09-03T15:57:36Z"
       },
       "@valueSchemaLocation": null,
-      "id": "5d83e09c-f150-49cf-9f96-c6ca862b9655"
+      "id": "fd2e1b18-f107-4520-8205-8a42cea806d9"
     },
     {
       "uuid": "a81864cd-0f1f-4d04-a8ab-684b5d8fc972",
@@ -1601,7 +1648,7 @@
       "serviceSpecCharRelationship": [],
       "serviceSpecCharacteristicValue": [
         {
-          "uuid": "c491de43-90d1-42f4-b57a-10c2a323a6ed",
+          "uuid": "771061ac-10ec-417d-a342-f2d76bbc949f",
           "@baseType": "BaseEntity",
           "@schemaLocation": null,
           "@type": null,
@@ -1629,6 +1676,97 @@
       },
       "@valueSchemaLocation": null,
       "id": "a81864cd-0f1f-4d04-a8ab-684b5d8fc972"
+    },
+    {
+      "uuid": "bc3ddea0-d362-414f-9cc6-a0f2a2664e20",
+      "@baseType": "BaseRootEntity",
+      "@schemaLocation": null,
+      "@type": "io.openslice.tmf.scm633.model.ServiceSpecCharacteristic",
+      "href": null,
+      "name": "cirros_2vnf_nsd::Primitive::fsetup",
+      "configurable": true,
+      "description": null,
+      "extensible": null,
+      "isUnique": null,
+      "maxCardinality": 1,
+      "minCardinality": 0,
+      "regex": null,
+      "valueType": "ARRAY",
+      "serviceSpecCharRelationship": [],
+      "serviceSpecCharacteristicValue": [
+        {
+          "uuid": "f3b91d34-90a7-4455-aca5-b40e1319058c",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": true,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "TEXT",
+          "validFor": {
+            "endDateTime": "2041-09-04T10:04:05Z",
+            "startDateTime": "2021-09-04T10:04:05Z"
+          },
+          "value": {
+            "value": "fsetup",
+            "alias": "primitive"
+          }
+        },
+        {
+          "uuid": "df6a846f-f934-4164-a3f5-e85fe2938064",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": true,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "TEXT",
+          "validFor": {
+            "endDateTime": "2041-09-04T10:04:05Z",
+            "startDateTime": "2021-09-04T10:04:05Z"
+          },
+          "value": {
+            "value": "{      \"tvg\": {         \"ip\": \"\",         \"channel1\": {             \"mode\": \"0\"         }     } }",
+            "alias": "confjson"
+          }
+        },
+        {
+          "uuid": "747a1ffc-1b3a-4198-b627-b6e545e0d34f",
+          "@baseType": "BaseEntity",
+          "@schemaLocation": null,
+          "@type": null,
+          "href": null,
+          "isDefault": true,
+          "rangeInterval": null,
+          "regex": null,
+          "unitOfMeasure": null,
+          "valueFrom": null,
+          "valueTo": null,
+          "valueType": "TEXT",
+          "validFor": {
+            "endDateTime": "2041-09-04T10:04:05Z",
+            "startDateTime": "2021-09-04T10:04:05Z"
+          },
+          "value": {
+            "value": "1",
+            "alias": "member_vnf_index"
+          }
+        }
+      ],
+      "validFor": {
+        "endDateTime": "2041-09-04T09:39:46Z",
+        "startDateTime": "2021-09-04T09:39:46Z"
+      },
+      "@valueSchemaLocation": null,
+      "id": "bc3ddea0-d362-414f-9cc6-a0f2a2664e20"
     }
   ],
   "serviceSpecRelationship": [

@@ -99,8 +99,10 @@ public class LCMRulesExecutor {
 		logger.debug("clearEVALVariables before " + newValue);
 				
 		anewValue = anewValue.replace("$QUOTESTR$", "\"");
-		anewValue = anewValue.replace("$$XVALS_", " \"\"\" +");
-		anewValue = anewValue.replace("_XVALE$$", "+ \"\"\"\n");
+//		anewValue = anewValue.replace("$$XVALS_", " \"\"\" +");
+//		anewValue = anewValue.replace("_XVALE$$", "+ \"\"\"\n");
+		anewValue = anewValue.replace("$$XVALS_", "\"+");
+		anewValue = anewValue.replace("_XVALE$$", "+\"");
 		logger.debug("clearEVALVariables after " + anewValue);
 		return anewValue;
 	}

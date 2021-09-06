@@ -193,6 +193,8 @@ public class LCMIntegrationTest {
 		ServiceCreate aService = setupServiceCreate(aServiceSpec);	
 		
 		LcmBaseExecutorC be = new LcmBaseExecutorC();
+		LCMRuleSpecification lcmspec = scmocked.getLCMRulebyIDJson("40f027b5-24a9-4db7-b422-a963c9feeb7a"); 
+		be.setLcmspec( lcmspec );
         LCMRulesExecutorVariables vars = new LCMRulesExecutorVariables(aServiceSpec, new ServiceOrder(), null, aService, null, null);
 		be.setVars( vars );
 		assertThat( be.getCharValFromStringType("cirros_2vnf_ns::SSHKEY") ).isEqualTo("MYKEYX");
@@ -205,6 +207,7 @@ public class LCMIntegrationTest {
 		aServiceSpec = SCMocked.toJsonObj( sspectex, ServiceSpecification.class);	
 		aService = setupServiceCreate(aServiceSpec);	
 		be = new LcmBaseExecutorC();
+		be.setLcmspec( lcmspec );
 		vars = new LCMRulesExecutorVariables(aServiceSpec, new ServiceOrder(), null, aService, null, null);
 		be.setVars( vars );
 		
@@ -212,11 +215,14 @@ public class LCMIntegrationTest {
 		assertThat( be.getCharValFromBooleanType("High Availability") ).isEqualTo(true);
 		assertThat( be.checkIfSetContainsValue(be.getCharValFromSetType("Area of Service"), "GR") ).isEqualTo(true);
 		assertThat( be.checkIfSetContainsValue(be.getCharValFromSetType("Area of Service"), "ES") ).isEqualTo(true);
-		assertThat( be.checkIfSetContainsValue(be.getCharValFromSetType("Area of Service"), "IT") ).isEqualTo(true);
 		assertThat( be.checkIfSetContainsValue(be.getCharValFromSetType("Area of Service"), "XXX") ).isEqualTo(false);
 		 
+		be.setCharValFromSetType("cirros_2vnf_nsd::Primitive::fsetup", "[{\"value\":\"1\",\"alias\":\"member_vnf_index\"},{\"value\":\"fsetup\",\"alias\":\"primitive\"},{\"value\":\"{      \\\"tvg\\\": {         \\\"ip\\\": \\\"\\\",         \\\"channel1\\\": {             \\\"mode\\\": \\\"0\\\"         }     } }\",\"alias\":\"confjson\"}]");
 		
-
+		assertThat( be.checkIfSetContainsValue(be.getCharValFromSetType("cirros_2vnf_nsd::Primitive::fsetup"), "fsetup") ).isEqualTo(true);
+		
+		be.setCharValFromSetType("cirros_2vnf_nsd::Primitive::fsetup", "[{\"value\":\"1\",\"alias\":\"member_vnf_index\"},{\"value\":\"fsetupchanged\",\"alias\":\"primitive\"},{\"value\":\"{      \\\"tvg\\\": {         \\\"ip\\\": \\\"\\\",         \\\"channel1\\\": {             \\\"mode\\\": \\\"0\\\"         }     } }\",\"alias\":\"confjson\"}]");
+		assertThat( be.checkIfSetContainsValue(be.getCharValFromSetType("cirros_2vnf_nsd::Primitive::fsetup"), "fsetupchanged") ).isEqualTo(true);
 		
 
 		logger.debug("===============TEST END testLcmBaseExecutorAPIs =============================");

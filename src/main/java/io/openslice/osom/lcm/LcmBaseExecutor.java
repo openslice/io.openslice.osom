@@ -90,10 +90,23 @@ public abstract class LcmBaseExecutor {
 		this.vars = vars;
 	}
 
+	/**
+	 * @return the lcmspec
+	 */
+	public LCMRuleSpecification getLcmspec() {
+		return lcmspec;
+	}
+
+	/**
+	 * @param lcmspec the lcmspec to set
+	 */
+	public void setLcmspec(LCMRuleSpecification lcmspec) {
+		this.lcmspec = lcmspec;
+	}
+
 	public String getCharValFromStringType(String charName) {
 		logger.debug("getCharValFromStringType " + charName);
-		Optional<Characteristic> c = getCharacteristicByName(charName,
-				this.vars.getServiceToCreate().getServiceCharacteristic());
+		Optional<Characteristic> c = getCharacteristicByName(charName);
 
 		if (c.isPresent()) {
 			logger.debug("getCharValFromStringType " + c.get().getValue().getValue());
@@ -105,8 +118,15 @@ public abstract class LcmBaseExecutor {
 
 	}
 
-	private Optional<Characteristic> getCharacteristicByName(String charName,
-			@Valid List<Characteristic> serviceCharacteristic) {
+	private Optional<Characteristic> getCharacteristicByName(String charName) {
+
+		List<Characteristic> serviceCharacteristic;
+		if (lcmspec.getLcmrulephase().equals("PRE_PROVISION") || this.vars.getService() == null) {
+			serviceCharacteristic = this.vars.getServiceToCreate().getServiceCharacteristic();
+		} else { // use as input the running service in all other phases!
+			serviceCharacteristic = new ArrayList<>(this.vars.getService().getServiceCharacteristic());
+		}
+
 		logger.debug("getCharacteristicByName " + charName);
 		if (serviceCharacteristic != null) {
 			for (Characteristic c : serviceCharacteristic) {
@@ -125,8 +145,7 @@ public abstract class LcmBaseExecutor {
 
 	public void setCharValFromStringType(String charName, String newValue) {
 		logger.debug("setCharValFromStringType " + charName + " = " + newValue);
-		Optional<Characteristic> c = getCharacteristicByName(charName,
-				this.vars.getServiceToCreate().getServiceCharacteristic());
+		Optional<Characteristic> c = getCharacteristicByName(charName);
 		c.ifPresent(val -> val.getValue().setValue(newValue));
 
 	}
@@ -134,16 +153,14 @@ public abstract class LcmBaseExecutor {
 	public void setCharValNumber(String charName, int newValue) {
 
 		logger.debug("setCharValNumber " + charName + " = " + newValue);
-		Optional<Characteristic> c = getCharacteristicByName(charName,
-				this.vars.getServiceToCreate().getServiceCharacteristic());
+		Optional<Characteristic> c = getCharacteristicByName(charName);
 		c.ifPresent(val -> val.getValue().setValue("" + newValue));
 
 	}
 
 	public int getCharValNumber(String charName) {
 		logger.debug("getCharValNumber " + charName);
-		Optional<Characteristic> c = getCharacteristicByName(charName,
-				this.vars.getServiceToCreate().getServiceCharacteristic());
+		Optional<Characteristic> c = getCharacteristicByName(charName);
 
 		if (c.isPresent()) {
 			logger.debug("getCharValNumber " + c.get().getValue().getValue());
@@ -171,8 +188,7 @@ public abstract class LcmBaseExecutor {
 
 	public String getCharValAsString(String charName) {
 		logger.debug("getCharValAsString " + charName);
-		Optional<Characteristic> c = getCharacteristicByName(charName,
-				this.vars.getServiceToCreate().getServiceCharacteristic());
+		Optional<Characteristic> c = getCharacteristicByName(charName);
 
 		if (c.isPresent()) {
 			logger.debug("getCharValAsString " + c.get().getValue().getValue());
@@ -186,8 +202,7 @@ public abstract class LcmBaseExecutor {
 
 	public Boolean getCharValFromBooleanType(String charName) {
 		logger.debug("getCharValFromBooleanType " + charName);
-		Optional<Characteristic> c = getCharacteristicByName(charName,
-				this.vars.getServiceToCreate().getServiceCharacteristic());
+		Optional<Characteristic> c = getCharacteristicByName(charName);
 
 		if (c.isPresent() && c.get().getValue() != null) {
 			logger.debug("getCharValFromBooleanType " + c.get().getValue().getValue());
@@ -203,25 +218,39 @@ public abstract class LcmBaseExecutor {
 	public void setCharValFromBooleanType(String charName, boolean newValue) {
 
 		logger.debug("setCharValFromBooleanType " + charName + " = " + newValue);
-		Optional<Characteristic> c = getCharacteristicByName(charName,
-				this.vars.getServiceToCreate().getServiceCharacteristic());
+		Optional<Characteristic> c = getCharacteristicByName(charName);
 		c.ifPresent(val -> val.getValue().setValue("" + newValue));
 
 	}
 
-	public void setCharValFromSetType(String charName, boolean newValue) {
+	/**
+	 * 
+	 * example setCharValNumber("Director return channel to cameras", 1);
+	 * setCharValFromSetType("cirros_2vnf_nsd::Primitive::fsetup",
+	 * "[{\"value\":\"1\",\"alias\":\"member_vnf_index\"},{\"value\":\"fsetup\",\"alias\":\"primitive\"},{\"value\":\"{
+	 * \\\"tvg\\\": { \\\"ip\\\": \\\"\\\", \\\"channel1\\\": { \\\"mode\\\":
+	 * \\\"0\\\" } } }\",\"alias\":\"confjson\"}]");
+	 * 
+	 * @param charName
+	 * @param newValue
+	 */
+	public void setCharValFromSetType(String charName, String newValue) {
 
 		logger.debug("setCharValFromBooleanType " + charName + " = " + newValue);
-		Optional<Characteristic> c = getCharacteristicByName(charName,
-				this.vars.getServiceToCreate().getServiceCharacteristic());
+		Optional<Characteristic> c = getCharacteristicByName(charName);
 		c.ifPresent(val -> val.getValue().setValue("" + newValue));
 
 	}
 
 	public List<String> getCharValFromSetType(String charName) {
 		logger.debug("getCharValFromSetType " + charName);
-		Optional<Characteristic> c = getCharacteristicByName(charName,
-				this.vars.getServiceToCreate().getServiceCharacteristic());
+		Optional<Characteristic> c = getCharacteristicByName(charName);
+
+//		if (lcmspec.getLcmrulephase().equals("PRE_PROVISION") || this.vars.getService() == null) {
+//			serviceCharacteristic = this.vars.getServiceToCreate().getServiceCharacteristic();
+//		} else { // use as input the running service in all other phases!
+//			serviceCharacteristic = new ArrayList<>(this.vars.getService().getServiceCharacteristic());
+//		}
 
 		if (c.isPresent() && c.get().getValue() != null) {
 			logger.debug("getCharValFromSetType " + c.get().getValue().getValue());
@@ -243,10 +272,6 @@ public abstract class LcmBaseExecutor {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
-//			String[] s = val.split(",");
-//			
-//			ArrayList<String> as = new ArrayList( Arrays.asList( s ) ); 
 
 			return null;
 		}
@@ -726,6 +751,13 @@ public abstract class LcmBaseExecutor {
 		}
 
 		return null;
+	}
+
+	public void setCharacteristicOfCurrentService(String charName, String newValue) {
+		logger.debug("setCharacteristicOfCurrentService " + charName + " = " + newValue);
+		Optional<Characteristic> c = getCharacteristicByName(charName);
+		c.ifPresent(val -> val.getValue().setValue(newValue));
+
 	}
 
 	static <T> T toJsonObj(String content, TypeReference<T> typeReference) throws IOException {
