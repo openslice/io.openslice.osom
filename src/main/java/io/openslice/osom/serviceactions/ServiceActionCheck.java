@@ -68,85 +68,96 @@ public class ServiceActionCheck implements JavaDelegate {
 				}				
 				
 			}
-
-			if ( aService.getStartMode().equals( "AUTOMATICALLY_MANAGED" ) ) {
+			
+			if ( item.getAction().equals( ServiceActionQueueAction.EVALUATE_STATE_CHANGE_TOACTIVE  ) ) {
+				execution.setVariable("saction", "HandleActiveStateChanged");
+			} else if ( item.getAction().equals( ServiceActionQueueAction.EVALUATE_STATE_CHANGE_TOINACTIVE  ) ) {
+				execution.setVariable("saction", "HandleInactiveStateChanged");
+			} else if ( item.getAction().equals( ServiceActionQueueAction.EVALUATE_CHARACTERISTIC_CHANGED  ) ) {
+				execution.setVariable("saction", "HandleEvaluateService");
 				
-				if ( (aService.getServiceCharacteristicByName( "externalServiceOrderId" ) != null )){
-					execution.setVariable("saction", "ExternalProviderServiceAction");					
-					execution.setVariable("externalServiceOrderId", aService.getServiceCharacteristicByName( "externalServiceOrderId" ).getValue().getValue()  );	
-
-					if ( (aService.getServiceCharacteristicByName( "externalPartnerServiceId" ) != null )){
-						execution.setVariable("externalPartnerServiceId", aService.getServiceCharacteristicByName( "externalPartnerServiceId" ).getValue().getValue()  );							
-					}
+			}  else {
+				if ( aService.getStartMode().equals( "AUTOMATICALLY_MANAGED" ) ) {
 					
-					RelatedParty rpOrg = null;
-					if ( aService.getRelatedParty() != null ) {
-						for (RelatedParty rp : aService.getRelatedParty()) {
-							if ( rp.getRole().equals( UserPartRoleType.ORGANIZATION.getValue() )) {
-								rpOrg =rp;
-								break;
-							}				
-						}			
-					}
-					if ( rpOrg == null) {
-						logger.error("Cannot retrieve partner organization, switch to HandleManuallyAction"  );
-						execution.setVariable("saction", "HandleManuallyAction");
-					} else {
-						execution.setVariable("organizationId",  rpOrg.getId() );					
-							
-					}
-				
-				
-				} else  if ( aService.getCategory().equals( "CustomerFacingServiceSpecification") ) {
-					execution.setVariable("saction", "AutomaticallyHandleAction");
-					
+					if ( (aService.getServiceCharacteristicByName( "externalServiceOrderId" ) != null )){
+						execution.setVariable("saction", "ExternalProviderServiceAction");					
+						execution.setVariable("externalServiceOrderId", aService.getServiceCharacteristicByName( "externalServiceOrderId" ).getValue().getValue()  );	
 
-					if ( aService.getSupportingService() != null ) {
-						//copy characteristics values from CFS Service  to its supporting services.
-						for (ServiceRef sref : aService.getSupportingService() ) {
-							Service aSupportingService = serviceOrderManager.retrieveService( sref.getId() );
-							ServiceUpdate supd = new ServiceUpdate();
-							
-							if ( aService.getServiceCharacteristic() != null ) {
-								for (Characteristic serviceChar : aSupportingService.getServiceCharacteristic() ) {
-									
-									for (Characteristic soiCharacteristic : aService.getServiceCharacteristic()) {
-										if ( soiCharacteristic.getName().contains( serviceChar.getName() )) { //copy only characteristics that are related from the order										
-											serviceChar.setValue( soiCharacteristic.getValue() );
-											supd.addServiceCharacteristicItem( serviceChar );
+						if ( (aService.getServiceCharacteristicByName( "externalPartnerServiceId" ) != null )){
+							execution.setVariable("externalPartnerServiceId", aService.getServiceCharacteristicByName( "externalPartnerServiceId" ).getValue().getValue()  );							
+						}
+						
+						RelatedParty rpOrg = null;
+						if ( aService.getRelatedParty() != null ) {
+							for (RelatedParty rp : aService.getRelatedParty()) {
+								if ( rp.getRole().equals( UserPartRoleType.ORGANIZATION.getValue() )) {
+									rpOrg =rp;
+									break;
+								}				
+							}			
+						}
+						if ( rpOrg == null) {
+							logger.error("Cannot retrieve partner organization, switch to HandleManuallyAction"  );
+							execution.setVariable("saction", "HandleManuallyAction");
+						} else {
+							execution.setVariable("organizationId",  rpOrg.getId() );					
+								
+						}
+					
+					
+					} else  if ( aService.getCategory().equals( "CustomerFacingServiceSpecification") ) {
+						execution.setVariable("saction", "AutomaticallyHandleAction");
+						
+
+						if ( aService.getSupportingService() != null ) {
+							//copy characteristics values from CFS Service  to its supporting services.
+							for (ServiceRef sref : aService.getSupportingService() ) {
+								Service aSupportingService = serviceOrderManager.retrieveService( sref.getId() );
+								ServiceUpdate supd = new ServiceUpdate();
+								
+								if ( aService.getServiceCharacteristic() != null ) {
+									for (Characteristic serviceChar : aSupportingService.getServiceCharacteristic() ) {
+										
+										for (Characteristic soiCharacteristic : aService.getServiceCharacteristic()) {
+											if ( soiCharacteristic.getName().contains( serviceChar.getName() )) { //copy only characteristics that are related from the order										
+												serviceChar.setValue( soiCharacteristic.getValue() );
+												supd.addServiceCharacteristicItem( serviceChar );
+											}
 										}
 									}
+									
 								}
 								
+
+								serviceOrderManager.updateService( aSupportingService.getId(), supd , true); //update the service
 							}
 							
-
-							serviceOrderManager.updateService( aSupportingService.getId(), supd , true); //update the service
 						}
+						
+						
+						
+					} else if ( aService.getCategory().equals( "ResourceFacingServiceSpecification") ) {
+						
+						if (aService.getServiceCharacteristicByName( "NSDID" ) != null ){
+							if ( item.getAction().equals( ServiceActionQueueAction.DEACTIVATE ) || item.getAction().equals( ServiceActionQueueAction.TERMINATE ) ) {
+								execution.setVariable("saction", "NFVONSTerminate");
+							} else if (  item.getAction().equals( ServiceActionQueueAction.MODIFY ) ) {
+								execution.setVariable("saction", "NFVODAY2config");
+							}  else {
+								execution.setVariable("saction", "HandleManuallyAction");
+							} 
+						} else {
+							execution.setVariable("saction", "AutomaticallyHandleAction");
+						}					
 						
 					}
 					
-					
-					
-				} else if ( aService.getCategory().equals( "ResourceFacingServiceSpecification") ) {
-					
-					if (aService.getServiceCharacteristicByName( "NSDID" ) != null ){
-						if ( item.getAction().equals( ServiceActionQueueAction.DEACTIVATE ) || item.getAction().equals( ServiceActionQueueAction.TERMINATE ) ) {
-							execution.setVariable("saction", "NFVONSTerminate");
-						} else if (  item.getAction().equals( ServiceActionQueueAction.MODIFY ) ) {
-							execution.setVariable("saction", "NFVODAY2config");
-						}  else {
-							execution.setVariable("saction", "HandleManuallyAction");
-						} 
-					} else {
-						execution.setVariable("saction", "AutomaticallyHandleAction");
-					}					
-					
+				} else {
+					execution.setVariable("saction", "HandleManuallyAction");
 				}
 				
-			} else {
-				execution.setVariable("saction", "HandleManuallyAction");
 			}
+
 			
 
 

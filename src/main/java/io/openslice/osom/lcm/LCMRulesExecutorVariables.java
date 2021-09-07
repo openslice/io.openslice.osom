@@ -8,6 +8,7 @@ import io.openslice.tmf.lcm.model.LCMRuleSpecification;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
 import io.openslice.tmf.sim638.model.Service;
 import io.openslice.tmf.sim638.model.ServiceCreate;
+import io.openslice.tmf.sim638.model.ServiceUpdate;
 import io.openslice.tmf.so641.model.ServiceOrder;
 import io.openslice.tmf.so641.model.ServiceOrderItem;
 import lombok.Data;
@@ -20,6 +21,7 @@ import lombok.Data;
 public class LCMRulesExecutorVariables {
 
 	private ServiceCreate serviceToCreate;
+	private ServiceUpdate serviceToUpdate;
 	private ServiceSpecification spec;
 	private ServiceOrder sorder;
 	private ServiceOrderItem soItem;
@@ -36,9 +38,11 @@ public class LCMRulesExecutorVariables {
 			ServiceOrder sorder, 
 			ServiceOrderItem asoItem, 
 			ServiceCreate serviceToCreate,
+			ServiceUpdate serviceToUpdate,
 			Service serviceInstance,
 			ServiceOrderManager aServiceOrderManager) {
 		this.serviceToCreate = serviceToCreate;
+		this.serviceToUpdate = serviceToUpdate;
 		this.spec = spec;
 		this.sorder = sorder;
 		this.soItem = asoItem;

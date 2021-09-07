@@ -148,6 +148,16 @@ public abstract class LcmBaseExecutor {
 		Optional<Characteristic> c = getCharacteristicByName(charName);
 		c.ifPresent(val -> val.getValue().setValue(newValue));
 
+		copyCharacteristicToServiceToUpdate(c.get());
+		
+	}
+
+	private void copyCharacteristicToServiceToUpdate(Characteristic characteristic) {
+
+		if ( this.vars.getServiceToUpdate() != null ) {
+			this.vars.getServiceToUpdate().addServiceCharacteristicItem( characteristic );			
+		}
+		
 	}
 
 	public void setCharValNumber(String charName, int newValue) {
@@ -156,6 +166,7 @@ public abstract class LcmBaseExecutor {
 		Optional<Characteristic> c = getCharacteristicByName(charName);
 		c.ifPresent(val -> val.getValue().setValue("" + newValue));
 
+		copyCharacteristicToServiceToUpdate(c.get());
 	}
 
 	public int getCharValNumber(String charName) {
@@ -221,6 +232,7 @@ public abstract class LcmBaseExecutor {
 		Optional<Characteristic> c = getCharacteristicByName(charName);
 		c.ifPresent(val -> val.getValue().setValue("" + newValue));
 
+		copyCharacteristicToServiceToUpdate(c.get());
 	}
 
 	/**
@@ -240,6 +252,7 @@ public abstract class LcmBaseExecutor {
 		Optional<Characteristic> c = getCharacteristicByName(charName);
 		c.ifPresent(val -> val.getValue().setValue("" + newValue));
 
+		copyCharacteristicToServiceToUpdate(c.get());
 	}
 
 	public List<String> getCharValFromSetType(String charName) {
@@ -758,6 +771,7 @@ public abstract class LcmBaseExecutor {
 		Optional<Characteristic> c = getCharacteristicByName(charName);
 		c.ifPresent(val -> val.getValue().setValue(newValue));
 
+		copyCharacteristicToServiceToUpdate(c.get());
 	}
 
 	static <T> T toJsonObj(String content, TypeReference<T> typeReference) throws IOException {

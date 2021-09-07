@@ -27,6 +27,8 @@
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${saction=='AutomaticallyHandleAction'}]]></conditionExpression>
     </sequenceFlow>
     <serviceTask id="stServiceActionComplete" name="Service Action Complete" activiti:delegateExpression="${ServiceActionComplete}"></serviceTask>
+    <serviceTask id="stInactiveAction" name="Service Inactive Action" activiti:delegateExpression="${ServiceInactiveAction}"></serviceTask>
+    <serviceTask id="stServiceActivationAction" name="Service Activation Action" activiti:delegateExpression="${ServiceActivationAction}"></serviceTask>
     <endEvent id="endevent1" name="End"></endEvent>
     <sequenceFlow id="flow14" sourceRef="stServiceActionComplete" targetRef="endevent1"></sequenceFlow>
     <sequenceFlow id="flow15" sourceRef="servicetaskNFVODAY2config" targetRef="stServiceActionComplete"></sequenceFlow>
@@ -34,6 +36,19 @@
     <sequenceFlow id="flow17" sourceRef="stExternalProviderServiceAction" targetRef="stServiceActionComplete"></sequenceFlow>
     <sequenceFlow id="flow18" sourceRef="stHandleManuallyAction" targetRef="stServiceActionComplete"></sequenceFlow>
     <sequenceFlow id="flow19" sourceRef="stAutomaticallyHandleAction" targetRef="stServiceActionComplete"></sequenceFlow>
+    <sequenceFlow id="flow20" name="saction  HandleActiveStateChanged" sourceRef="exclusivegateway1" targetRef="stServiceActivationAction">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${saction=='HandleActiveStateChanged'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow21" name="saction  HandleInactiveStateChanged" sourceRef="exclusivegateway1" targetRef="stInactiveAction">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${saction=='HandleInactiveStateChanged'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow22" sourceRef="stServiceActivationAction" targetRef="stServiceActionComplete"></sequenceFlow>
+    <sequenceFlow id="flow23" sourceRef="stInactiveAction" targetRef="stServiceActionComplete"></sequenceFlow>
+    <serviceTask id="stServiceEvaluateΑction" name="Service Evaluate Αction" activiti:delegateExpression="${ServiceEvaluateAction}"></serviceTask>
+    <sequenceFlow id="flow24" name="saction HandleEvaluateService" sourceRef="exclusivegateway1" targetRef="stServiceEvaluateΑction">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${saction=='HandleEvaluateService'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow25" sourceRef="stServiceEvaluateΑction" targetRef="stServiceActionComplete"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_ServiceActionProcess">
     <bpmndi:BPMNPlane bpmnElement="ServiceActionProcess" id="BPMNPlane_ServiceActionProcess">
@@ -64,8 +79,17 @@
       <bpmndi:BPMNShape bpmnElement="stServiceActionComplete" id="BPMNShape_stServiceActionComplete">
         <omgdc:Bounds height="76.0" width="105.0" x="983.0" y="237.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="stInactiveAction" id="BPMNShape_stInactiveAction">
+        <omgdc:Bounds height="65.0" width="105.0" x="694.0" y="640.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="stServiceActivationAction" id="BPMNShape_stServiceActivationAction">
+        <omgdc:Bounds height="65.0" width="105.0" x="694.0" y="550.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
         <omgdc:Bounds height="35.0" width="35.0" x="1200.0" y="258.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="stServiceEvaluateΑction" id="BPMNShape_stServiceEvaluateΑction">
+        <omgdc:Bounds height="65.0" width="105.0" x="694.0" y="730.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
         <omgdi:waypoint x="215.0" y="137.0"></omgdi:waypoint>
@@ -142,6 +166,45 @@
       <bpmndi:BPMNEdge bpmnElement="flow19" id="BPMNEdge_flow19">
         <omgdi:waypoint x="799.0" y="482.0"></omgdi:waypoint>
         <omgdi:waypoint x="1034.0" y="482.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1035.0" y="313.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow20" id="BPMNEdge_flow20">
+        <omgdi:waypoint x="530.0" y="157.0"></omgdi:waypoint>
+        <omgdi:waypoint x="530.0" y="582.0"></omgdi:waypoint>
+        <omgdi:waypoint x="694.0" y="582.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="42.0" width="100.0" x="541.0" y="529.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow21" id="BPMNEdge_flow21">
+        <omgdi:waypoint x="530.0" y="157.0"></omgdi:waypoint>
+        <omgdi:waypoint x="530.0" y="672.0"></omgdi:waypoint>
+        <omgdi:waypoint x="694.0" y="672.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="42.0" width="100.0" x="570.0" y="599.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow22" id="BPMNEdge_flow22">
+        <omgdi:waypoint x="799.0" y="582.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1035.0" y="582.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1035.0" y="313.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow23" id="BPMNEdge_flow23">
+        <omgdi:waypoint x="799.0" y="672.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1035.0" y="672.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1035.0" y="313.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow24" id="BPMNEdge_flow24">
+        <omgdi:waypoint x="530.0" y="157.0"></omgdi:waypoint>
+        <omgdi:waypoint x="530.0" y="762.0"></omgdi:waypoint>
+        <omgdi:waypoint x="694.0" y="762.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="42.0" width="100.0" x="541.0" y="720.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow25" id="BPMNEdge_flow25">
+        <omgdi:waypoint x="799.0" y="762.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1035.0" y="762.0"></omgdi:waypoint>
         <omgdi:waypoint x="1035.0" y="313.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>

@@ -195,7 +195,7 @@ public class LCMIntegrationTest {
 		LcmBaseExecutorC be = new LcmBaseExecutorC();
 		LCMRuleSpecification lcmspec = scmocked.getLCMRulebyIDJson("40f027b5-24a9-4db7-b422-a963c9feeb7a"); 
 		be.setLcmspec( lcmspec );
-        LCMRulesExecutorVariables vars = new LCMRulesExecutorVariables(aServiceSpec, new ServiceOrder(), null, aService, null, null);
+        LCMRulesExecutorVariables vars = new LCMRulesExecutorVariables(aServiceSpec, new ServiceOrder(), null, aService, null, null, null);
 		be.setVars( vars );
 		assertThat( be.getCharValFromStringType("cirros_2vnf_ns::SSHKEY") ).isEqualTo("MYKEYX");
 		assertThat( be.getCharValAsString("cirros_2vnf_ns::SSHKEY") ).isEqualTo("MYKEYX");
@@ -208,7 +208,7 @@ public class LCMIntegrationTest {
 		aService = setupServiceCreate(aServiceSpec);	
 		be = new LcmBaseExecutorC();
 		be.setLcmspec( lcmspec );
-		vars = new LCMRulesExecutorVariables(aServiceSpec, new ServiceOrder(), null, aService, null, null);
+		vars = new LCMRulesExecutorVariables(aServiceSpec, new ServiceOrder(), null, aService, null, null, null);
 		be.setVars( vars );
 		
 		be.setCharValFromBooleanType("High Availability", true);
@@ -238,7 +238,7 @@ public class LCMIntegrationTest {
 		ServiceSpecification aServiceSpec = SCMocked.toJsonObj( sspectex, ServiceSpecification.class);		
 		ServiceCreate aService = setupServiceCreate(aServiceSpec);
 		
-        LCMRulesExecutorVariables vars = new LCMRulesExecutorVariables(aServiceSpec, new ServiceOrder(), null, aService, null, null);
+        LCMRulesExecutorVariables vars = new LCMRulesExecutorVariables(aServiceSpec, new ServiceOrder(), null, aService, null, null, null);
 		LCMRulesExecutor lcmRulesExecutor = new LCMRulesExecutor();
 		//check LcmCirrosRule3Test code for error (more complex code)
 
@@ -254,7 +254,7 @@ public class LCMIntegrationTest {
 		aService = setupServiceCreate(aServiceSpec);	
   	
 		lcs = scmocked.getLCMRulebyIDJson("40f027b5-24a9-4db7-b422-a963c9feeb7a");
-		vars = new LCMRulesExecutorVariables(aServiceSpec, new ServiceOrder(), null, aService, null, null);
+		vars = new LCMRulesExecutorVariables(aServiceSpec, new ServiceOrder(), null, aService, null, null, null);
 	    vars = lcmRulesExecutor.executeLCMRuleCode(  lcs, vars);
 	    assertThat( vars.getCompileDiagnosticErrors().size() ).isEqualTo(0);
 	    
