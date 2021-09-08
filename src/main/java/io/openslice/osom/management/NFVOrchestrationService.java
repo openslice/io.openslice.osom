@@ -37,6 +37,7 @@ import io.openslice.model.ConstituentVxF;
 import io.openslice.model.DeploymentDescriptor;
 import io.openslice.model.DeploymentDescriptorStatus;
 import io.openslice.model.ExperimentMetadata;
+import io.openslice.model.ExperimentOnBoardDescriptor;
 import io.openslice.model.NetworkServiceDescriptor;
 import io.openslice.tmf.common.model.Any;
 import io.openslice.tmf.common.model.service.Characteristic;
@@ -93,26 +94,33 @@ public class NFVOrchestrationService implements JavaDelegate {
 			ServiceSpecification spec = serviceOrderManager.retrieveServiceSpec( aService.getServiceSpecificationRef().getId() );
 			
 			if ( spec!=null ) {			
+
+				ServiceSpecCharacteristic c = spec.getServiceSpecCharacteristicByName( "NSDID" );						
+
+				String NSDID = c.getDefaultValue();
 				
-				String NSDID = null;
-				ServiceSpecCharacteristic c = spec.getServiceSpecCharacteristicByName( "NSDID" );				
-				if (c!=null) {
-					for (ServiceSpecCharacteristicValue val : c.getServiceSpecCharacteristicValue()) {
-						if (val.isIsDefault()) {
-							NSDID = val.getValue().getValue();
-							break;
-						}
-					}
-				}
 				
 				
 				if ( NSDID != null) {
 					/**
 					 * it is registered in our NFV catalog. Let's request an instantiation of it
 					 */
+					
+
+					ServiceSpecCharacteristic cOSM_NSDCATALOGID = spec.getServiceSpecCharacteristicByName( "OSM_NSDCATALOGID" );		
+					ServiceSpecCharacteristic cOnBoardDescriptorID = spec.getServiceSpecCharacteristicByName( "OnBoardDescriptorID" );		
+					ServiceSpecCharacteristic cOnBoardDescriptorUUID = spec.getServiceSpecCharacteristicByName( "OnBoardDescriptorUUID" );	
+					ServiceSpecCharacteristic cMANOproviderName = spec.getServiceSpecCharacteristicByName( "MANOproviderName" );
+
+					String OSM_NSDCATALOGID = cOSM_NSDCATALOGID.getDefaultValue();
+					String OnBoardDescriptorID = cOnBoardDescriptorID.getDefaultValue();
+					String OnBoardDescriptorUUID = cOnBoardDescriptorUUID.getDefaultValue();
+					String MANOproviderName = cMANOproviderName.getDefaultValue();
 
 					try {
 						NetworkServiceDescriptor refnsd = serviceOrderManager.retrieveNSD( NSDID );
+						
+						
 						if ( refnsd == null ) {
 							logger.error("NetworkServiceDescriptor cannot be retrieved, NSDID: " + NSDID );
 							execution.setVariable("deploymentId", null);
@@ -126,11 +134,13 @@ public class NFVOrchestrationService implements JavaDelegate {
 								sorder.getStartDate(), 
 								sorder.getExpectedCompletionDate(), 
 								sorder.getId(),
-								configParams);
+								configParams, OSM_NSDCATALOGID, OnBoardDescriptorID, OnBoardDescriptorUUID);
 						
 						su.setState(ServiceStateType.RESERVED );
 						Note successNoteItem = new Note();
-						successNoteItem.setText("Request to NFVO for NSDID: " + NSDID + ". Deployment Request id: " + dd.getId());
+						successNoteItem.setText(String.format("Request to NFVO %s with Deployment Request id:%s",
+								MANOproviderName,
+								dd.getId()));
 						successNoteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
 						successNoteItem.setAuthor( compname );
 						su.addNoteItem( successNoteItem );
@@ -225,7 +235,7 @@ public class NFVOrchestrationService implements JavaDelegate {
 
 	private DeploymentDescriptor createNewDeploymentRequest(Service aService, 
 			NetworkServiceDescriptor refnsd, OffsetDateTime startDate, OffsetDateTime endDate, String orderid,
-			Map<String, Object> configParams) {
+			Map<String, Object> configParams, String OSM_NSDCATALOGID, String OnBoardDescriptorID, String OnBoardDescriptorUUID) {
 		DeploymentDescriptor ddreq = new DeploymentDescriptor();
 		ExperimentMetadata expReq = refnsd;
 		
@@ -239,6 +249,11 @@ public class NFVOrchestrationService implements JavaDelegate {
 		ddreq.setEndDate( new Date(endDate.toInstant().toEpochMilli()) );
 		ddreq.setStatus( DeploymentDescriptorStatus.SCHEDULED );
 		
+		ExperimentOnBoardDescriptor obddescriptor = new ExperimentOnBoardDescriptor();
+		obddescriptor.setId( Long.parseLong(OnBoardDescriptorID) );
+		obddescriptor.setUuid(OnBoardDescriptorUUID);
+		obddescriptor.setDeployId(OSM_NSDCATALOGID);		
+		ddreq.setObddescriptor_uuid( obddescriptor  );
 
 		String instantiationconfig = "{}";
 		Characteristic configCharacteristic = aService.getServiceCharacteristicByName( "OSM_CONFIG" );

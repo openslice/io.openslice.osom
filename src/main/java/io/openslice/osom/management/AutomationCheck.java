@@ -316,7 +316,7 @@ public class AutomationCheck implements JavaDelegate {
 		else if (specrel.getType().equals("ResourceFacingServiceSpecification")) {
 			createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.AUTOMATICALLY_MANAGED, null, parentService);
 			if ( createdServ!=null ) {
-				if ( specrel.findSpecCharacteristicByName( "NSDID" ) != null ){
+				if ( specrel.findSpecCharacteristicByName( "OSM_NSDCATALOGID" ) != null ){
 					servicesHandledByNFVOAutomated.add(createdServ.getId());						
 				} else {
 					servicesLocallyAutomated.add(createdServ.getId());
