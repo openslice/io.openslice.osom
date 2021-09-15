@@ -2,30 +2,23 @@ package io.openslice.osom.lcm;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
 import javax.net.ssl.SSLException;
-import javax.validation.Valid;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClient.RequestHeadersUriSpec;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.openslice.osom.management.ServiceOrderManager;
 import io.openslice.osom.partnerservices.GenericClient;
 import io.openslice.tmf.common.model.Any;
 import io.openslice.tmf.common.model.EValueType;
@@ -33,8 +26,6 @@ import io.openslice.tmf.common.model.service.Characteristic;
 import io.openslice.tmf.common.model.service.Note;
 import io.openslice.tmf.lcm.model.LCMRuleSpecification;
 import io.openslice.tmf.prm669.model.RelatedParty;
-import io.openslice.tmf.scm633.model.ServiceSpecCharacteristic;
-import io.openslice.tmf.scm633.model.ServiceSpecification;
 import io.openslice.tmf.sim638.model.Service;
 import io.openslice.tmf.so641.model.ServiceOrder;
 import io.openslice.tmf.so641.model.ServiceOrderCreate;

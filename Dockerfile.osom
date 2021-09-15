@@ -3,7 +3,8 @@ MAINTAINER openslice.io
 RUN mkdir /opt/shareclasses
 RUN mkdir -p /opt/openslice/lib/
 COPY target/io.openslice.osom-1.1.0-SNAPSHOT.jar /opt/openslice/lib/
+COPY target/io.openslice.osom-1.1.0-SNAPSHOT-exec.jar /opt/openslice/lib/
 ENV SPRING_APPLICATION_JSON='{ \
 	"spring.datasource.url": "dbc:mysql://10.0.2.15/ostmfdb?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=utf8&nullCatalogMeansCurrent=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC",  \
 	"spring.activemq.broker-url": "tcp://10.0.2.15:61616"  }'
-CMD ["java", "-Xshareclasses:cacheDir=/opt/shareclasses","-jar", "/opt/openslice/lib/io.openslice.osom-1.1.0-SNAPSHOT.jar"]
+CMD ["java", "-Xshareclasses:cacheDir=/opt/shareclasses","-jar", "/opt/openslice/lib/io.openslice.osom-1.1.0-SNAPSHOT-exec.jar"]

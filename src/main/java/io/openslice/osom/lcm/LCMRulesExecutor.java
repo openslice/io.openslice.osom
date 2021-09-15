@@ -194,12 +194,20 @@ public class LCMRulesExecutor {
         // Close the compile resources
         fileManager.close();
 
+        URL[] classpath = new URL[] { temp.toUri().toURL()  };
+        
+        File classesJar = new File(" /opt/openslice/lib/");        
+        if ( classesJar.exists()  ) {
+        	classpath = new URL[] { temp.toUri().toURL(), classesJar.toURI().toURL()  };
+        } 
+
+
         // Now that the class was created, we will load it and run it
         ClassLoader classLoader = LCMRulesExecutor.class.getClassLoader();
         logger.debug("classLoader =  "+ classLoader);
         @SuppressWarnings("resource")
 		URLClassLoader urlClassLoader = new URLClassLoader(
-                new URL[] { temp.toUri().toURL()  },
+				classpath,
                 classLoader);
         Class javaDemoClass = urlClassLoader.loadClass(className);
         logger.debug("javaDemoClass =  "+ javaDemoClass);
