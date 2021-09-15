@@ -175,7 +175,7 @@ public class LCMRulesExecutor {
                 null,
                 fileManager,
                 diagnostics,
-                null,
+                optionList,
                 null,
                 compilationUnits
         );
