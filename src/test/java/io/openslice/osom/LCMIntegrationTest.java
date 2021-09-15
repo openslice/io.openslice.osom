@@ -55,7 +55,9 @@ import io.openslice.tmf.sim638.model.ServiceCreate;
 import io.openslice.tmf.so641.model.ServiceOrder;
 
 @ExtendWith(FlowableSpringExtension.class)
-@SpringBootTest(properties = { "CATALOG_GET_SERVICEORDER_BY_ID = direct:get_mocked_order",
+@SpringBootTest(properties = { 
+		"THIS_PARTNER_NAME = demo-openslice.io",
+			"CATALOG_GET_SERVICEORDER_BY_ID = direct:get_mocked_order",
 		"CATALOG_GET_SERVICESPEC_BY_ID = direct:get_mocked_spec", "CATALOG_ADD_SERVICE = direct:get_mocked_add_service",
 		"CATALOG_UPD_SERVICEORDER_BY_ID = direct:get_mocked_upd_order",
 		"CATALOG_ADD_SERVICEORDER = direct:get_mocked_upd_order",
@@ -68,8 +70,17 @@ import io.openslice.tmf.so641.model.ServiceOrder;
 		"CATALOG_GET_LCMRULE_BY_ID = direct:get_mocked_lcmrulebyid",		
 		"CATALOG_GET_LCMRULES_BY_SPECID_PHASE = direct:get_mocked_lcmrulesbyspecid",				
 		"CATALOG_SERVICES_OF_PARTNERS = direct:get_mocked_service_queueitems",			
-		"CATALOG_SERVICES_TO_TERMINATE = direct:get_mocked_service_queueitems",	
+		"CATALOG_SERVICES_TO_TERMINATE = direct:get_mocked_service_queueitems",		
+		"CATALOG_GET_SERVICE_BY_ORDERID = direct:get_mocked_service_queueitems",	
 		"CATALOG_GET_SERVICEORDER_IDS_BY_STATE = direct:get_mocked_service_queueitems",		
+		"CATALOG_GET_PARTNER_ORGANIZATON_BY_ID = direct:get_mocked_service_queueitems",		
+		"NFV_CATALOG_NS_DAY2_ACTION = direct:get_mocked_service_queueitems",		
+		"NFV_CATALOG_NSACTIONS_SCALE = direct:get_mocked_service_queueitems",		
+		"CATALOG_GET_EXTERNAL_SERVICE_PARTNERS = direct:get_mocked_service_queueitems",		
+		"CATALOG_UPD_EXTERNAL_SERVICESPEC = direct:get_mocked_service_queueitems",		
+		"CATALOG_UPDATE_PARTNER_ORGANIZATION = direct:get_mocked_service_queueitems",		
+		
+		
 		"ALARMS_ADD_ALARM=mock:output",
 		"ALARMS_UPDATE_ALARM=mock:output",
 		"ALARMS_GET_ALARM=mock:output",

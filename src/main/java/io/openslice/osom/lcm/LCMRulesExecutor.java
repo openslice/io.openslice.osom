@@ -196,10 +196,11 @@ public class LCMRulesExecutor {
 
         URL[] classpath = new URL[] { temp.toUri().toURL()  };
         
-        File classesJar = new File(" /opt/openslice/lib/");        
+        File classesJar = new File(" /opt/openslice/lib/io.openslice.osom-1.1.0-SNAPSHOT.jar");        
         if ( classesJar.exists()  ) {
         	classpath = new URL[] { temp.toUri().toURL(), classesJar.toURI().toURL()  };
         } 
+        logger.debug("classpath =  "+ classpath.toString());
 
 
         // Now that the class was created, we will load it and run it
