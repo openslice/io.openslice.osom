@@ -162,7 +162,7 @@ public class LCMRulesExecutor {
         List<String> optionList = new ArrayList<String>();
         // set compiler's classpath to be same as the runtime's
         
-        File classesJar = new File(" /opt/openslice/lib/io.openslice.osom-1.1.0-SNAPSHOT.jar");        
+        File classesJar = new File("/opt/openslice/lib/io.openslice.osom-1.1.0-SNAPSHOT.jar");        
         if ( classesJar.exists()  ) {
             optionList.addAll(Arrays.asList("-classpath", classesJar.getAbsoluteFile().toString() ));
         } 
