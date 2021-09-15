@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
@@ -157,6 +158,19 @@ public class LCMRulesExecutor {
         // A feedback object (diagnostic) to get errors
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
         // Compilation unit can be created and called only once
+        
+        List<String> optionList = new ArrayList<String>();
+        // set compiler's classpath to be same as the runtime's
+        
+        File classesJar = new File(" /opt/openslice/lib/io.openslice.osom-1.1.0-SNAPSHOT.jar");        
+        if ( classesJar.exists()  ) {
+            optionList.addAll(Arrays.asList("-classpath", classesJar.getAbsoluteFile().toString() ));
+        } 
+        logger.debug("optionList =  "+ optionList.toString());
+        
+
+     
+     
         JavaCompiler.CompilationTask task = compiler.getTask(
                 null,
                 fileManager,
@@ -195,8 +209,7 @@ public class LCMRulesExecutor {
         fileManager.close();
 
         URL[] classpath = new URL[] { temp.toUri().toURL()  };
-        
-        File classesJar = new File(" /opt/openslice/lib/io.openslice.osom-1.1.0-SNAPSHOT.jar");        
+            
         if ( classesJar.exists()  ) {
         	classpath = new URL[] { temp.toUri().toURL(), classesJar.toURI().toURL()  };
         } 
