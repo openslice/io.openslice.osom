@@ -214,6 +214,7 @@ public class LCMIntegrationTest {
 		assertThat( be.getCharValFromBooleanType("High Availability") ).isEqualTo(false);
 		
 		
+		
 		sspectex = scmocked.getSpecById("0d5551e6-069f-43b7-aa71-10530f290239");
 		aServiceSpec = SCMocked.toJsonObj( sspectex, ServiceSpecification.class);	
 		aService = setupServiceCreate(aServiceSpec);	
@@ -276,6 +277,15 @@ public class LCMIntegrationTest {
 					.findFirst().get().getValue().getValue()
 				).contains("cccccccc-8219-4580-9697-bf4a8f0a08f9");
 		
+
+		assertThat(
+				vars.getServiceToCreate().getServiceCharacteristic()
+					.stream()
+					.filter(c -> c.getName().equals("newvar"))
+					.findFirst().get().getValue().getValue()
+				).contains("anewtestval");
+		
+
 
 		lcs = scmocked.getLCMRulebyIDJson("75cebf16-1699-486f-8304-d6512f90c910");
 	    vars = lcmRulesExecutor.executeLCMRuleCode(  lcs, vars);

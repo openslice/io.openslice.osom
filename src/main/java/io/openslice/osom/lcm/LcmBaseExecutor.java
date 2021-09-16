@@ -137,9 +137,18 @@ public abstract class LcmBaseExecutor {
 	public void setCharValFromStringType(String charName, String newValue) {
 		logger.debug("setCharValFromStringType " + charName + " = " + newValue);
 		Optional<Characteristic> c = getCharacteristicByName(charName);
-		c.ifPresent(val -> val.getValue().setValue(newValue));
-
-		copyCharacteristicToServiceToUpdate(c.get());
+		
+		if ( c.isPresent() ) {
+			c.ifPresent(val -> val.getValue().setValue(newValue));
+			copyCharacteristicToServiceToUpdate(c.get());			
+		} else { //will add a new characteristic if this does not exist
+			logger.debug(" setCharValFromStringType will add a new characteristic since this does not exist: " + charName + " = " + newValue);
+			Characteristic newC = new Characteristic();
+			newC.setName( charName );
+			newC.setValue( new Any(newValue, ""));
+			newC.setValueType("TEXT");
+			copyCharacteristicToServiceToUpdate( newC );			
+		}
 		
 	}
 
@@ -147,6 +156,8 @@ public abstract class LcmBaseExecutor {
 
 		if ( this.vars.getServiceToUpdate() != null ) {
 			this.vars.getServiceToUpdate().addServiceCharacteristicItem( characteristic );			
+		}else if ( this.vars.getServiceToCreate()  != null ) {
+			this.vars.getServiceToCreate().addServiceCharacteristicItem( characteristic );			
 		}
 		
 	}
@@ -155,9 +166,18 @@ public abstract class LcmBaseExecutor {
 
 		logger.debug("setCharValNumber " + charName + " = " + newValue);
 		Optional<Characteristic> c = getCharacteristicByName(charName);
-		c.ifPresent(val -> val.getValue().setValue("" + newValue));
 
-		copyCharacteristicToServiceToUpdate(c.get());
+		if ( c.isPresent() ) {
+			c.ifPresent(val -> val.getValue().setValue("" + newValue));
+			copyCharacteristicToServiceToUpdate(c.get());
+		} else { //will add a new characteristic if this does not exist
+			logger.debug(" setCharValNumber will add a new characteristic since this does not exist: " + charName + " = " + newValue);
+			Characteristic newC = new Characteristic();
+			newC.setName( charName );
+			newC.setValue( new Any(newValue, ""));
+			newC.setValueType("NUMBER");
+			copyCharacteristicToServiceToUpdate( newC );			
+		}
 	}
 
 	public int getCharValNumber(String charName) {
@@ -221,9 +241,18 @@ public abstract class LcmBaseExecutor {
 
 		logger.debug("setCharValFromBooleanType " + charName + " = " + newValue);
 		Optional<Characteristic> c = getCharacteristicByName(charName);
-		c.ifPresent(val -> val.getValue().setValue("" + newValue));
 
-		copyCharacteristicToServiceToUpdate(c.get());
+		if ( c.isPresent() ) {
+			c.ifPresent(val -> val.getValue().setValue("" + newValue));
+			copyCharacteristicToServiceToUpdate(c.get());			
+		} else { //will add a new characteristic if this does not exist
+			logger.debug(" setCharacteristicOfCurrentService will add a new characteristic since this does not exist: " + charName + " = " + newValue);
+			Characteristic newC = new Characteristic();
+			newC.setName( charName );
+			newC.setValue( new Any("" + newValue, ""));
+			newC.setValueType("TEXT");
+			copyCharacteristicToServiceToUpdate( newC );			
+		}
 	}
 
 	/**
@@ -241,9 +270,19 @@ public abstract class LcmBaseExecutor {
 
 		logger.debug("setCharValFromBooleanType " + charName + " = " + newValue);
 		Optional<Characteristic> c = getCharacteristicByName(charName);
-		c.ifPresent(val -> val.getValue().setValue("" + newValue));
 
-		copyCharacteristicToServiceToUpdate(c.get());
+		if ( c.isPresent() ) {
+			c.ifPresent(val -> val.getValue().setValue(newValue));
+			copyCharacteristicToServiceToUpdate(c.get());			
+		} else { //will add a new characteristic if this does not exist
+			logger.debug(" setCharacteristicOfCurrentService will add a new characteristic since this does not exist: " + charName + " = " + newValue);
+			Characteristic newC = new Characteristic();
+			newC.setName( charName );
+			newC.setValue( new Any(newValue, ""));
+			newC.setValueType("TEXT");
+			copyCharacteristicToServiceToUpdate( newC );			
+		}
+		
 	}
 
 	public List<String> getCharValFromSetType(String charName) {
@@ -765,9 +804,11 @@ public abstract class LcmBaseExecutor {
 			c.ifPresent(val -> val.getValue().setValue(newValue));
 			copyCharacteristicToServiceToUpdate(c.get());			
 		} else { //will add a new characteristic if this does not exist
+			logger.debug(" setCharacteristicOfCurrentService will add a new characteristic since this does not exist: " + charName + " = " + newValue);
 			Characteristic newC = new Characteristic();
-			newC.setName("charName");
+			newC.setName( charName );
 			newC.setValue( new Any(newValue, ""));
+			newC.setValueType("TEXT");
 			copyCharacteristicToServiceToUpdate( newC );			
 		}
 		
