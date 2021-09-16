@@ -760,9 +760,17 @@ public abstract class LcmBaseExecutor {
 	public void setCharacteristicOfCurrentService(String charName, String newValue) {
 		logger.debug("setCharacteristicOfCurrentService " + charName + " = " + newValue);
 		Optional<Characteristic> c = getCharacteristicByName(charName);
-		c.ifPresent(val -> val.getValue().setValue(newValue));
 
-		copyCharacteristicToServiceToUpdate(c.get());
+		if ( c.isPresent() ) {
+			c.ifPresent(val -> val.getValue().setValue(newValue));
+			copyCharacteristicToServiceToUpdate(c.get());			
+		} else { //will add a new characteristic if this does not exist
+			Characteristic newC = new Characteristic();
+			newC.setName("charName");
+			newC.setValue( new Any(newValue, ""));
+			copyCharacteristicToServiceToUpdate( newC );			
+		}
+		
 	}
 
 	static <T> T toJsonObj(String content, TypeReference<T> typeReference) throws IOException {

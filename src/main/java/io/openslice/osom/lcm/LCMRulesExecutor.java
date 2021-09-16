@@ -161,6 +161,11 @@ public class LCMRulesExecutor {
         
         List<String> optionList = new ArrayList<String>();
         // set compiler's classpath to be same as the runtime's
+        /**
+         * this is a current solution found. 
+         * We need here to add to classpath the jar with the classes, so that the compile can be performed in runtime. 
+         * This is the location of the jar inside the running container 
+         */
         
         File classesJar = new File("/opt/openslice/lib/io.openslice.osom-1.1.0-SNAPSHOT.jar");        
         if ( classesJar.exists()  ) {
