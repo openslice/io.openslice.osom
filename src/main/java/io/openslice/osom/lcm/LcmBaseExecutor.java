@@ -2,6 +2,7 @@ package io.openslice.osom.lcm;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -16,8 +17,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.jayway.jsonpath.Configuration;
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.Option;
 
 import io.openslice.osom.partnerservices.GenericClient;
 import io.openslice.tmf.common.model.Any;
@@ -64,6 +71,7 @@ public abstract class LcmBaseExecutor {
 	public abstract void exec();
 
 	private void testF() {
+	
 
 	}
 
@@ -812,6 +820,106 @@ public abstract class LcmBaseExecutor {
 			copyCharacteristicToServiceToUpdate( newC );			
 		}
 		
+	}
+	
+	public String getJsonValueAsStringFromField(String jsonval, String fieldName) {
+		//logger.debug("getJsonValueAsStringFromField " + fieldName + " .  jsonval=" + jsonval);
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			JsonNode rootNode = mapper.readTree( jsonval );
+			JsonNode ret = rootNode.get(fieldName);
+			if ( ret !=null &&  ret.isValueNode()) {
+				return ret.asText("");
+			}			
+			return ret.toPrettyString();
+		} catch (JsonProcessingException e) {
+
+			logger.error("getJsonValueAsStringFromField failed! " + fieldName + " .  jsonval=" + jsonval);
+			e.printStackTrace();
+		}
+		return "";
+	}
+
+	public String getElementInJsonArrayFromIndex(String jsonval, int index) {
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			JsonNode rootNode = mapper.readTree( jsonval );
+
+			if (rootNode.isArray()  ) {
+				ArrayNode jarr = (ArrayNode)rootNode;
+				if (index<jarr.size()) {
+					JsonNode jresnode = jarr.get(index);
+					return jresnode.toString();
+				}
+			} else if (rootNode.isValueNode()) {
+				return rootNode.asText("");
+			}
+			return rootNode.toPrettyString();
+		} catch (JsonProcessingException e) {
+
+			logger.error("getElementInJsonArrayFromIndex failed! index=" + index + " .  jsonval=" + jsonval);
+			e.printStackTrace();
+		}
+		return "";
+	}
+	
+	public String getElementInJsonArrayFromFieldValue(String jsonval, String fieldName, String value) {
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			JsonNode rootNode = mapper.readTree( jsonval );
+
+			if (rootNode.isArray()  ) {
+				ArrayNode jarr = (ArrayNode)rootNode;
+				for (JsonNode jsonNode : jarr) {
+					if (jsonNode.get(fieldName) != null) {						
+						if  (jsonNode.get(fieldName).isValueNode() ){				
+							if (jsonNode.get(fieldName).asText().equals(value)) {
+								return jsonNode.toString(); //object found in array
+							}							
+						}
+						
+					}
+					
+				}
+			} else if (rootNode.isValueNode()) {
+				return rootNode.asText("");
+			}
+			return rootNode.toPrettyString();
+		} catch (JsonProcessingException e) {
+
+			logger.error("getElementInJsonArrayFromFieldValue failed! fieldName=" + fieldName + " .  jsonval=" + jsonval);
+			e.printStackTrace();
+		}
+		return "";
+	}
+	
+	
+	public String getValueFromJsonPath(String jsonval, String jsonpath) {
+		
+		try {
+			Configuration conf = Configuration.defaultConfiguration();
+			conf = conf.addOptions(Option.ALWAYS_RETURN_LIST);
+			conf = conf.addOptions(Option.SUPPRESS_EXCEPTIONS );
+			
+			List<Object>  value = JsonPath.using( conf ).parse( jsonval ).read(jsonpath );
+			
+			if ( value == null ) {
+				return "";
+			}else if ( value.size() == 1 ) {
+				return value.get(0).toString() ;				
+			} else if ( value.size()>1 ) {
+				return value.toString()  ;				
+			}else {
+				return "";
+			}
+			
+		}catch (Exception e) {
+
+			logger.error("getValueFromJsonPath failed! jsonpath=" + jsonpath + " .  jsonval=" + jsonval);
+			e.printStackTrace();
+		}
+		
+		return "";
 	}
 
 	static <T> T toJsonObj(String content, TypeReference<T> typeReference) throws IOException {

@@ -237,7 +237,38 @@ public class LCMIntegrationTest {
 		assertThat( be.checkIfSetContainsValue(be.getCharValFromSetType("cirros_2vnf_nsd::Primitive::fsetup"), "fsetupchanged") ).isEqualTo(true);
 		
 
+		assertThat( be.getJsonValueAsStringFromField( sspectex , "uuid" ) ).isEqualTo( "0d5551e6-069f-43b7-aa71-10530f290239" );
+		//logger.debug( "be from json: "+ be.getJsonValueAsStringFromField( sspectex , "serviceSpecCharacteristic" ) );
+		
+		String jsonArray = be.getJsonValueAsStringFromField( sspectex , "serviceSpecCharacteristic" );
+		assertThat(  be.getElementInJsonArrayFromIndex( jsonArray , 1 )  ).contains( "Area of Service" );		
+		//logger.debug( "be from json: "+ be.getElementInJsonArrayFromIndex( jsonArray , 1 ) );
+		
+		String areaChar = be.getElementInJsonArrayFromIndex( jsonArray , 1 );
+		jsonArray = be.getJsonValueAsStringFromField( areaChar , "serviceSpecCharacteristicValue" );		
+		
+		String jsonServiceSpecCharacteristicValue = be.getElementInJsonArrayFromFieldValue( jsonArray , "uuid", "1423ac7a-bdb5-44dd-b4cb-8278d4308061" );
+
+		String areavalue = be.getJsonValueAsStringFromField( jsonServiceSpecCharacteristicValue , "value" );
+		String areavalueAlias = be.getJsonValueAsStringFromField( areavalue , "alias" );
+		assertThat(  areavalueAlias  ).isEqualTo( "Spain" );				
+		
+		
+		//via jsonpath		
+		//try paths to http://jsonpath.herokuapp.com/
+		String countryVal = be.getValueFromJsonPath(  sspectex , "$.serviceSpecCharacteristic[?(@.name == 'Area of Service')].serviceSpecCharacteristicValue[?(@.value.alias=='Spain')].value.value"  );
+		assertThat(  countryVal  ).isEqualTo( "ES" );
+		countryVal = be.getValueFromJsonPath(  sspectex , "$.serviceSpecCharacteristic[?(@.name == 'Area of Service')].serviceSpecCharacteristicValue[?(@.uuid=='85ef658d-5de1-49dd-a4fd-a17f8d717e1b')].value.value"  );
+		assertThat(  countryVal  ).isEqualTo( "IT" );
+		
+		countryVal =	be.getValueFromJsonPath("{\"uuid\":\"843355a4-37b7-4509-94e3-cfc26a05f2fb\",\"endDate\":\"2021-09-16T21:34:49Z\",\"startDate\":\"2021-09-15T21:42:11Z\",\"description\":\"A Service for Open5GCore-2enb_nsd\",\"@baseType\":\"BaseRootNamedEntity\",\"@schemaLocation\":null,\"@type\":\"CustomerFacingServiceSpecification\",\"href\":null,\"name\":\"Open5GCore-2enb_nsd\",\"id\":\"843355a4-37b7-4509-94e3-cfc26a05f2fb\",\"category\":\"CustomerFacingServiceSpecification\",\"hasStarted\":false,\"isServiceEnabled\":false,\"isStateful\":null,\"serviceDate\":\"2021-09-15T21:42:11.003030097Z\",\"serviceType\":\"Open5GCore-2enb_nsd\",\"startMode\":\"MANUALLY_BY_SERVICE_PROVIDER\",\"note\":[{\"uuid\":\"807365be-e420-4136-a9bd-29a4268b2df1\",\"date\":\"2021-09-15T21:44:54Z\",\"@baseType\":\"BaseEntity\",\"@schemaLocation\":null,\"@type\":null,\"href\":null,\"author\":\"openslice-osom\",\"system\":null,\"text\":\"Service Action HandleManuallyAction. Terminated Action: TERMINATE\"},{\"uuid\":\"4d40f73b-82fa-4b43-bdb7-ea575530f581\",\"date\":\"2021-09-15T21:44:14Z\",\"@baseType\":\"BaseEntity\",\"@schemaLocation\":null,\"@type\":null,\"href\":null,\"author\":\"openslice-osom\",\"system\":null,\"text\":\"Service Action HandleManuallyAction. Terminated Action: NONE\"},{\"uuid\":\"4f395663-79da-4ed6-8042-c009b80ba86d\",\"date\":\"2021-09-15T21:44:14Z\",\"@baseType\":\"BaseEntity\",\"@schemaLocation\":null,\"@type\":null,\"href\":null,\"author\":\"openslice-osom\",\"system\":null,\"text\":\"Service Action HandleManuallyAction. Terminated Action: NONE\"},{\"uuid\":\"e76ae3a7-525d-4e5e-ae1b-4d549db82288\",\"date\":\"2021-09-15T21:44:04Z\",\"@baseType\":\"BaseEntity\",\"@schemaLocation\":null,\"@type\":null,\"href\":null,\"author\":\"openslice-osom\",\"system\":null,\"text\":\"Service Action HandleManuallyAction. Terminated Action: TERMINATE\"},{\"uuid\":\"7c30df0c-1e8c-42e3-9aab-3150e3d6e486\",\"date\":\"2021-09-15T21:42:11Z\",\"@baseType\":\"BaseEntity\",\"@schemaLocation\":null,\"@type\":null,\"href\":null,\"author\":\"API\",\"system\":null,\"text\":\"Service reserved\"},{\"uuid\":\"99fdd422-c3f0-4037-bc56-6215101587d0\",\"date\":\"2021-09-15T21:42:11Z\",\"@baseType\":\"BaseEntity\",\"@schemaLocation\":null,\"@type\":null,\"href\":null,\"author\":\"openslice-osom\",\"system\":null,\"text\":\"Service Created by AutomationCheck\"},{\"uuid\":\"ff6fca28-cbb8-4170-9980-46149a15f5f7\",\"date\":\"2021-09-15T21:43:06Z\",\"@baseType\":\"BaseEntity\",\"@schemaLocation\":null,\"@type\":null,\"href\":null,\"author\":\"API\",\"system\":null,\"text\":\"Service terminated\"}],\"place\":[],\"relatedParty\":[{\"uuid\":\"79b3b88d-c64b-4405-b765-867ae6f4277f\",\"@baseType\":\"BaseRootEntity\",\"@schemaLocation\":null,\"@type\":\"io.openslice.tmf.prm669.model.RelatedParty\",\"href\":null,\"name\":\"anonymousUser\",\"role\":\"OWNER\",\"@referredType\":\"SimpleUsername_Individual\",\"id\":null,\"extendedInfo\":null}],\"serviceCharacteristic\":[{\"uuid\":\"284aa4ab-3b04-45d0-9355-c1594e48cf18\",\"value\":{\"value\":\"691c8956-0369-4b91-b914-b61dccba74db\",\"alias\":\"Cloudville\"},\"@baseType\":\"BaseEntity\",\"@schemaLocation\":null,\"@type\":null,\"href\":null,\"name\":\"VIM\",\"valueType\":\"ENUM\"},{\"uuid\":\"3b299d33-bf01-4364-8c52-01aef7451c15\",\"value\":{\"value\":\"myNsNAME\",\"alias\":null},\"@baseType\":\"BaseEntity\",\"@schemaLocation\":null,\"@type\":null,\"href\":null,\"name\":\"nsName\",\"valueType\":\"TEXT\"},{\"uuid\":\"0f5da375-cccc-47d9-9758-42ff30352009\",\"value\":{\"value\":\"e12d6ef5-4f64-4be3-bc46-fcf2946eb881\",\"alias\":\"nsdId\"},\"@baseType\":\"BaseEntity\",\"@schemaLocation\":null,\"@type\":null,\"href\":null,\"name\":\"deployId\",\"valueType\":\"TEXT\"}],\"serviceOrder\":[{\"@baseType\":\"BaseEntity\",\"@schemaLocation\":null,\"@type\":null,\"href\":null,\"id\":\"9cee8f99-6b75-4541-8d2e-c8739656d3b8\",\"serviceOrderItemId\":\"adf31267-6bb3-4009-a972-4bc0178108c1\",\"@referredType\":null}],\"serviceRelationship\":[],\"serviceSpecification\":{\"@baseType\":\"BaseEntity\",\"@schemaLocation\":null,\"@type\":null,\"href\":null,\"name\":\"Open5GCore-2enb_nsd\",\"version\":null,\"targetServiceSchema\":null,\"@referredType\":null,\"id\":\"2d2bd5b2-c4ef-44bb-8796-6360ae8f5581\"},\"state\":\"terminated\",\"supportingResource\":[],\"supportingService\":[]}", "$.serviceCharacteristic[?(@.name == 'deployId')].value.value");
+		assertThat(  countryVal  ).isEqualTo( "e12d6ef5-4f64-4be3-bc46-fcf2946eb881" );
+		
+		//logger.debug( "be from json: "+ be.getValueFromJsonPath(  sspectex , "$.serviceSpecCharacteristic[?(@.name == 'Area of Service')].serviceSpecCharacteristicValue[?(@.value.alias=='Spain')].value.value"  ) );
+		
+
 		logger.debug("===============TEST END testLcmBaseExecutorAPIs =============================");
+		
 	}
 	
 	@Test
