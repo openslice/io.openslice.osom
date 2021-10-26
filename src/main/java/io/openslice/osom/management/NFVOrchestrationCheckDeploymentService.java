@@ -77,6 +77,7 @@ public class NFVOrchestrationCheckDeploymentService implements JavaDelegate {
 		logger.info("Operational Status of deployment Request id: " + dd.getOperationalStatus() );
 		logger.info("Status of deployment Request id: " + dd.getStatus() );
 		ServiceUpdate supd = new ServiceUpdate();
+		boolean aVNFINDEXREFadded = false;
 		if ( aService.getServiceCharacteristic() != null ) {
 			for (Characteristic c : aService.getServiceCharacteristic()) {
 				if ( c.getName().equals("Status")) {
@@ -94,17 +95,36 @@ public class NFVOrchestrationCheckDeploymentService implements JavaDelegate {
 				} else if ( c.getName().equals("NSLCM")) {
 					c.setValue( new Any( dd.getNs_nslcm_details() + "" ));
 				}				
-				
-				for ( DeploymentDescriptorVxFInstanceInfo vnfinfo : dd.getDeploymentDescriptorVxFInstanceInfo() ) {
-					if ( c.getName().equals(  "VNFINDEXREF_" + vnfinfo.getMemberVnfIndexRef() )) {
-						c.setValue( new Any( vnfinfo.toJSON()  + "" ));
-					} 
-					
+				if ( dd.getDeploymentDescriptorVxFInstanceInfo() !=null ) {
+					for ( DeploymentDescriptorVxFInstanceInfo vnfinfo : dd.getDeploymentDescriptorVxFInstanceInfo() ) {
+						if ( c.getName().equals(  "VNFINDEXREF_" + vnfinfo.getMemberVnfIndexRef() )) {
+							c.setValue( new Any( vnfinfo.toJSON()  + "" ));
+							aVNFINDEXREFadded = true;
+						} 
+						
+					}
 				}
 				
-				
 				supd.addServiceCharacteristicItem( c );					
-			} 
+			}
+			
+			if (!aVNFINDEXREFadded) {
+				if ( dd.getDeploymentDescriptorVxFInstanceInfo() !=null ) {
+					for (DeploymentDescriptorVxFInstanceInfo vnfinfo : dd.getDeploymentDescriptorVxFInstanceInfo()) {
+						if ( vnfinfo.getMemberVnfIndexRef()!=null ){
+							Characteristic serviceCharacteristicItem = new Characteristic();
+							serviceCharacteristicItem.setName( "VNFINDEXREF_" + vnfinfo.getMemberVnfIndexRef() );
+							serviceCharacteristicItem.setValue( new Any( vnfinfo.toJSON()  ));
+							aService.addServiceCharacteristicItem(serviceCharacteristicItem);
+						}								
+					}							
+				}
+			}
+			
+			
+			
+			
+			
 		} else {
 			logger.error("Service has no characteristics!" );
 			
