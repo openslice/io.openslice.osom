@@ -182,11 +182,16 @@ public class NFVOrchestrationService implements JavaDelegate {
 						su.addServiceCharacteristicItem(serviceCharacteristicItem);
 
 						
-						for (DeploymentDescriptorVxFInstanceInfo vnfinfo : dd.getDeploymentDescriptorVxFInstanceInfo()) {
-							serviceCharacteristicItem = new Characteristic();
-							serviceCharacteristicItem.setName( "VNFINDEXREF_" + vnfinfo.getMemberVnfIndexRef() );
-							serviceCharacteristicItem.setValue( new Any( vnfinfo.toJSON()  ));
-							su.addServiceCharacteristicItem(serviceCharacteristicItem);
+						if ( dd.getDeploymentDescriptorVxFInstanceInfo() !=null ) {
+							for (DeploymentDescriptorVxFInstanceInfo vnfinfo : dd.getDeploymentDescriptorVxFInstanceInfo()) {
+								if ( vnfinfo.getMemberVnfIndexRef()!=null ){
+
+									serviceCharacteristicItem = new Characteristic();
+									serviceCharacteristicItem.setName( "VNFINDEXREF_" + vnfinfo.getMemberVnfIndexRef() );
+									serviceCharacteristicItem.setValue( new Any( vnfinfo.toJSON()  ));
+									su.addServiceCharacteristicItem(serviceCharacteristicItem);
+								}								
+							}							
 						}
 						
 
