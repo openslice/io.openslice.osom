@@ -33,6 +33,7 @@ import org.springframework.stereotype.Component;
 
 import io.openslice.model.DeploymentDescriptor;
 import io.openslice.model.DeploymentDescriptorStatus;
+import io.openslice.model.DeploymentDescriptorVxFInstanceInfo;
 import io.openslice.model.ExperimentMetadata;
 import io.openslice.tmf.common.model.Any;
 import io.openslice.tmf.common.model.service.Characteristic;
@@ -88,14 +89,20 @@ public class NFVOrchestrationCheckDeploymentService implements JavaDelegate {
 					c.setValue( new Any( dd.getConfigStatus() + "" ));
 				}  else if ( c.getName().equals("InstanceId")) {
 					c.setValue( new Any( dd.getInstanceId() + "" ));
-				} 
+				} else if ( c.getName().equals("NSR")) {
+					c.setValue( new Any( dd.getNsr() + "" ));
+				} else if ( c.getName().equals("NSLCM")) {
+					c.setValue( new Any( dd.getNs_nslcm_details() + "" ));
+				}				
 				
-
-//				else if ( c.getName().equals("NSR")) {
-//					c.setValue( new Any( dd.getNsr() + "" ));
-//				} else if ( c.getName().equals("NSLCM_details")) {
-//					c.setValue( new Any( dd.getNs_nslcm_details() + "" ));
-//				}
+				for ( DeploymentDescriptorVxFInstanceInfo vnfinfo : dd.getDeploymentDescriptorVxFInstanceInfo() ) {
+					if ( c.getName().equals(  "VNFINDEXREF_" + vnfinfo.getMemberVnfIndexRef() )) {
+						c.setValue( new Any( vnfinfo.toJSON()  + "" ));
+					} 
+					
+				}
+				
+				
 				supd.addServiceCharacteristicItem( c );					
 			} 
 		} else {

@@ -36,6 +36,7 @@ import org.springframework.stereotype.Component;
 import io.openslice.model.ConstituentVxF;
 import io.openslice.model.DeploymentDescriptor;
 import io.openslice.model.DeploymentDescriptorStatus;
+import io.openslice.model.DeploymentDescriptorVxFInstanceInfo;
 import io.openslice.model.ExperimentMetadata;
 import io.openslice.model.ExperimentOnBoardDescriptor;
 import io.openslice.model.NetworkServiceDescriptor;
@@ -180,16 +181,24 @@ public class NFVOrchestrationService implements JavaDelegate {
 						serviceCharacteristicItem.setValue( new Any( dd.getInstanceId() + "" ));
 						su.addServiceCharacteristicItem(serviceCharacteristicItem);
 
+						
+						for (DeploymentDescriptorVxFInstanceInfo vnfinfo : dd.getDeploymentDescriptorVxFInstanceInfo()) {
+							serviceCharacteristicItem = new Characteristic();
+							serviceCharacteristicItem.setName( "VNFINDEXREF_" + vnfinfo.getMemberVnfIndexRef() );
+							serviceCharacteristicItem.setValue( new Any( vnfinfo.toJSON()  ));
+							su.addServiceCharacteristicItem(serviceCharacteristicItem);
+						}
+						
 
-//						serviceCharacteristicItem = new Characteristic();
-//						serviceCharacteristicItem.setName( "NSR" );
-//						serviceCharacteristicItem.setValue( new Any( dd.getNsr()  + "" ));
-//						su.addServiceCharacteristicItem(serviceCharacteristicItem);
-//
-//						serviceCharacteristicItem = new Characteristic();
-//						serviceCharacteristicItem.setName( "NSLCM_details" );
-//						serviceCharacteristicItem.setValue( new Any( dd.getNs_nslcm_details()   + "" ));
-//						su.addServiceCharacteristicItem(serviceCharacteristicItem);
+						serviceCharacteristicItem = new Characteristic();
+						serviceCharacteristicItem.setName( "NSR" );
+						serviceCharacteristicItem.setValue( new Any( dd.getNsr()  + "" ));
+						su.addServiceCharacteristicItem(serviceCharacteristicItem);
+
+						serviceCharacteristicItem = new Characteristic();
+						serviceCharacteristicItem.setName( "NSLCM" );
+						serviceCharacteristicItem.setValue( new Any( dd.getNs_nslcm_details()   + "" ));
+						su.addServiceCharacteristicItem(serviceCharacteristicItem);
 												
 						Service supd = serviceOrderManager.updateService(  execution.getVariable("serviceId").toString(), su, false);
 						logger.info("Request to NFVO for NSDID:" + NSDID + " done! Service: " + supd.getId() );
