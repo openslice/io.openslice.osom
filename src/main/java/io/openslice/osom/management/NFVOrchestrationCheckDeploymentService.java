@@ -97,8 +97,8 @@ public class NFVOrchestrationCheckDeploymentService implements JavaDelegate {
 				}				
 				if ( dd.getDeploymentDescriptorVxFInstanceInfo() !=null ) {
 					for ( DeploymentDescriptorVxFInstanceInfo vnfinfo : dd.getDeploymentDescriptorVxFInstanceInfo() ) {
-						if ( c.getName().equals(  "VNFINDEXREF_" + vnfinfo.getMemberVnfIndexRef() )) {
-							c.setValue( new Any( vnfinfo.toJSON()  + "" ));
+						if ( c.getName().equals(  "VNFINDEXREF_INFO_" + vnfinfo.getMemberVnfIndexRef() )) {
+							c.setValue( new Any( vnfinfo.getVxfInstanceInfo()  + "" ));
 							aVNFINDEXREFadded = true;
 						} 
 						
@@ -113,8 +113,8 @@ public class NFVOrchestrationCheckDeploymentService implements JavaDelegate {
 					for (DeploymentDescriptorVxFInstanceInfo vnfinfo : dd.getDeploymentDescriptorVxFInstanceInfo()) {
 						if ( vnfinfo.getMemberVnfIndexRef()!=null ){
 							Characteristic serviceCharacteristicItem = new Characteristic();
-							serviceCharacteristicItem.setName( "VNFINDEXREF_" + vnfinfo.getMemberVnfIndexRef() );
-							serviceCharacteristicItem.setValue( new Any( vnfinfo.toJSON()  ));
+							serviceCharacteristicItem.setName( "VNFINDEXREF_INFO_" + vnfinfo.getMemberVnfIndexRef() );
+							serviceCharacteristicItem.setValue( new Any( vnfinfo.getVxfInstanceInfo()  ));
 							supd.addServiceCharacteristicItem(serviceCharacteristicItem);
 						}								
 					}							

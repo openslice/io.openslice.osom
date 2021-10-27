@@ -145,6 +145,7 @@ public class NFVOrchestrationService implements JavaDelegate {
 						successNoteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
 						successNoteItem.setAuthor( compname );
 						su.addNoteItem( successNoteItem );
+						
 						Characteristic serviceCharacteristicItem = new Characteristic();
 						serviceCharacteristicItem.setName( "DeploymentRequestID" );
 						serviceCharacteristicItem.setValue( new Any( dd.getId() + "" ));
@@ -172,7 +173,7 @@ public class NFVOrchestrationService implements JavaDelegate {
 						su.addServiceCharacteristicItem(serviceCharacteristicItem);
 						
 						serviceCharacteristicItem = new Characteristic();
-						serviceCharacteristicItem.setName( "APPLY CONFIG" );
+						serviceCharacteristicItem.setName( "APPLY_CONFIG" );
 						serviceCharacteristicItem.setValue( new Any( dd.getInstantiationconfig()  + "" ));
 						su.addServiceCharacteristicItem(serviceCharacteristicItem);
 						
@@ -181,19 +182,6 @@ public class NFVOrchestrationService implements JavaDelegate {
 						serviceCharacteristicItem.setValue( new Any( dd.getInstanceId() + "" ));
 						su.addServiceCharacteristicItem(serviceCharacteristicItem);
 
-						
-						if ( dd.getDeploymentDescriptorVxFInstanceInfo() !=null ) {
-							for (DeploymentDescriptorVxFInstanceInfo vnfinfo : dd.getDeploymentDescriptorVxFInstanceInfo()) {
-								if ( vnfinfo.getMemberVnfIndexRef()!=null ){
-
-									serviceCharacteristicItem = new Characteristic();
-									serviceCharacteristicItem.setName( "VNFINDEXREF_" + vnfinfo.getMemberVnfIndexRef() );
-									serviceCharacteristicItem.setValue( new Any( vnfinfo.toJSON()  ));
-									su.addServiceCharacteristicItem(serviceCharacteristicItem);
-								}								
-							}							
-						}
-						
 
 						serviceCharacteristicItem = new Characteristic();
 						serviceCharacteristicItem.setName( "NSR" );
