@@ -346,18 +346,18 @@ public class AutomationCheck implements JavaDelegate {
 				addCreatedServiceAsSupportingServiceToParent( parentService, supportingServiceRef );						
 
 				//also add parent service as relationship to parent
+
+				ServiceRelationship srelationship = new ServiceRelationship();
+				ServiceRef parentServiceRef = new ServiceRef();
+				parentServiceRef.setId( parentService.getId() );
+				parentServiceRef.setReferredType( parentService.getName() );
+				parentServiceRef.setName( parentService.getName()  );
+				srelationship.setRelationshipType("ChildService");
+				srelationship.setService(parentServiceRef);
 				
+				createdServ.addServiceRelationshipItem( srelationship );
 			}
 			
-			ServiceRelationship srelationship = new ServiceRelationship();
-			ServiceRef parentServiceRef = new ServiceRef();
-			parentServiceRef.setId( parentService.getId() );
-			parentServiceRef.setReferredType( parentService.getName() );
-			parentServiceRef.setName( parentService.getName()  );
-			srelationship.setRelationshipType("ChildService");
-			srelationship.setService(parentServiceRef);
-			
-			createdServ.addServiceRelationshipItem( srelationship );
 			
 			
 			return createdServ;
