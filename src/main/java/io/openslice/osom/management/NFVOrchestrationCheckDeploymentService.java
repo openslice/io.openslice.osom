@@ -115,7 +115,7 @@ public class NFVOrchestrationCheckDeploymentService implements JavaDelegate {
 							Characteristic serviceCharacteristicItem = new Characteristic();
 							serviceCharacteristicItem.setName( "VNFINDEXREF_" + vnfinfo.getMemberVnfIndexRef() );
 							serviceCharacteristicItem.setValue( new Any( vnfinfo.toJSON()  ));
-							aService.addServiceCharacteristicItem(serviceCharacteristicItem);
+							supd.addServiceCharacteristicItem(serviceCharacteristicItem);
 						}								
 					}							
 				}
@@ -146,6 +146,7 @@ public class NFVOrchestrationCheckDeploymentService implements JavaDelegate {
 		
 		if ( serviceResult!= null ) {
 			if ( serviceResult.getState().equals(ServiceStateType.ACTIVE)
+					||serviceResult.getState().equals(ServiceStateType.INACTIVE)
 					|| serviceResult.getState().equals(ServiceStateType.TERMINATED)) {
 
 				logger.info("Deployment Status OK. Service state = " + serviceResult.getState() );
