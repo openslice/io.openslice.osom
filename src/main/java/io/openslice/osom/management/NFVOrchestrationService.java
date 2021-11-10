@@ -113,10 +113,27 @@ public class NFVOrchestrationService implements JavaDelegate {
 					ServiceSpecCharacteristic cOnBoardDescriptorUUID = spec.getServiceSpecCharacteristicByName( "OnBoardDescriptorUUID" );	
 					ServiceSpecCharacteristic cMANOproviderName = spec.getServiceSpecCharacteristicByName( "MANOproviderName" );
 
-					String OSM_NSDCATALOGID = cOSM_NSDCATALOGID.getDefaultValue();
-					String OnBoardDescriptorID = cOnBoardDescriptorID.getDefaultValue();
-					String OnBoardDescriptorUUID = cOnBoardDescriptorUUID.getDefaultValue();
-					String MANOproviderName = cMANOproviderName.getDefaultValue();
+
+					String OSM_NSDCATALOGID = "";
+					String OnBoardDescriptorID = "";
+					String OnBoardDescriptorUUID = "";
+					String MANOproviderName = "";
+					
+					try {
+						if ( cOSM_NSDCATALOGID!=null && OnBoardDescriptorID!=null && OnBoardDescriptorUUID!=null && MANOproviderName!=null ) {
+							OSM_NSDCATALOGID = cOSM_NSDCATALOGID.getDefaultValue();
+							OnBoardDescriptorID = cOnBoardDescriptorID.getDefaultValue();
+							OnBoardDescriptorUUID = cOnBoardDescriptorUUID.getDefaultValue();
+							MANOproviderName = cMANOproviderName.getDefaultValue();						
+						} else {
+							throw new Exception( "Found NULL mandatory values. Instnatiation cannot proceed"  );
+						}
+						
+					} catch (Exception e) {
+						logger.error("Cannot create DeploymentDescriptor request");	
+						e.printStackTrace();					
+					}
+						
 
 					try {
 						NetworkServiceDescriptor refnsd = serviceOrderManager.retrieveNSD( NSDID );
