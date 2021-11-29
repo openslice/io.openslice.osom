@@ -3,6 +3,7 @@ package io.openslice.osom.serviceactions;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -48,17 +49,22 @@ public class NFVODAY2config implements JavaDelegate {
 		
 		logger.debug("NFVODAY2config:" + execution.getVariableNames().toString() );
 		
-		try {
 			ObjectMapper mapper = new ObjectMapper();
 			ServiceActionQueueItem item;
 			Service aService;
-			item = mapper.readValue( execution.getVariable("serviceActionItem").toString(), ServiceActionQueueItem.class);
-			aService = mapper.readValue( execution.getVariable("Service").toString(), Service.class);
-			
-			
-			//extract the original service from the Item
+			Service originalService;
+			try {
+				item = mapper.readValue( execution.getVariable("serviceActionItem").toString(), ServiceActionQueueItem.class);
+				aService = mapper.readValue( execution.getVariable("Service").toString(), Service.class);
+				//extract the original service from the Item
 
-			Service originalService =  mapper.readValue( item.getOriginalServiceInJSON() , Service.class);;
+				originalService =  mapper.readValue( item.getOriginalServiceInJSON() , Service.class);;
+			} catch (JsonProcessingException e1) {
+				e1.printStackTrace();
+				return;
+			}
+			
+			
 			
 			List<Characteristic> changeCharacteristics = new ArrayList<>();
 			//send to mano client here: only the modified action!
@@ -111,7 +117,14 @@ public class NFVODAY2config implements JavaDelegate {
 						
 						
 						String characteristicValue = characteristic.getValue().getValue();
-						List<Any> vals = mapper.readValue( characteristicValue, new TypeReference<List<Any>>() {});
+						List<Any> vals = new ArrayList<>();
+						try {
+							vals = mapper.readValue( characteristicValue, new TypeReference<List<Any>>() {});
+						} catch (JsonProcessingException e) {
+							e.printStackTrace();
+							n.setText( n.getText() + characteristicValue + "\nERROR\n" + e.getOriginalMessage() );
+							
+						}
 
 						logger.debug("NFVODAY2config: characteristicValue = " +characteristicValue );
 						for ( Any actionValue : vals) {
@@ -141,7 +154,13 @@ public class NFVODAY2config implements JavaDelegate {
 							}
 							 */
 							
-							String payload = mapper.writeValueAsString(nsp) ;	
+							String payload="NO_PAYLOAD";
+							try {
+								payload = mapper.writeValueAsString(nsp);
+							} catch (JsonProcessingException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}	
 							logger.debug("NFVODAY2config NSActionRequestPayload= " + payload );						
 							String actionresult = serviceOrderManager.nfvoDay2Action(nsp);
 							if ( actionresult.contains("ACCEPTED") ) {
@@ -157,7 +176,13 @@ public class NFVODAY2config implements JavaDelegate {
 					}
 				} else if ( ncTxt.toUpperCase().contains(  "EXEC_ACTION" ) ) {
 					String characteristicValue = characteristic.getValue().getValue();
-					Map<String, String> vals = mapper.readValue( characteristicValue, new TypeReference< Map<String, String>>() {});
+					Map<String, String> vals = new HashMap<>();
+					try {
+						vals = mapper.readValue( characteristicValue, new TypeReference< Map<String, String>>() {});
+					} catch (JsonProcessingException e1) {
+						e1.printStackTrace();
+						n.setText( n.getText() + characteristicValue + "\nERROR\n" + e1.getOriginalMessage() );
+					}
 					logger.debug("NFVODAY2config:  EXEC_ACTION characteristicValue = " +characteristicValue );
 					//first add to a new item the acknowledge
 					Characteristic characteristicAck = new Characteristic();
@@ -237,7 +262,13 @@ public class NFVODAY2config implements JavaDelegate {
 								}
 								 */
 								
-								String payload = mapper.writeValueAsString(nsp) ;	
+								String payload="NO_PAYLOAD";
+								try {
+									payload = mapper.writeValueAsString(nsp);
+								} catch (JsonProcessingException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}	
 								logger.debug("ACTION_NAME execDay2 NFVODAY2config NSActionRequestPayload= " + payload );						
 								String actionresult = serviceOrderManager.nfvoDay2Action(nsp);
 								if ( actionresult.contains("ACCEPTED") ) {
@@ -277,13 +308,7 @@ public class NFVODAY2config implements JavaDelegate {
 
 			logger.debug("NFVODAY2config:" + n.getText() );
 			
-		} catch (JsonMappingException e) {
-			e.printStackTrace();
-			return;
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-			return;
-		}
+		
 		
 	}
 
