@@ -343,8 +343,11 @@ public class AutomationCheck implements JavaDelegate {
 			soi.getService().addSupportingServiceItem(supportingServiceRef );			
 			
 			if ( parentService!= null) {
-				addCreatedServiceAsSupportingServiceToParent( parentService, supportingServiceRef );				
+				addCreatedServiceAsSupportingServiceToParent( parentService, supportingServiceRef );						
+
+				
 			}
+			
 			
 			
 			return createdServ;
@@ -377,6 +380,7 @@ public class AutomationCheck implements JavaDelegate {
 		}
 		
 		serviceOrderManager.updateService( createdUnderlService.getId() , supd, false);
+		
 		
 	}
 
@@ -492,7 +496,20 @@ public class AutomationCheck implements JavaDelegate {
 						break;
 					}
 				}				
-			}			
+			}
+								
+
+			//also add parent service as relationship to parent
+			ServiceRelationship srelationship = new ServiceRelationship();
+			ServiceRef parentServiceRef = new ServiceRef();
+			parentServiceRef.setId( parentService.getId() );
+			parentServiceRef.setReferredType( parentService.getName() );
+			parentServiceRef.setName( parentService.getName()  );
+			srelationship.setRelationshipType("ChildService");
+			srelationship.setService(parentServiceRef);
+			
+			serviceToCreate.addServiceRelationshipItem( srelationship );
+			
 		}	
 		
 
