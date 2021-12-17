@@ -181,7 +181,7 @@ public class AutomationCheck implements JavaDelegate {
 									for (Characteristic serviceChar : aService.getServiceCharacteristic() ) {
 										
 										for (Characteristic soiCharacteristic : soi.getService().getServiceCharacteristic()) {
-											if ( soiCharacteristic.getName().contains( serviceChar.getName() )) { //copy only characteristics that are related from the order
+											if ( soiCharacteristic.getName().contains( aService.getName() + "::" +serviceChar.getName() )) { //copy only characteristics that are related from the order
 												
 												serviceChar.setValue( soiCharacteristic.getValue() );
 												supd.addServiceCharacteristicItem( serviceChar );		

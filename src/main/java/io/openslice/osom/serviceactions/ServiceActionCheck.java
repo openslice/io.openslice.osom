@@ -76,7 +76,7 @@ public class ServiceActionCheck implements JavaDelegate {
 			} else if ( item.getAction().equals( ServiceActionQueueAction.EVALUATE_CHARACTERISTIC_CHANGED  ) ) {
 				execution.setVariable("saction", "HandleEvaluateService");
 				
-			}  else {
+			}  else if ( !item.getAction().equals( ServiceActionQueueAction.NONE   ) ) {
 				if ( aService.getStartMode().equals( "AUTOMATICALLY_MANAGED" ) ) {
 					
 					if ( (aService.getServiceCharacteristicByName( "externalServiceOrderId" ) != null )){
@@ -116,12 +116,12 @@ public class ServiceActionCheck implements JavaDelegate {
 								ServiceUpdate supd = new ServiceUpdate();
 								
 								if ( aService.getServiceCharacteristic() != null ) {
-									for (Characteristic serviceChar : aSupportingService.getServiceCharacteristic() ) {
+									for (Characteristic supportingServiceChar : aSupportingService.getServiceCharacteristic() ) {
 										
-										for (Characteristic soiCharacteristic : aService.getServiceCharacteristic()) {
-											if ( soiCharacteristic.getName().contains( serviceChar.getName() )) { //copy only characteristics that are related from the order										
-												serviceChar.setValue( soiCharacteristic.getValue() );
-												supd.addServiceCharacteristicItem( serviceChar );
+										for (Characteristic serviceCharacteristic : aService.getServiceCharacteristic()) {
+											if ( serviceCharacteristic.getName().contains( aSupportingService.getName() + "::" + supportingServiceChar.getName() )) { 									
+												supportingServiceChar.setValue( serviceCharacteristic.getValue() );
+												supd.addServiceCharacteristicItem( supportingServiceChar );
 											}
 										}
 									}
