@@ -76,7 +76,7 @@ public class ExternalPartnerCheckDeploymentService  implements JavaDelegate {
 		execution.setVariable("serviceDeploymentFinished",   false );
 
 		ServiceOrder sorder = serviceOrderManager.retrieveServiceOrder( execution.getVariable("orderid").toString() );
-		Service aLocalWrapperProxyService = serviceOrderManager.retrieveService( (String) execution.getVariable("serviceId") );
+		Service aLocalWrapperProxyService = serviceOrderManager.retrieveService( (String) execution.getVariable("contextServiceId") );
 		logger.debug("Check external partner for Service name:" + aLocalWrapperProxyService.getName() );
 		logger.debug("Check external partner for  Service state:" + aLocalWrapperProxyService.getState()  );			
 		logger.debug("Request to External Service Partner for Service: " + aLocalWrapperProxyService.getId() );

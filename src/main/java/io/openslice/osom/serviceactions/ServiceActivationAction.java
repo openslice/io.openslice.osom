@@ -87,17 +87,23 @@ public class ServiceActivationAction  implements JavaDelegate {
 
 				//logger.debug("vars= " + vars );		
 				logger.debug("===============AFTER lcmRulesController.execPhas =============================");
+
+				Note noteItem = new Note();
 				
 				if ( vars.getCompileDiagnosticErrors().size()>0 ) {
-					Note noteItem = new Note();
 					String msg = "LCM Rule execution error by ServiceActivationAction. ";
 					for (String tmsg :  vars.getCompileDiagnosticErrors()) {
 						msg = msg + "\n"+ tmsg;
 					}
 					noteItem.setText( msg );
-					noteItem.setAuthor( compname );
-					supd.addNoteItem(noteItem);
+				} else {
+					String msg = "LCM AFTER_ACTIVATION Rules executed. ";
+					noteItem.setText( msg );
+					
 				}
+				noteItem.setAuthor( compname );
+				noteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
+				supd.addNoteItem(noteItem);
 			}
 				
 			

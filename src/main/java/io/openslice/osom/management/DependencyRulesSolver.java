@@ -33,7 +33,6 @@ import javax.xml.stream.XMLStreamReader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.flowable.dmn.api.DmnRepositoryService;
-import org.flowable.dmn.api.DmnRuleService;
 import org.flowable.dmn.api.ExecuteDecisionBuilder;
 import org.flowable.dmn.engine.DmnEngine;
 import org.flowable.dmn.model.DmnDefinition;
@@ -58,8 +57,8 @@ public class DependencyRulesSolver {
 	@Autowired
 	private DmnEngine dmnEngine;
 
-	@Autowired
-	private DmnRuleService ruleService;
+//	@Autowired
+//	private DmnRuleService ruleService;
 
 	/**
 	 * @param sorder is the containing order to resolve

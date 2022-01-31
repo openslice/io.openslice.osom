@@ -73,19 +73,19 @@ public class NFVOrchestrationService implements JavaDelegate {
 		logger.info( "NFVOrchestrationService" );
 		logger.info( "VariableNames:" + execution.getVariableNames().toString() );
 		logger.info("orderid:" + execution.getVariable("orderid").toString() );
-		logger.info("serviceId:" + execution.getVariable("serviceId").toString() );
+		logger.info("contextServiceId:" + execution.getVariable("contextServiceId").toString() );
 
 		ServiceUpdate su = new ServiceUpdate();//the object to update the service
 		Note noteItem = new Note();
 		noteItem.setText("");
 		
-		if (execution.getVariable("serviceId") instanceof String) {
+		if (execution.getVariable("contextServiceId") instanceof String) {
 
 			//if we get here somethign is wrong so we need to terminate the service.
 			
 			
 			ServiceOrder sorder = serviceOrderManager.retrieveServiceOrder( execution.getVariable("orderid").toString() );
-			Service aService = serviceOrderManager.retrieveService( (String) execution.getVariable("serviceId") );
+			Service aService = serviceOrderManager.retrieveService( (String) execution.getVariable("contextServiceId") );
 			logger.info("Service name:" + aService.getName() );
 			logger.info("Service state:" + aService.getState()  );			
 			logger.info("Request to NFVO for Service: " + aService.getId() );
@@ -210,7 +210,7 @@ public class NFVOrchestrationService implements JavaDelegate {
 						serviceCharacteristicItem.setValue( new Any( dd.getNs_nslcm_details()   + "" ));
 						su.addServiceCharacteristicItem(serviceCharacteristicItem);
 												
-						Service supd = serviceOrderManager.updateService(  execution.getVariable("serviceId").toString(), su, false);
+						Service supd = serviceOrderManager.updateService(  aService.getId(), su, false);
 						logger.info("Request to NFVO for NSDID:" + NSDID + " done! Service: " + supd.getId() );
 						
 						execution.setVariable("deploymentId", dd.getId());
@@ -233,10 +233,10 @@ public class NFVOrchestrationService implements JavaDelegate {
 				
 			} else {
 
-				logger.error( "Cannot retrieve ServiceSpecification for service :" + (String) execution.getVariable("serviceId") );
+				logger.error( "Cannot retrieve ServiceSpecification for service :" + (String) execution.getVariable("contextServiceId") );
 			}
 		} else {
-			logger.error( "Cannot retrieve variable serviceId"  );
+			logger.error( "Cannot retrieve variable contextServiceId"  );
 		}
 
 		//if we get here somethign is wrong so we need to terminate the service.
@@ -246,7 +246,7 @@ public class NFVOrchestrationService implements JavaDelegate {
 		noteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
 		su.addNoteItem( noteItem );
 		su.setState(ServiceStateType.TERMINATED   );
-		serviceOrderManager.updateService(  execution.getVariable("serviceId").toString(), su, false);
+		serviceOrderManager.updateService(  execution.getVariable("contextServiceId").toString(), su, false);
 		
 	}
 

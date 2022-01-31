@@ -47,7 +47,7 @@ public class HandleManuallyAction  implements JavaDelegate {
 				item = mapper.readValue( execution.getVariable("serviceActionItem").toString(), ServiceActionQueueItem.class);
 				ServiceUpdate supd = new ServiceUpdate();
 				Note n = new Note();
-				n.setText("Service Action HandleManuallyAction. Terminated Action: " + item.getAction() );
+				n.setText("Service Action HandleManuallyAction." + item.getAction() );
 				n.setAuthor( compname );
 				n.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
 				supd.addNoteItem( n );

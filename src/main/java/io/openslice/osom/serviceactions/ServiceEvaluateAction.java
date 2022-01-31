@@ -85,17 +85,21 @@ public class ServiceEvaluateAction  implements JavaDelegate {
 
 				//logger.debug("vars= " + vars );		
 				logger.debug("===============AFTER lcmRulesController.execPhas =============================");
-				
+
+				Note noteItem = new Note();
 				if ( vars.getCompileDiagnosticErrors().size()>0 ) {
-					Note noteItem = new Note();
 					String msg = "LCM Rule execution error by ServiceEvaluateAction. ";
 					for (String tmsg :  vars.getCompileDiagnosticErrors()) {
 						msg = msg + "\n"+ tmsg;
 					}
 					noteItem.setText( msg );
-					noteItem.setAuthor( compname );
-					supd.addNoteItem(noteItem);
+				} else {
+					String msg = "LCM SUPERVISION Rules executed. ";
+					noteItem.setText( msg );
+					
 				}
+				noteItem.setAuthor( compname );
+				supd.addNoteItem(noteItem);
 			}
 			
 			serviceOrderManager.updateService( aService.getId() , supd, false);

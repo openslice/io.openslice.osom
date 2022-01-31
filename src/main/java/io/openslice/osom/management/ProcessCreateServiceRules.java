@@ -1,0 +1,122 @@
+package io.openslice.osom.management;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.JavaDelegate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import io.openslice.osom.lcm.LCMRulesController;
+import io.openslice.tmf.common.model.service.ServiceRef;
+import io.openslice.tmf.common.model.service.ServiceStateType;
+import io.openslice.tmf.scm633.model.ServiceSpecRelationship;
+import io.openslice.tmf.scm633.model.ServiceSpecification;
+import io.openslice.tmf.sim638.model.Service;
+
+@Component(value = "processCreateServiceRules") 
+public class ProcessCreateServiceRules implements JavaDelegate {
+	private static final transient Log logger = LogFactory.getLog( ProcessCreateServiceRules.class.getName());
+
+	@Autowired
+	private ServiceOrderManager serviceOrderManager;
+
+
+	@Autowired
+	private LCMRulesController lcmRulesController;
+	
+	
+	@Value("${spring.application.name}")
+	private String compname;
+	
+	public void execute(DelegateExecution execution) {
+
+		logger.info("processCreateServiceRules:" + execution.getVariableNames().toString());
+		Boolean allSupportingServicesCreatedAndActive = Boolean.TRUE;
+		Boolean allSupportingServicesCreated = Boolean.TRUE;
+		
+		execution.setVariable("allSupportingServicesCreatedAndActive", allSupportingServicesCreatedAndActive ); //by default
+		execution.setVariable("allSupportingServicesCreated", allSupportingServicesCreated ); //by default
+		
+
+		Service contextService = null;
+		String contextServiceId = (String) execution.getVariable("contextServiceId"); 
+		if ( contextServiceId != null ) {
+			contextService = serviceOrderManager.retrieveService(contextServiceId);
+		}else {
+			return;
+		}
+		
+		ServiceSpecification spec = null;
+		String contextServiceSpecId = (String) execution.getVariable("contextServiceSpecId");
+		if ( contextServiceSpecId != null ) {
+			spec = serviceOrderManager.retrieveServiceSpec(contextServiceSpecId);
+		} else {
+			return;
+		}
+		
+
+		/*
+		 * first find all referenced ServiceSpecs of a ServiceSpec to be created
+		 */
+		boolean foundCreatedButNOTACTIVEServices = false;
+		Map<String, Boolean> tobeCreated = new HashMap<>();
+		for (ServiceSpecRelationship specRels : spec.getServiceSpecRelationship()) {
+			logger.debug("\tService specRelsId:" + specRels.getId());
+			tobeCreated.put(specRels.getId(), true);
+		}
+		
+		
+		for ( ServiceRef serviceRef: contextService.getSupportingService()  ) {
+			
+			Service theServiceReferenced = serviceOrderManager.retrieveService( serviceRef.getId() );
+			
+			if ( tobeCreated.get(theServiceReferenced.getServiceSpecificationRef().getId() ) != null ) {	
+				tobeCreated.put( theServiceReferenced.getServiceSpecificationRef().getId(), false);
+			}
+			
+
+			if ( theServiceReferenced != null ) {
+				if ( theServiceReferenced.getState().equals( ServiceStateType.RESERVED) ) {
+					foundCreatedButNOTACTIVEServices = true;
+				}
+			}
+			
+		}
+		
+		
+
+		
+		//decisions
+		
+		
+		
+		
+		List<String> servicesToCreate = new ArrayList<>();
+		for (String specid : tobeCreated.keySet()) {
+			if ( tobeCreated.get(specid) ) {
+				servicesToCreate.add(specid);
+				allSupportingServicesCreated = false;				
+			}
+		}
+		
+		if ( foundCreatedButNOTACTIVEServices ) {
+			allSupportingServicesCreatedAndActive = false;
+		}
+
+		execution.setVariable("allSupportingServicesCreated", allSupportingServicesCreated ); 
+		execution.setVariable("allSupportingServicesCreatedAndActive", allSupportingServicesCreatedAndActive && allSupportingServicesCreated ); //by default
+		
+		
+		execution.setVariable("parentServiceId", contextServiceId);
+		execution.setVariable("serviceSpecsToCreate", servicesToCreate);
+	}
+
+}

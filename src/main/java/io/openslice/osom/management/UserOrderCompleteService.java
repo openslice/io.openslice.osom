@@ -25,9 +25,13 @@ import org.apache.commons.logging.LogFactory;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import io.openslice.tmf.common.model.service.Note;
+import io.openslice.tmf.common.model.service.ServiceStateType;
 import io.openslice.tmf.sim638.model.Service;
+import io.openslice.tmf.sim638.model.ServiceUpdate;
 
 
 @Component(value = "userOrderCompleteService") //bean name
@@ -35,20 +39,45 @@ public class UserOrderCompleteService implements JavaDelegate {
 
 	private static final transient Log logger = LogFactory.getLog(UserOrderCompleteService.class.getName());
 
+	@Value("${spring.application.name}")
+	private String compname;
 
 	@Autowired
 	private ServiceOrderManager serviceOrderManager;
 	
 	public void execute(DelegateExecution execution) {
+		logger.info("UserOrderCompleteService:" + execution.getVariableNames().toString());
 
 		logger.info( execution.getVariableNames().toString() );
-		logger.info("serviceId:" + execution.getVariable("serviceId").toString() );
+		logger.info("contextServiceId:" + execution.getVariable("contextServiceId").toString() );
 		logger.info("orderid:" + execution.getVariable("orderid").toString() );
+
+		execution.setVariable("serviceHandledManually", Boolean.TRUE ); 
 		
-		if (execution.getVariable("serviceId") instanceof String) {
-			Service s = serviceOrderManager.retrieveService( (String) execution.getVariable("serviceId") );
+		if (execution.getVariable("contextServiceId") instanceof String) {
+			Service s = serviceOrderManager.retrieveService( (String) execution.getVariable("contextServiceId") );
 			logger.info("Service name:" + s.getName() );
-			logger.info("Service state:" + s.getState()  );			
+			logger.info("Service state:" + s.getState()  );	
+
+			
+			
+			if ( !s.getState().equals(ServiceStateType.RESERVED) ) {
+				execution.setVariable("serviceHandledManually", Boolean.TRUE ); 
+			} else {
+				execution.setVariable("serviceHandledManually", Boolean.FALSE ); 
+			}
+			
+			
+//			ServiceUpdate supd = new ServiceUpdate();
+//
+//			Note noteItem = new Note();
+//			noteItem.setText("Service will be handled by " + execution.getVariable("brokeActivity" ));
+//			
+//			noteItem.setAuthor( compname );
+//			
+//			supd.addNoteItem(noteItem);
+//			serviceOrderManager.updateService( (String)execution.getVariable("contextServiceId") , supd, false);
+			
 		}		
 
 		
