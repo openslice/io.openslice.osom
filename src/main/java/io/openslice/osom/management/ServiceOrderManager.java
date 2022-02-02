@@ -55,6 +55,9 @@ import io.openslice.tmf.so641.model.ServiceOrder;
 import io.openslice.tmf.so641.model.ServiceOrderCreate;
 import io.openslice.tmf.so641.model.ServiceOrderStateType;
 import io.openslice.tmf.so641.model.ServiceOrderUpdate;
+import io.openslice.tmf.stm653.model.ServiceTest;
+import io.openslice.tmf.stm653.model.ServiceTestCreate;
+import io.openslice.tmf.stm653.model.ServiceTestSpecification;
 
 import static java.util.Arrays.asList;
 
@@ -154,10 +157,15 @@ public class ServiceOrderManager {
 
 	@Value("${NFV_CATALOG_NSACTIONS_SCALE}")
 	private String NFV_CATALOG_NSACTIONS_SCALE = "";
+
+
+	@Value("${CATALOG_GET_SERVICETESTSPEC_BY_ID}")
+	private String CATALOG_GET_SERVICETESTSPEC_BY_ID = "";
 	
+
 	
-	
-	
+	@Value("${CATALOG_ADD_SERVICETEST}")
+	private String CATALOG_ADD_SERVICETEST = "";
 	
 	@Transactional
 	public void processOrder(ServiceOrder serviceOrder) {
@@ -801,6 +809,58 @@ public class ServiceOrderManager {
 			logger.error("Cannot retrieve Listof ServicesOfOrder . " + e.toString());
 		}
 		return null;
+	}
+	
+	
+	/**
+	 * get  service Test spec by id from model via bus
+	 * @param id
+	 * @return
+	 * @throws IOException
+	 */
+	public ServiceTestSpecification retrieveServiceTestSpec(String specid) {
+		logger.info("will retrieve Service Test Specification from catalog orderid=" + specid   );
+		
+		try {
+			Object response = template.
+					requestBody( CATALOG_GET_SERVICETESTSPEC_BY_ID, specid);
+
+			if ( !(response instanceof String)) {
+				logger.error("Service Test Specification object is wrong.");
+				return null;
+			}
+			ServiceTestSpecification sor = toJsonObj( (String)response, ServiceTestSpecification.class); 
+			//logger.debug("retrieveSpec response is: " + response);
+			return sor;
+			
+		}catch (Exception e) {
+			logger.error("Cannot retrieve Service Test Specification details from catalog. " + e.toString());
+		}
+		return null;
+	}
+
+	public ServiceTest createServiceTest( ServiceTestCreate s, ServiceOrder sor, ServiceTestSpecification spec) {
+		logger.info("will create Service Test for spec: " + spec.getId() );
+		try {
+			Map<String, Object> map = new HashMap<>();
+			map.put("orderid", sor.getId() );
+			map.put("serviceTestSpecid", spec.getId() );
+			Object response = template.requestBodyAndHeaders( CATALOG_ADD_SERVICETEST, toJsonString(s), map);
+
+			if ( !(response instanceof String)) {
+				logger.error("Service Instance object is wrong.");
+			}
+
+			ServiceTest serviceInstance = toJsonObj( (String)response, ServiceTest.class); 
+			//logger.debug("createService response is: " + response);
+			return serviceInstance;
+			
+			
+		}catch (Exception e) {
+			logger.error("Cannot create Service for spec " + spec.getId()+ ": " + e.toString());
+		}
+		return null;
+		
 	}
 
 

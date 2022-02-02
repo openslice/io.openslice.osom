@@ -63,7 +63,9 @@ import io.openslice.tmf.pm632.model.Organization;
 		"NFV_CATALOG_UPD_DEPLOYMENT_BY_ID = direct:req_deployment_id", 
 		 "CATALOG_GET_EXTERNAL_SERVICE_PARTNERS = direct:get_mocked_partners",
 		 "CATALOG_UPD_EXTERNAL_SERVICESPEC = direct:upd_external_specs",
-			"CATALOG_GET_SERVICETESTSPEC_BY_ID = direct:get_mocked_service_queueitems",		
+			"CATALOG_GET_SERVICETESTSPEC_BY_ID = direct:get_mocked_service_queueitems",	
+			"CATALOG_ADD_SERVICETEST = direct:get_mocked_service_queueitems",	
+			
 		 
 		"uri.to   = mock:output" })
 @ActiveProfiles("testing")
