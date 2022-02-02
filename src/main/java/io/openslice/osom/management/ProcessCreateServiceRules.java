@@ -15,11 +15,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import io.openslice.osom.lcm.LCMRulesController;
+import io.openslice.osom.lcm.LCMRulesExecutorVariables;
+import io.openslice.tmf.common.model.service.Note;
 import io.openslice.tmf.common.model.service.ServiceRef;
 import io.openslice.tmf.common.model.service.ServiceStateType;
+import io.openslice.tmf.lcm.model.ELCMRulePhase;
 import io.openslice.tmf.scm633.model.ServiceSpecRelationship;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
 import io.openslice.tmf.sim638.model.Service;
+import io.openslice.tmf.sim638.model.ServiceUpdate;
+import io.openslice.tmf.so641.model.ServiceOrder;
+import io.openslice.tmf.so641.model.ServiceOrderItem;
 
 @Component(value = "processCreateServiceRules") 
 public class ProcessCreateServiceRules implements JavaDelegate {
@@ -92,11 +98,43 @@ public class ProcessCreateServiceRules implements JavaDelegate {
 		}
 		
 		
+		/**
+		 * decisions for CREATE dependencies
+		 * 
+		 */
+		
+		//execute any LCM rules "SUPERVISION" phase for the SPEC;
+		ServiceOrder sor = serviceOrderManager.retrieveServiceOrder((String) execution.getVariable("orderid"));
+		String orderItemIdToProcess = (String) execution.getVariable("orderItemId");
+		ServiceOrderItem soi = null;
+		
+		for (ServiceOrderItem i : sor.getOrderItem()) {
+			if (i.getUuid().equals( orderItemIdToProcess )){
+				soi = i;
+				break;
+			}
+		}
+		
+		ServiceUpdate supd = new ServiceUpdate();
+		LCMRulesExecutorVariables vars = new LCMRulesExecutorVariables(spec, sor, soi, null, supd , contextService, serviceOrderManager);
+		
+		logger.debug("===============BEFORE lcmRulesController.exec Phase CREATION for spec:" + spec.getName() + " =============================");
+		vars = lcmRulesController.execPhase( ELCMRulePhase.CREATION, vars );
 
-		
-		//decisions
-		
-		
+		//logger.debug("vars= " + vars );		
+		logger.debug("===============AFTER lcmRulesController.exec Phase =============================");
+
+
+		for (String serviceId : vars.getOutParams().keySet()) {
+			if (  vars.getOutParams().get(serviceId) !=null) {
+				if (  vars.getOutParams().get(serviceId).equals( "true")  ) {	
+					tobeCreated.put( serviceId, true && tobeCreated.get(serviceId) );				
+				} else {
+					tobeCreated.put( serviceId, false);
+					allSupportingServicesCreated = false;	
+				}				
+			}
+		}
 		
 		
 		List<String> servicesToCreate = new ArrayList<>();
@@ -111,12 +149,29 @@ public class ProcessCreateServiceRules implements JavaDelegate {
 			allSupportingServicesCreatedAndActive = false;
 		}
 
+		
+		//we need to put here cases to avoid deadlock on waiting too much
+		for ( ServiceRef serviceRef: contextService.getSupportingService()  ) {
+			
+			Service theServiceReferenced = serviceOrderManager.retrieveService( serviceRef.getId() );	
+			if ( theServiceReferenced != null ) {
+				if ( theServiceReferenced.getState().equals( ServiceStateType.INACTIVE ) || theServiceReferenced.getState().equals( ServiceStateType.TERMINATED ) ) {
+					allSupportingServicesCreatedAndActive = true;
+					allSupportingServicesCreated = true;	
+					break;// this will help us to avoid a deadlock if a failure occurs
+				}
+			}
+			
+		}
+		
+
 		execution.setVariable("allSupportingServicesCreated", allSupportingServicesCreated ); 
 		execution.setVariable("allSupportingServicesCreatedAndActive", allSupportingServicesCreatedAndActive && allSupportingServicesCreated ); //by default
-		
-		
 		execution.setVariable("parentServiceId", contextServiceId);
 		execution.setVariable("serviceSpecsToCreate", servicesToCreate);
 	}
+
+	
+	
 
 }

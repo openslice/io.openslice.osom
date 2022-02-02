@@ -124,6 +124,9 @@ public class AutomationCheck implements JavaDelegate {
 				
 			} else if (fromPartnerOrganization(spec) != null ) {
 				execution.setVariable("brokeActivity", "PARTNER" );	
+			}if (  ( spec.findSpecCharacteristicByName( "testSpecRef" ) != null ) ) {
+				execution.setVariable("brokeActivity", "TESTSPEC" ); 		
+				
 			} else {
 				execution.setVariable("brokeActivity", "AUTO" ); 				
 			}			

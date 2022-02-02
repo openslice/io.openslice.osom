@@ -102,7 +102,8 @@ import io.openslice.tmf.so641.model.ServiceOrderItem;
 		"CATALOG_GET_LCMRULES_BY_SPECID_PHASE = direct:get_mocked_lcmrulesbyspecid",				
 		"CATALOG_SERVICES_OF_PARTNERS = direct:get_mocked_service_queueitems",			
 		"CATALOG_SERVICES_TO_TERMINATE = direct:get_mocked_service_queueitems",	
-		"CATALOG_GET_SERVICEORDER_IDS_BY_STATE = direct:get_mocked_service_queueitems",		
+		"CATALOG_GET_SERVICEORDER_IDS_BY_STATE = direct:get_mocked_service_queueitems",	
+		"CATALOG_GET_SERVICETESTSPEC_BY_ID = direct:get_mocked_service_queueitems",			
 		"ALARMS_ADD_ALARM=mock:output",
 		"ALARMS_UPDATE_ALARM=mock:output",
 		"ALARMS_GET_ALARM=mock:output",
@@ -181,7 +182,7 @@ public class ProcessOrderIntegrationTest {
 		assertThat(specCirros.getServiceSpecCharacteristic().size()  ).isEqualTo(10);
 		assertThat(sorder.getOrderItem().stream().findFirst().get().getService().getServiceCharacteristic().size()  ).isEqualTo(2);
 		
-		assertThat(repositoryService.createProcessDefinitionQuery().count()).isEqualTo(11);
+		assertThat(repositoryService.createProcessDefinitionQuery().count()).isEqualTo(13);
 		assertThat(taskService.createTaskQuery().count()).isEqualTo(0);
 
 		assertThat( scmocked.getRequeestedDescriptor() ).isNull();

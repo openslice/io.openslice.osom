@@ -78,8 +78,8 @@ import io.openslice.tmf.so641.model.ServiceOrder;
 		"NFV_CATALOG_NSACTIONS_SCALE = direct:get_mocked_service_queueitems",		
 		"CATALOG_GET_EXTERNAL_SERVICE_PARTNERS = direct:get_mocked_service_queueitems",		
 		"CATALOG_UPD_EXTERNAL_SERVICESPEC = direct:get_mocked_service_queueitems",		
-		"CATALOG_UPDATE_PARTNER_ORGANIZATION = direct:get_mocked_service_queueitems",		
-		
+		"CATALOG_UPDATE_PARTNER_ORGANIZATION = direct:get_mocked_service_queueitems",	
+		"CATALOG_GET_SERVICETESTSPEC_BY_ID = direct:get_mocked_service_queueitems",	
 		
 		"ALARMS_ADD_ALARM=mock:output",
 		"ALARMS_UPDATE_ALARM=mock:output",
