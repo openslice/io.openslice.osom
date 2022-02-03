@@ -37,23 +37,24 @@ public class CheckServiceTestDeployment  implements JavaDelegate {
 
 	@Override
 	public void execute(DelegateExecution execution) {
-		logger.info( "LocalSOCheckDeployment" );
+		logger.info( "checkServiceTestDeployment" );
 		logger.debug( execution.getVariableNames().toString() );
-		//}
+
 		execution.setVariable("serviceTestDeploymentFinished",   false );
 		Service aService = serviceOrderManager.retrieveService( (String) execution.getVariable("contextServiceId") );
-		logger.debug("Check LocalSOCheckDeploymentfor Service name:" + aService.getName() );
-		logger.debug("Check LocalSOCheckDeployment  Service state:" + aService.getState()  );			
-		logger.debug("Request for Service id: " + aService.getId() );
+		logger.debug("Check checkServiceTestDeployment Service name:" + aService.getName() );
+		logger.debug("Request checkServiceTestDeployment for Service id: " + aService.getId() );
 		
 		ServiceSpecification spec = serviceOrderManager.retrieveServiceSpec( aService.getServiceSpecificationRef().getId() );
 
 		ServiceSpecCharacteristic charc = spec.findSpecCharacteristicByName( "testSpecRef" );
 
 		ServiceUpdate supd = new ServiceUpdate();
+		supd.setState( ServiceStateType.TERMINATED); //by default if something goes wrong
 		
 		if ( charc != null ) {
 			String sTestId = charc.getDefaultValue();
+			logger.debug("checkServiceTestDeployment will create Service Test Spec with id: " + sTestId );
 			ServiceTestSpecification serviceTestSpec = serviceOrderManager.retrieveServiceTestSpec(sTestId);
 			if ( serviceTestSpec != null ) {
 				
@@ -61,37 +62,29 @@ public class CheckServiceTestDeployment  implements JavaDelegate {
 				ServiceOrder sorder = serviceOrderManager.retrieveServiceOrder( execution.getVariable("orderid").toString() );
 				ServiceTestCreate sTCreate = new ServiceTestCreate();
 				String servicename = spec.getName();
-				sTCreate.setDescription("A Service Test for " + spec.getName());
+				sTCreate.setDescription("A Service Test for " + servicename );
 				
 				sTCreate.setName( servicename );
 				sTCreate.setState( ServiceStateType.ACTIVE.name());
 				
 				ServiceTest createdServiceTest = serviceOrderManager.createServiceTest(sTCreate , sorder, serviceTestSpec); 
 				
-				
-				//2 reference testintance in supd
-				for (Characteristic c : aService.getServiceCharacteristic()) {
-					
-					supd.addServiceCharacteristicItem( c );					
-				}	
-				Characteristic serviceCharacteristicItem = new Characteristic();
-				serviceCharacteristicItem.setName( "testInstanceRef" );
+				if ( createdServiceTest!=null) {
+					//2. reference testintance in supd
+					for (Characteristic c : aService.getServiceCharacteristic()) {						
+						supd.addServiceCharacteristicItem( c );					
+					}	
+					Characteristic serviceCharacteristicItem = new Characteristic();
+					serviceCharacteristicItem.setName( "testInstanceRef" );
 
-				String serviceTestInstanceID= createdServiceTest.getId() ;
-				serviceCharacteristicItem.setValue( new Any( serviceTestInstanceID  ));
-				supd.addServiceCharacteristicItem(serviceCharacteristicItem);
+					String serviceTestInstanceID= createdServiceTest.getId() ;
+					serviceCharacteristicItem.setValue( new Any( serviceTestInstanceID  ));
+					supd.addServiceCharacteristicItem(serviceCharacteristicItem);	
+					supd.setState( ServiceStateType.ACTIVE);				
+				}
 				
-
-				supd.setState( ServiceStateType.ACTIVE);	
-			}else {
-				supd.setState( ServiceStateType.TERMINATED);	
-				
+	
 			}
-			
-			
-		} else {
-			supd.setState( ServiceStateType.TERMINATED);	
-			
 		}
 			
 		
