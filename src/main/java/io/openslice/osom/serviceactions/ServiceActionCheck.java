@@ -50,6 +50,7 @@ public class ServiceActionCheck implements JavaDelegate {
 			ObjectMapper mapper = new ObjectMapper();
 			
 			ServiceActionQueueItem item;
+			execution.setVariable("saction", "HandleManuallyAction");
 			try {
 				item = mapper.readValue( execution.getVariable("serviceActionItem").toString(), ServiceActionQueueItem.class);
 			} catch (JsonMappingException e) {
