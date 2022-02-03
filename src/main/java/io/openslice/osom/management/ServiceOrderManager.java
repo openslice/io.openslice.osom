@@ -58,6 +58,7 @@ import io.openslice.tmf.so641.model.ServiceOrderUpdate;
 import io.openslice.tmf.stm653.model.ServiceTest;
 import io.openslice.tmf.stm653.model.ServiceTestCreate;
 import io.openslice.tmf.stm653.model.ServiceTestSpecification;
+import io.openslice.tmf.stm653.model.ServiceTestUpdate;
 
 import static java.util.Arrays.asList;
 
@@ -162,10 +163,13 @@ public class ServiceOrderManager {
 	@Value("${CATALOG_GET_SERVICETESTSPEC_BY_ID}")
 	private String CATALOG_GET_SERVICETESTSPEC_BY_ID = "";
 	
-
-	
 	@Value("${CATALOG_ADD_SERVICETEST}")
 	private String CATALOG_ADD_SERVICETEST = "";
+	@Value("${CATALOG_UPD_SERVICETEST}")
+	private String CATALOG_UPD_SERVICETEST = "";
+	@Value("${CATALOG_GET_SERVICETEST_BY_ID}")
+	private String CATALOG_GET_SERVICETEST_BY_ID = "";	
+	
 	
 	@Transactional
 	public void processOrder(ServiceOrder serviceOrder) {
@@ -862,6 +866,62 @@ public class ServiceOrderManager {
 		return null;
 		
 	}
+	
+	/**
+	 * @param serviceId
+	 * @param s
+	 * @return
+	 */
+	public ServiceTest updateServiceTest(String serviceId, ServiceTestUpdate s) {
+		logger.info("will update Service : " + serviceId );
+		try {
+			Map<String, Object> map = new HashMap<>();
+			map.put("serviceid", serviceId );
+			
+			Object response = template.requestBodyAndHeaders( CATALOG_UPD_SERVICETEST, toJsonString(s), map);
+
+			if ( !(response instanceof String)) {
+				logger.error("ServiceTest Instance object is wrong.");
+			}
+
+			ServiceTest serviceInstance = toJsonObj( (String)response, ServiceTest.class); 
+
+			return serviceInstance;
+			
+			
+		}catch (Exception e) {
+			logger.error("Cannot update ServiceTest: " + serviceId + ": " + e.toString());
+		}
+		return null;
+		
+	}
+	
+
+	/**
+	 * Ger ServiceTest instance via bus
+	 * @param serviceID
+	 * @return
+	 */
+	public ServiceTest retrieveServiceTest(String serviceID) {
+		logger.info("will retrieve ServiceTest instance from catalog serviceID=" + serviceID   );
+		try {
+			Object response = template.
+					requestBody( CATALOG_GET_SERVICETEST_BY_ID, serviceID);
+
+			if ( !(response instanceof String)) {
+				logger.error("Service object is wrong.");
+				return null;
+			}
+			ServiceTest serviceInstance = toJsonObj( (String)response, ServiceTest.class); 
+			//logger.debug("retrieveService response is: " + response);
+			return serviceInstance;
+			
+		}catch (Exception e) {
+			logger.error("Cannot retrieve ServiceTest details from catalog. " + e.toString());
+		}
+		return null;
+	}
+
 
 
 }

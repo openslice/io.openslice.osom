@@ -81,87 +81,56 @@ public class ServiceActionCheck implements JavaDelegate {
 			} else if ( item.getAction().equals( ServiceActionQueueAction.EVALUATE_STATE_CHANGE_TOINACTIVE  ) ) {
 				execution.setVariable("saction", "HandleInactiveStateChanged");
 			} else if ( item.getAction().equals( ServiceActionQueueAction.EVALUATE_CHARACTERISTIC_CHANGED  ) ) {
-				execution.setVariable("saction", "HandleEvaluateService");
+				
+				execution.setVariable("saction", "HandleEvaluateService");// default
+				
+				if ( (aService.getServiceCharacteristicByName( "externalServiceOrderId" ) != null )){
+					execution.setVariable("saction", "ExternalProviderServiceAction");					
+					execution.setVariable("externalServiceOrderId", aService.getServiceCharacteristicByName( "externalServiceOrderId" ).getValue().getValue()  );	
+
+					if ( (aService.getServiceCharacteristicByName( "externalPartnerServiceId" ) != null )){
+						execution.setVariable("externalPartnerServiceId", aService.getServiceCharacteristicByName( "externalPartnerServiceId" ).getValue().getValue()  );							
+					}
+					
+					RelatedParty rpOrg = null;
+					if ( aService.getRelatedParty() != null ) {
+						for (RelatedParty rp : aService.getRelatedParty()) {
+							if ( rp.getRole().equals( UserPartRoleType.ORGANIZATION.getValue() )) {
+								rpOrg =rp;
+								break;
+							}				
+						}			
+					}
+					if ( rpOrg == null) {
+						logger.error("Cannot retrieve partner organization, switch to HandleManuallyAction"  );
+						execution.setVariable("saction", "HandleManuallyAction");
+					} else {
+						execution.setVariable("organizationId",  rpOrg.getId() );					
+							
+					}
+				}else if ( aService.getCategory().equals( "ResourceFacingServiceSpecification") ) {
+					
+					if (aService.getServiceCharacteristicByName( "NSDID" ) != null ){
+						if ( item.getAction().equals( ServiceActionQueueAction.DEACTIVATE ) || item.getAction().equals( ServiceActionQueueAction.TERMINATE ) ) {
+							execution.setVariable("saction", "NFVONSTerminate");
+						} else if (  item.getAction().equals( ServiceActionQueueAction.MODIFY ) ) {
+							execution.setVariable("saction", "NFVODAY2config");
+						}  else {
+							execution.setVariable("saction", "HandleManuallyAction");
+						} 
+					} else {
+						execution.setVariable("saction", "AutomaticallyHandleAction");
+					}					
+					
+				}
+				
 				
 			}  else if ( !item.getAction().equals( ServiceActionQueueAction.NONE   ) ) {
 					
-					if ( (aService.getServiceCharacteristicByName( "externalServiceOrderId" ) != null )){
-						execution.setVariable("saction", "ExternalProviderServiceAction");					
-						execution.setVariable("externalServiceOrderId", aService.getServiceCharacteristicByName( "externalServiceOrderId" ).getValue().getValue()  );	
-
-						if ( (aService.getServiceCharacteristicByName( "externalPartnerServiceId" ) != null )){
-							execution.setVariable("externalPartnerServiceId", aService.getServiceCharacteristicByName( "externalPartnerServiceId" ).getValue().getValue()  );							
-						}
-						
-						RelatedParty rpOrg = null;
-						if ( aService.getRelatedParty() != null ) {
-							for (RelatedParty rp : aService.getRelatedParty()) {
-								if ( rp.getRole().equals( UserPartRoleType.ORGANIZATION.getValue() )) {
-									rpOrg =rp;
-									break;
-								}				
-							}			
-						}
-						if ( rpOrg == null) {
-							logger.error("Cannot retrieve partner organization, switch to HandleManuallyAction"  );
-							execution.setVariable("saction", "HandleManuallyAction");
-						} else {
-							execution.setVariable("organizationId",  rpOrg.getId() );					
-								
-						}
-					
-					
-					} else  if ( aService.getCategory().equals( "CustomerFacingServiceSpecification") ) {
+					 if ( aService.getCategory().equals( "CustomerFacingServiceSpecification") ) {
 						execution.setVariable("saction", "AutomaticallyHandleAction");
-						
-
-//						if ( aService.getSupportingService() != null ) {
-//							//copy characteristics values from CFS Service  to its supporting services.
-//							for (ServiceRef sref : aService.getSupportingService() ) {
-//								Service aSupportingService = serviceOrderManager.retrieveService( sref.getId() );
-//								ServiceUpdate supd = new ServiceUpdate();
-//								
-//								if ( aService.getServiceCharacteristic() != null ) {
-//									for (Characteristic supportingServiceChar : aSupportingService.getServiceCharacteristic() ) {
-//										
-//										for (Characteristic serviceCharacteristic : aService.getServiceCharacteristic()) {
-//											if ( serviceCharacteristic.getName().contains( aSupportingService.getName() + "::" + supportingServiceChar.getName() )) { 									
-//												supportingServiceChar.setValue( serviceCharacteristic.getValue() );
-//												supd.addServiceCharacteristicItem( supportingServiceChar );
-//											}
-//										}
-//									}
-//									
-//								}
-//								
-//								Note n = new Note();
-//								n.setText("set saction=AutomaticallyHandleAction"  );
-//								n.setAuthor( compname );
-//								n.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
-//								supd.addNoteItem( n );
-//								
-//								serviceOrderManager.updateService( aSupportingService.getId(), supd , true); //update the service
-//							}
-//							
-//						}
-						
-						
-						
-					} else if ( aService.getCategory().equals( "ResourceFacingServiceSpecification") ) {
-						
-						if (aService.getServiceCharacteristicByName( "NSDID" ) != null ){
-							if ( item.getAction().equals( ServiceActionQueueAction.DEACTIVATE ) || item.getAction().equals( ServiceActionQueueAction.TERMINATE ) ) {
-								execution.setVariable("saction", "NFVONSTerminate");
-							} else if (  item.getAction().equals( ServiceActionQueueAction.MODIFY ) ) {
-								execution.setVariable("saction", "NFVODAY2config");
-							}  else {
-								execution.setVariable("saction", "HandleManuallyAction");
-							} 
-						} else {
-							execution.setVariable("saction", "AutomaticallyHandleAction");
-						}					
-						
-					}
+												
+					} 
 					
 				
 				

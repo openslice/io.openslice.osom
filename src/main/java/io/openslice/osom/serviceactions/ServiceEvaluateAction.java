@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.openslice.osom.lcm.LCMRulesController;
 import io.openslice.osom.lcm.LCMRulesExecutorVariables;
 import io.openslice.osom.management.ServiceOrderManager;
+import io.openslice.tmf.common.model.service.Characteristic;
 import io.openslice.tmf.common.model.service.Note;
 import io.openslice.tmf.lcm.model.ELCMRulePhase;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
@@ -27,6 +28,9 @@ import io.openslice.tmf.sim638.model.ServiceUpdate;
 import io.openslice.tmf.so641.model.ServiceOrder;
 import io.openslice.tmf.so641.model.ServiceOrderItem;
 import io.openslice.tmf.so641.model.ServiceOrderUpdate;
+import io.openslice.tmf.stm653.model.ServiceTest;
+import io.openslice.tmf.stm653.model.ServiceTestSpecification;
+import io.openslice.tmf.stm653.model.ServiceTestUpdate;
 
 @Component(value = "ServiceEvaluateAction") //bean name
 public class ServiceEvaluateAction  implements JavaDelegate {
@@ -104,6 +108,20 @@ public class ServiceEvaluateAction  implements JavaDelegate {
 			
 			serviceOrderManager.updateService( aService.getId() , supd, false);
 			
+			//if references ServiceTest we need to update it
+			
+			if (  ( aService.getServiceCharacteristicByName( "testSpecRef" ) != null ) && ( aService.getServiceCharacteristicByName( "testInstanceRef" ) != null )  ) {
+				String sTestId = aService.getServiceCharacteristicByName( "testInstanceRef" ).getValue().getValue();
+				ServiceTest serviceTest = serviceOrderManager.retrieveServiceTest(sTestId);
+				ServiceTestUpdate stupd = new ServiceTestUpdate();
+				for (io.openslice.tmf.stm653.model.Characteristic c : serviceTest.getCharacteristic()) {						
+					stupd.addCharacteristicItem( c );		
+					String newvalue = aService.getServiceCharacteristicByName( c.getName() ).getValue().getValue();
+				}	
+				
+				serviceOrderManager.updateServiceTest(sTestId, stupd);				
+				
+			}
 			
 		} catch (JsonMappingException e) {
 			e.printStackTrace();

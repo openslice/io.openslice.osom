@@ -65,6 +65,8 @@ import io.openslice.tmf.pm632.model.Organization;
 		 "CATALOG_UPD_EXTERNAL_SERVICESPEC = direct:upd_external_specs",
 			"CATALOG_GET_SERVICETESTSPEC_BY_ID = direct:get_mocked_service_queueitems",	
 			"CATALOG_ADD_SERVICETEST = direct:get_mocked_service_queueitems",	
+			"CATALOG_UPD_SERVICETEST = direct:get_mocked_service_queueitems",	
+			"CATALOG_GET_SERVICETEST_BY_ID = direct:get_mocked_service_queueitems",	
 			
 		 
 		"uri.to   = mock:output" })
