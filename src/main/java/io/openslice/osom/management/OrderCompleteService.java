@@ -110,7 +110,7 @@ public class OrderCompleteService implements JavaDelegate {
 			boolean allTerminatedItemsInOrder= true;
 			boolean existsInactiveInORder= false;
 			boolean existsTerminatedInORder= false;
-			boolean updateServiceOrder= false;
+			//boolean updateServiceOrder= false;
 			
 			logger.info("ServiceOrder id:" + sOrder.getId());
 			for (ServiceOrderItem soi : sOrder.getOrderItem()) {
@@ -177,9 +177,9 @@ public class OrderCompleteService implements JavaDelegate {
 				
 				
 				
-				if ( soi.getService().getState() != sserviceState ) {
-					updateServiceOrder = true;
-				}
+//				if ( soi.getService().getState() != sserviceState ) {
+//					updateServiceOrder = true;
+//				}
 				soi.getService().setState(sserviceState);	
 
 //				allCompletedItemsInOrder = allCompletedItemsInOrder && soi.getService().getState().equals( ServiceStateType.ACTIVE  );
@@ -193,7 +193,7 @@ public class OrderCompleteService implements JavaDelegate {
 			
 			   
 			if (allCompletedItemsInOrder || allTerminatedItemsInOrder) {
-				updateServiceOrder = true;
+				//updateServiceOrder = true;
 				sOrder.setState( ServiceOrderStateType.COMPLETED );				
 			} else if ( existsInactiveInORder ) {
 				sOrder.setState( ServiceOrderStateType.FAILED );		
@@ -201,7 +201,7 @@ public class OrderCompleteService implements JavaDelegate {
 				sOrder.setState( ServiceOrderStateType.FAILED );		
 			} 
 			
-			if ( updateServiceOrder ) {
+//			if ( updateServiceOrder ) {
 				logger.info("Will update ServiceOrder with state:" +  sOrder.getState() );
 				ServiceOrderUpdate serviceOrderUpd = new ServiceOrderUpdate();
 				serviceOrderUpd.setState( sOrder.getState() );
@@ -211,14 +211,14 @@ public class OrderCompleteService implements JavaDelegate {
 				}
 				
 				Note noteItem = new Note();
-				noteItem.setText("Update Service Order State to: " +  serviceOrderUpd.getState());
+				noteItem.setText( String.format( "Service Order State is: %s " ,  serviceOrderUpd.getState()) );
 				noteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
 				noteItem.setAuthor( compname );
 				serviceOrderUpd.addNoteItem( noteItem );
 				
 				serviceOrderManager.updateServiceOrderOrder( sOrder.getId() , serviceOrderUpd);
-				
-			}
+
+//			}
 			
 		}
 		

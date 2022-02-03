@@ -76,14 +76,14 @@ public class ExternalPartnerSubmitOrderService  implements JavaDelegate {
 		logger.info( "ExternalPartnerSubmitOrderService" );
 		logger.info( "VariableNames:" + execution.getVariableNames().toString() );
 		logger.info("orderid:" + execution.getVariable("orderid").toString() );
-		logger.info("serviceId:" + execution.getVariable("serviceId").toString() );
+		logger.info("contextServiceId:" + execution.getVariable("contextServiceId").toString() );
 				
 
 		ServiceUpdate su = new ServiceUpdate();//the object to update the service
-		if (execution.getVariable("serviceId") instanceof String) {
+		if (execution.getVariable("contextServiceId") instanceof String) {
 
 			ServiceOrder sorder = serviceOrderManager.retrieveServiceOrder( execution.getVariable("orderid").toString() );
-			Service aService = serviceOrderManager.retrieveService( (String) execution.getVariable("serviceId") );
+			Service aService = serviceOrderManager.retrieveService( (String) execution.getVariable("contextServiceId") );
 			logger.info("Service name:" + aService.getName() );
 			logger.info("Service state:" + aService.getState()  );			
 			logger.info("Request to External Service Partner for Service: " + aService.getId() );
@@ -158,7 +158,7 @@ public class ExternalPartnerSubmitOrderService  implements JavaDelegate {
 						serviceCharacteristicItem.setValue( any );
 						su.addServiceCharacteristicItem(serviceCharacteristicItem);
 						
-						Service supd = serviceOrderManager.updateService(  execution.getVariable("serviceId").toString(), su, false);
+						Service supd = serviceOrderManager.updateService(  aService.getId(), su, false);
 						logger.info("Request to partner " + orgz.getName() + " for spec:" + spec.getName()  + " done! Service: " + supd.getId() );						
 						return;						
 					}

@@ -66,53 +66,53 @@ public class LocalSOInitialize implements JavaDelegate {
 		logger.info( "LocalSOInitialize" );
 		logger.info( "VariableNames:" + execution.getVariableNames().toString() );
 		logger.info("orderid:" + execution.getVariable("orderid").toString() );
-		logger.info("serviceId:" + execution.getVariable("serviceId").toString() );
+		logger.info("contextServiceId:" + execution.getVariable("contextServiceId").toString() );
 				
 
 		ServiceUpdate su = new ServiceUpdate();//the object to update the service
-		if (execution.getVariable("serviceId") instanceof String) {
+		if (execution.getVariableLocal("contextServiceId") instanceof String) {
 
 			ServiceOrder sorder = serviceOrderManager.retrieveServiceOrder( execution.getVariable("orderid").toString() );
-			Service aService = serviceOrderManager.retrieveService( (String) execution.getVariable("serviceId") );
+			Service aService = serviceOrderManager.retrieveService( (String) execution.getVariable("contextServiceId") );
 			logger.info("Service name:" + aService.getName() );
 			logger.info("Service state:" + aService.getState()  );			
 			logger.info("Request to External Service Partner for Service: " + aService.getId() );
 
-			ServiceSpecification spec = serviceOrderManager.retrieveServiceSpec( aService.getServiceSpecificationRef().getId() );
-			
-			if ( spec!=null ) {
-				logger.info("Service spec:" + spec.getName()  );						
-				
-				
-				su.setState(ServiceStateType.FEASIBILITYCHECKED );
-				Note noteItem = new Note();
-				noteItem.setText( "Local Service Orchestration initialized for spec:" + spec.getName()  + " done!");
-				noteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
-				noteItem.setAuthor( compname );
-				su.addNoteItem( noteItem );
-				
-				
-				Service supd = serviceOrderManager.updateService(  execution.getVariable("serviceId").toString(), su, false);
-				logger.info("Service updated: " + supd.getId() );						
-				return;						
-				
-				
-				
-			} else {
-				logger.error( "Cannot retrieve ServiceSpecification for service :" + (String) execution.getVariable("serviceId") );
-			}
+//			ServiceSpecification spec = serviceOrderManager.retrieveServiceSpec( aService.getServiceSpecificationRef().getId() );
+//			
+//			if ( spec!=null ) {
+//				logger.info("Service spec:" + spec.getName()  );						
+//				
+//				
+//				su.setState(ServiceStateType.FEASIBILITYCHECKED );
+//				Note noteItem = new Note();
+//				noteItem.setText( "Local Service Orchestration initialized for spec:" + spec.getName()  + " done!");
+//				noteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
+//				noteItem.setAuthor( compname );
+//				su.addNoteItem( noteItem );
+//				
+//				
+//				Service supd = serviceOrderManager.updateService(  aService.getId(), su, false);
+//				logger.info("Service updated: " + supd.getId() );						
+//				return;						
+//				
+//				
+//				
+//			} else {
+//				logger.error( "Cannot retrieve ServiceSpecification for service :" + (String) execution.getVariableLocal("contextServiceId") );
+//			}
 		} else {
-			logger.error( "Cannot retrieve variable serviceId"  );
+			logger.error( "Cannot retrieve variable contextServiceId"  );
 		}
 
-		//if we get here somethign is wrong so we need to terminate the service.
-		Note noteItem = new Note();
-		noteItem.setText("Order Request Service for Local Service Orchestration FAILED");
-		noteItem.setAuthor( compname );
-		noteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
-		su.addNoteItem( noteItem );
-		su.setState(ServiceStateType.TERMINATED   );
-		serviceOrderManager.updateService(  execution.getVariable("serviceId").toString(), su, false);
+//		//if we get here somethign is wrong so we need to terminate the service.
+//		Note noteItem = new Note();
+//		noteItem.setText("Order Request Service for Local Service Orchestration FAILED");
+//		noteItem.setAuthor( compname );
+//		noteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
+//		su.addNoteItem( noteItem );
+//		su.setState(ServiceStateType.TERMINATED   );
+//		serviceOrderManager.updateService(  execution.getVariableLocal("contextServiceId").toString(), su, false);
 		
 	}
 	

@@ -8,6 +8,8 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import javax.net.ssl.SSLException;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,8 +33,11 @@ import io.openslice.tmf.common.model.Any;
 import io.openslice.tmf.common.model.EValueType;
 import io.openslice.tmf.common.model.service.Characteristic;
 import io.openslice.tmf.common.model.service.Note;
+import io.openslice.tmf.common.model.service.ServiceRef;
+import io.openslice.tmf.common.model.service.ServiceRelationship;
 import io.openslice.tmf.lcm.model.LCMRuleSpecification;
 import io.openslice.tmf.prm669.model.RelatedParty;
+import io.openslice.tmf.scm633.model.ServiceSpecRelationship;
 import io.openslice.tmf.sim638.model.Service;
 import io.openslice.tmf.so641.model.ServiceOrder;
 import io.openslice.tmf.so641.model.ServiceOrderCreate;
@@ -72,8 +77,10 @@ public abstract class LcmBaseExecutor {
 
 	private void testF() {
 	
-
 	}
+
+	
+
 
 	/**
 	 * @return the vars
@@ -747,6 +754,62 @@ public abstract class LcmBaseExecutor {
 		return "";
 	}
 
+
+	public String getServiceRefPropValue(String serviceName,  String propertyName, String... props) {
+		 
+		logger.debug("getServiceRefPropValue propertyName=" + propertyName);
+		Service ctxService = this.vars.getService();
+		if (ctxService == null) {
+			return "";
+		}
+		
+		@NotNull @Valid ServiceRef refSrvice = null;
+		
+		for (ServiceRef sr : ctxService.getSupportingService()) {
+			if ( sr.getName().equals(serviceName) ) {
+				refSrvice = sr;
+			}
+		}
+
+		if (refSrvice == null) {
+			return "";
+		}
+
+		if (this.vars.getServiceOrderManager() != null) {
+			Service aService = this.vars.getServiceOrderManager().retrieveService( refSrvice.getId() );	
+			if ( aService!= null) {
+				return  getServicePropValue(aService, propertyName, props);				
+			}			
+		}
+		
+
+		return "";
+	}
+
+
+
+	//createServiceRefIf("Bundle B", getServiceRefPropValue("BundleA", "state", "").equals("active")==true);
+	public boolean createServiceRefIf(String serviceName, boolean b) {
+
+		logger.debug( String.format("createServiceRefwhen serviceName=%s = %s", serviceName, b ) );
+		
+
+		String serviceIDToCheckDependcy=null;
+		for (ServiceSpecRelationship specRels :  this.vars.getSpec().getServiceSpecRelationship()) {
+			if ( specRels.getName().equals(serviceName) ) {
+				serviceIDToCheckDependcy = specRels.getId();
+			}
+		}
+		
+		
+		if (serviceIDToCheckDependcy != null) {		
+			this.vars.getOutParams().put( serviceIDToCheckDependcy, Boolean.toString(b) );
+		}
+		
+		return false;
+	}
+	
+	
 	public String createServiceOrder(String sorderJson) {
 
 		logger.debug("createServiceOrder sorderJson=" + sorderJson);

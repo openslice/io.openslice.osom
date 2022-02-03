@@ -70,7 +70,7 @@ public class LocalSOCheckDeployment  implements JavaDelegate {
 		execution.setVariable("lsoServiceDeploymentFinished",   false );
 
 		ServiceOrder sorder = serviceOrderManager.retrieveServiceOrder( execution.getVariable("orderid").toString() );
-		Service aService = serviceOrderManager.retrieveService( (String) execution.getVariable("serviceId") );
+		Service aService = serviceOrderManager.retrieveService( (String) execution.getVariable("contextServiceId") );
 		logger.debug("Check LocalSOCheckDeploymentfor Service name:" + aService.getName() );
 		logger.debug("Check LocalSOCheckDeployment  Service state:" + aService.getState()  );			
 		logger.debug("Request for Service id: " + aService.getId() );
