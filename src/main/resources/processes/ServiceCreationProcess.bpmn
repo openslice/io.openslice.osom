@@ -70,7 +70,7 @@
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${allSupportingServicesCreated}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="flow40" sourceRef="timerintermediatecatchevent2" targetRef="servicetask4"></sequenceFlow>
-    <callActivity id="parallelActivityServiceTestOrchestrationProcess" name="Service Test Orchestration" calledElement="serviceTestOrchestrationProcess" activiti:inheritVariables="false"></callActivity>
+    <callActivity id="parallelActivityServiceTestOrchestrationProcess" name="Service Test Orchestration" calledElement="serviceTestOrchestrationProcess" activiti:inheritVariables="true"></callActivity>
     <sequenceFlow id="flow41" name="brokeActivity==&quot;TESTSPEC&quot;" sourceRef="exclusivegateway2" targetRef="parallelActivityServiceTestOrchestrationProcess">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${brokeActivity=='TESTSPEC'}]]></conditionExpression>
     </sequenceFlow>
