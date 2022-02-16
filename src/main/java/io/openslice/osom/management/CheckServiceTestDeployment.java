@@ -24,6 +24,7 @@ import io.openslice.tmf.so641.model.ServiceOrder;
 import io.openslice.tmf.stm653.model.ServiceTest;
 import io.openslice.tmf.stm653.model.ServiceTestCreate;
 import io.openslice.tmf.stm653.model.ServiceTestSpecification;
+import io.openslice.tmf.stm653.model.ServiceTestUpdate;
 
 @Component(value = "checkServiceTestDeployment") //bean name
 public class CheckServiceTestDeployment  implements JavaDelegate {
@@ -69,6 +70,19 @@ public class CheckServiceTestDeployment  implements JavaDelegate {
 				
 				ServiceTest createdServiceTest = serviceOrderManager.createServiceTest(sTCreate , sorder, serviceTestSpec); 
 				
+				
+				//update serviceTest with service characteristics!
+				ServiceTestUpdate stupd = new ServiceTestUpdate();
+				for (io.openslice.tmf.stm653.model.Characteristic c : createdServiceTest.getCharacteristic()) {						
+					stupd.addCharacteristicItem( c );		
+					String newvalue = aService.getServiceCharacteristicByName( c.getName() ).getValue().getValue();
+					c.setValue( new Any(newvalue) ) ; 
+				}					
+				serviceOrderManager.updateServiceTest(sTestId, stupd);				
+				
+				
+				
+				//update parent service
 				if ( createdServiceTest!=null) {
 					//2. reference testintance in supd
 					for (Characteristic c : aService.getServiceCharacteristic()) {						
@@ -82,7 +96,6 @@ public class CheckServiceTestDeployment  implements JavaDelegate {
 					supd.addServiceCharacteristicItem(serviceCharacteristicItem);	
 					supd.setState( ServiceStateType.ACTIVE);				
 				}
-				
 	
 			}
 		}

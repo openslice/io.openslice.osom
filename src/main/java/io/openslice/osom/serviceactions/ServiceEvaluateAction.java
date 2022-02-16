@@ -7,6 +7,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
+import org.h2.command.ddl.Analyze;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -18,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.openslice.osom.lcm.LCMRulesController;
 import io.openslice.osom.lcm.LCMRulesExecutorVariables;
 import io.openslice.osom.management.ServiceOrderManager;
+import io.openslice.tmf.common.model.Any;
 import io.openslice.tmf.common.model.service.Characteristic;
 import io.openslice.tmf.common.model.service.Note;
 import io.openslice.tmf.lcm.model.ELCMRulePhase;
@@ -117,6 +119,7 @@ public class ServiceEvaluateAction  implements JavaDelegate {
 				for (io.openslice.tmf.stm653.model.Characteristic c : serviceTest.getCharacteristic()) {						
 					stupd.addCharacteristicItem( c );		
 					String newvalue = aService.getServiceCharacteristicByName( c.getName() ).getValue().getValue();
+					c.setValue( new Any(newvalue) ) ; 
 				}	
 				
 				serviceOrderManager.updateServiceTest(sTestId, stupd);				

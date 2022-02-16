@@ -128,7 +128,7 @@ public class LocalSOCheckDeployment  implements JavaDelegate {
 		
 		if ( aService.getState() != supd.getState()) {			
 			Note noteItem = new Note();
-			noteItem.setText("Update Service Order State to: " + supd.getState() + ". ");
+			noteItem.setText("Update Service State to: " + supd.getState() + ". ");
 			noteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
 			noteItem.setAuthor( compname );
 			supd.addNoteItem( noteItem );

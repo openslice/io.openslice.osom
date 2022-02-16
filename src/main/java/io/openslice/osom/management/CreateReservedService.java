@@ -170,6 +170,9 @@ public class CreateReservedService implements JavaDelegate {
 		} else if ( specrel.getType().equals("CustomerFacingServiceSpecification") && (specrel.findSpecCharacteristicByName("OSAUTOMATED") != null )  ) {
 			createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.AUTOMATICALLY_MANAGED, null, parentService);			
 			
+		} else if ( specrel.getType().equals("CustomerFacingServiceSpecification") && (specrel.findSpecCharacteristicByName("testSpecRef") != null )  ) {
+			createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.AUTOMATICALLY_MANAGED, null, parentService);			
+			
 		}	
 		else {
 			createdServ = createServiceByServiceSpec(sor, soi, specrel, EServiceStartMode.MANUALLY_BY_SERVICE_PROVIDER, null, parentService);			

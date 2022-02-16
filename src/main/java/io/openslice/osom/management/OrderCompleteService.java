@@ -106,6 +106,9 @@ public class OrderCompleteService implements JavaDelegate {
 			}
 
 
+			@Valid
+			ServiceOrderStateType currentState = sOrder.getState();
+				
 			boolean allCompletedItemsInOrder= true;
 			boolean allTerminatedItemsInOrder= true;
 			boolean existsInactiveInORder= false;
@@ -201,7 +204,7 @@ public class OrderCompleteService implements JavaDelegate {
 				sOrder.setState( ServiceOrderStateType.FAILED );		
 			} 
 			
-//			if ( updateServiceOrder ) {
+			if ( currentState != sOrder.getState() ) {
 				logger.info("Will update ServiceOrder with state:" +  sOrder.getState() );
 				ServiceOrderUpdate serviceOrderUpd = new ServiceOrderUpdate();
 				serviceOrderUpd.setState( sOrder.getState() );
@@ -218,7 +221,7 @@ public class OrderCompleteService implements JavaDelegate {
 				
 				serviceOrderManager.updateServiceOrderOrder( sOrder.getId() , serviceOrderUpd);
 
-//			}
+			}
 			
 		}
 		
