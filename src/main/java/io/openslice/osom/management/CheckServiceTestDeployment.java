@@ -15,6 +15,7 @@ import io.openslice.model.DeploymentDescriptorVxFInstanceInfo;
 import io.openslice.tmf.common.model.Any;
 import io.openslice.tmf.common.model.service.Characteristic;
 import io.openslice.tmf.common.model.service.Note;
+import io.openslice.tmf.common.model.service.ServiceRef;
 import io.openslice.tmf.common.model.service.ServiceStateType;
 import io.openslice.tmf.scm633.model.ServiceSpecCharacteristic;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
@@ -24,6 +25,7 @@ import io.openslice.tmf.so641.model.ServiceOrder;
 import io.openslice.tmf.stm653.model.ServiceTest;
 import io.openslice.tmf.stm653.model.ServiceTestCreate;
 import io.openslice.tmf.stm653.model.ServiceTestSpecification;
+import io.openslice.tmf.stm653.model.ServiceTestSpecificationRef;
 import io.openslice.tmf.stm653.model.ServiceTestUpdate;
 
 @Component(value = "checkServiceTestDeployment") //bean name
@@ -66,7 +68,13 @@ public class CheckServiceTestDeployment  implements JavaDelegate {
 				sTCreate.setDescription("A Service Test for " + servicename );
 				
 				sTCreate.setName( servicename );
-				sTCreate.setState( ServiceStateType.ACTIVE.name());
+				sTCreate.setState( ServiceStateType.ACTIVE.name());				
+				ServiceTestSpecificationRef testRef = new ServiceTestSpecificationRef();
+				testRef.setId(sTestId);
+				sTCreate.setTestSpecification(testRef );
+				ServiceRef serviceRef = new ServiceRef();
+				serviceRef.setId( aService.getId());
+				sTCreate.setRelatedService(serviceRef );		
 				
 				ServiceTest createdServiceTest = serviceOrderManager.createServiceTest(sTCreate , sorder, serviceTestSpec); 
 				
@@ -77,8 +85,7 @@ public class CheckServiceTestDeployment  implements JavaDelegate {
 					stupd.addCharacteristicItem( c );		
 					String newvalue = aService.getServiceCharacteristicByName( c.getName() ).getValue().getValue();
 					c.setValue( new Any(newvalue) ) ; 
-				}					
-				serviceOrderManager.updateServiceTest(sTestId, stupd);				
+				}							
 				
 				
 				
