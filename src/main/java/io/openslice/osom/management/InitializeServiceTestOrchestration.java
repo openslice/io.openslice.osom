@@ -35,11 +35,6 @@ public class InitializeServiceTestOrchestration  implements JavaDelegate {
 
 		if (execution.getVariableLocal("contextServiceId") instanceof String) {
 
-//			ServiceOrder sorder = serviceOrderManager.retrieveServiceOrder( execution.getVariable("orderid").toString() );
-//			Service aService = serviceOrderManager.retrieveService( (String) execution.getVariable("contextServiceId") );
-//			logger.info("Service name:" + aService.getName() );
-//			logger.info("Service state:" + aService.getState()  );			
-//			logger.info("Request to External Service Partner for Service: " + aService.getId() );
 
 
 		} else {
