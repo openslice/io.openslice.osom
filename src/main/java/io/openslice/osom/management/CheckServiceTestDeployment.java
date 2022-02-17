@@ -2,6 +2,10 @@ package io.openslice.osom.management;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.validation.Valid;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -13,15 +17,19 @@ import org.springframework.stereotype.Component;
 
 import io.openslice.model.DeploymentDescriptorVxFInstanceInfo;
 import io.openslice.tmf.common.model.Any;
+import io.openslice.tmf.common.model.EValueType;
 import io.openslice.tmf.common.model.service.Characteristic;
 import io.openslice.tmf.common.model.service.Note;
 import io.openslice.tmf.common.model.service.ServiceRef;
 import io.openslice.tmf.common.model.service.ServiceStateType;
 import io.openslice.tmf.scm633.model.ServiceSpecCharacteristic;
+import io.openslice.tmf.scm633.model.ServiceSpecCharacteristicValue;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
 import io.openslice.tmf.sim638.model.Service;
 import io.openslice.tmf.sim638.model.ServiceUpdate;
 import io.openslice.tmf.so641.model.ServiceOrder;
+import io.openslice.tmf.stm653.model.CharacteristicSpecification;
+import io.openslice.tmf.stm653.model.CharacteristicValueSpecification;
 import io.openslice.tmf.stm653.model.ServiceTest;
 import io.openslice.tmf.stm653.model.ServiceTestCreate;
 import io.openslice.tmf.stm653.model.ServiceTestSpecification;
@@ -75,18 +83,25 @@ public class CheckServiceTestDeployment  implements JavaDelegate {
 				ServiceRef serviceRef = new ServiceRef();
 				serviceRef.setId( aService.getId());
 				sTCreate.setRelatedService(serviceRef );		
+				sTCreate.characteristic( new ArrayList<>());
+				
+
+				for (Characteristic serviceChar : aService.getServiceCharacteristic() ) {
+					io.openslice.tmf.stm653.model.Characteristic newChar = new io.openslice.tmf.stm653.model.Characteristic();
+					newChar.setName( serviceChar.getName() );
+					newChar.setValueType( serviceChar.getValueType() );
+					newChar.setValue( new Any(
+							serviceChar.getValue().getValue(), 
+							serviceChar.getValue().getAlias()) );
+					sTCreate.addCharacteristicItem( newChar );
+				}
+				
+				copyRemainingSpecCharacteristicsToServiceCharacteristic (serviceTestSpec, sTCreate.getCharacteristic()) ;
+				
 				
 				ServiceTest createdServiceTest = serviceOrderManager.createServiceTest(sTCreate , sorder, serviceTestSpec); 
 				
 				
-				//update serviceTest with service characteristics!
-				ServiceTestUpdate stupd = new ServiceTestUpdate();
-				for (io.openslice.tmf.stm653.model.Characteristic c : createdServiceTest.getCharacteristic()) {						
-					stupd.addCharacteristicItem( c );		
-					String newvalue = aService.getServiceCharacteristicByName( c.getName() ).getValue().getValue();
-					c.setValue( new Any(newvalue) ) ; 
-				}							
-				serviceOrderManager.updateServiceTest( createdServiceTest.getId() , stupd);
 				
 				
 				//update parent service
@@ -115,4 +130,75 @@ public class CheckServiceTestDeployment  implements JavaDelegate {
 			
 	}
 	
+	private void copyRemainingSpecCharacteristicsToServiceCharacteristic(ServiceTestSpecification sourceSpec, @Valid List<io.openslice.tmf.stm653.model.Characteristic> list) {
+		
+		
+		for (CharacteristicSpecification sourceCharacteristic : sourceSpec.getSpecCharacteristic()) {
+			if (  sourceCharacteristic.getValueType() != null ) {
+				boolean charfound = false;
+				for (io.openslice.tmf.stm653.model.Characteristic destchar : list) {
+					if ( destchar.getName().equals(sourceCharacteristic.getName())) {
+						charfound = true;
+						break;
+					}
+				}
+				
+				if (!charfound) {
+				
+					io.openslice.tmf.stm653.model.Characteristic newChar = new io.openslice.tmf.stm653.model.Characteristic();
+					newChar.setName( sourceCharacteristic.getName() );
+					newChar.setValueType( sourceCharacteristic.getValueType() );
+					
+					if (  sourceCharacteristic.getValueType() != null && sourceCharacteristic.getValueType().equals( EValueType.ARRAY.getValue() ) ||
+							 sourceCharacteristic.getValueType() != null && sourceCharacteristic.getValueType().equals( EValueType.SET.getValue() ) ) {
+						String valString = "";
+						for (CharacteristicValueSpecification specchar : sourceCharacteristic.getCharacteristicValueSpecification() ) {
+							if ( ( specchar.isIsDefault()!= null) && specchar.isIsDefault() ) {
+								if ( !valString.equals("")) {
+									valString = valString + ",";
+								}
+								valString = valString + "{\"value\":\"" + specchar.getValue().getValue() + "\",\"alias\":\"" + specchar.getValue().getAlias() + "\"}";
+							}
+							
+						}
+						
+						newChar.setValue( new Any( "[" + valString + "]", "") );
+						
+						
+					} else {
+						for (CharacteristicValueSpecification specchar : sourceCharacteristic.getCharacteristicValueSpecification()) {
+							if ( ( specchar.isIsDefault()!= null) && specchar.isIsDefault() ) {
+								newChar.setValue( new Any(
+										specchar.getValue().getValue(), 
+										specchar.getValue().getAlias()) );
+								break;
+							}else {
+								if (specchar.isIsDefault()== null){
+
+								logger.info("specchar is null value: " + sourceCharacteristic.getName() );
+								}
+							}
+
+						}						
+					}
+					
+					//sourceCharacteristic.getServiceSpecCharacteristicValue()
+					
+					if ( newChar.getValue() !=null) {
+						list.add(newChar );
+					} else {
+						newChar.setValue( new Any(
+								"", 
+								"") );
+						list.add(newChar );
+					}
+					
+				}
+				
+			}
+			
+			
+		}
+		
+	}
 }
