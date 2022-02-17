@@ -86,7 +86,7 @@ public class CheckServiceTestDeployment  implements JavaDelegate {
 					String newvalue = aService.getServiceCharacteristicByName( c.getName() ).getValue().getValue();
 					c.setValue( new Any(newvalue) ) ; 
 				}							
-				
+				serviceOrderManager.updateServiceTest( createdServiceTest.getId() , stupd);
 				
 				
 				//update parent service
