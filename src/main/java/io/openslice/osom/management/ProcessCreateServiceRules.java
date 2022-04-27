@@ -135,7 +135,8 @@ public class ProcessCreateServiceRules implements JavaDelegate {
 				}				
 			}
 		}
-		
+
+		serviceOrderManager.updateService( contextService.getId() , supd, false); //update context service
 		
 		List<String> servicesToCreate = new ArrayList<>();
 		for (String specid : tobeCreated.keySet()) {
