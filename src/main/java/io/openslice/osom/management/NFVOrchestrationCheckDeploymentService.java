@@ -68,7 +68,12 @@ public class NFVOrchestrationCheckDeploymentService implements JavaDelegate {
 			return;
 		}
 		Service aService = serviceOrderManager.retrieveService( (String) execution.getVariable("contextServiceId") );
-		
+
+		if ( aService == null ) {
+			logger.info( "aService is null for contextServiceId = " +(String) execution.getVariable("contextServiceId") );			
+			execution.setVariable("serviceDeploymentFinished", Boolean.TRUE );
+			return;
+		}
 		//retrieve Status from NFVO (OSM?) scheduler
 		logger.info("Checking Deployment Status of deployment Request id: " + deploymentId );
 		execution.setVariable("serviceDeploymentFinished", Boolean.FALSE );
