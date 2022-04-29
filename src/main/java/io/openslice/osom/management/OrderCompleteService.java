@@ -95,6 +95,7 @@ public class OrderCompleteService implements JavaDelegate {
 	
 								execution.setVariable( "deploymentId", Long.parseLong( deploymentRequestID ));
 								execution.setVariable( "serviceId", aService.getUuid() );
+								execution.setVariable( "contextServiceId", aService.getUuid() );
 								
 								nfvOrchestrationCheckDeploymentService.execute(execution);
 
