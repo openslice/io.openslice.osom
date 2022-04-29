@@ -67,6 +67,12 @@ public class NFVOrchestrationCheckDeploymentService implements JavaDelegate {
 			execution.setVariable("serviceDeploymentFinished", Boolean.TRUE );
 			return;
 		}
+		if ( execution.getVariable("contextServiceId") == null) {
+
+			logger.error( "Variable contextServiceId is NULL!" );
+			execution.setVariable("serviceDeploymentFinished", Boolean.TRUE );
+			return;
+		}
 		Service aService = serviceOrderManager.retrieveService( (String) execution.getVariable("contextServiceId") );
 
 		if ( aService == null ) {
