@@ -76,34 +76,33 @@ public class OrderCompleteService implements JavaDelegate {
 				logger.error("Cannot retrieve Service Order details from catalog.");
 				return;
 			}
-			
-			
-				for (ServiceOrderItem soi : sOrder.getOrderItem()) {
-					for (ServiceRef sref : soi.getService().getSupportingService()) {
-						Service aService = serviceOrderManager.retrieveService( sref.getId()  );						
-						
 
-						if ( (aService!=null ) &&
-								(aService.getServiceCharacteristicByName( "externalPartnerServiceId" ) != null )){
-							//service belongs to a partner. Here we might query it
-							
-						}else if ( (aService!=null ) &&
-								(aService.getServiceCharacteristicByName( "DeploymentRequestID" ) != null )){
-							
-							if ( nfvOrchestrationCheckDeploymentService!= null) {
-								String deploymentRequestID = aService.getServiceCharacteristicByName( "DeploymentRequestID" ).getValue().getValue();
-	
-								execution.setVariable( "deploymentId", Long.parseLong( deploymentRequestID ));
-								execution.setVariable( "serviceId", aService.getUuid() );
-								execution.setVariable( "contextServiceId", aService.getUuid() );
-								
-								nfvOrchestrationCheckDeploymentService.execute(execution);
+			for (ServiceOrderItem soi : sOrder.getOrderItem()) {
+				for (ServiceRef sref : soi.getService().getSupportingService()) {
+					Service aService = serviceOrderManager.retrieveService(sref.getId());
 
-							}
-						
+					if ((aService != null)
+							&& (aService.getServiceCharacteristicByName("externalPartnerServiceId") != null)) {
+						// service belongs to a partner. Here we might query it
+
+					} else if ((aService != null)
+							&& (aService.getServiceCharacteristicByName("DeploymentRequestID") != null)) {
+
+						if (nfvOrchestrationCheckDeploymentService != null) {
+							String deploymentRequestID = aService.getServiceCharacteristicByName("DeploymentRequestID")
+									.getValue().getValue();
+
+							execution.setVariable("deploymentId", Long.parseLong(deploymentRequestID));
+							execution.setVariable("serviceId", aService.getUuid());
+							execution.setVariable("contextServiceId", aService.getUuid());
+
+							nfvOrchestrationCheckDeploymentService.execute(execution);
+
+						}
+
 					}
 				}
-				
+
 			}
 
 
@@ -173,11 +172,8 @@ public class OrderCompleteService implements JavaDelegate {
 				} else if (existsReserved) {
 					sserviceState = ServiceStateType.RESERVED;	
 					soi.setState( ServiceOrderStateType.INPROGRESS );						
-				} else if (existsTerminated) {
-					sserviceState = ServiceStateType.TERMINATED;	
-					soi.setState( ServiceOrderStateType.FAILED  );
-					existsTerminatedInORder = true;
 				}
+				
 				
 				
 				
