@@ -92,11 +92,13 @@ public class OrderCompleteService implements JavaDelegate {
 							String deploymentRequestID = aService.getServiceCharacteristicByName("DeploymentRequestID")
 									.getValue().getValue();
 
-							execution.setVariable("deploymentId", Long.parseLong(deploymentRequestID));
-							execution.setVariable("serviceId", aService.getUuid());
-							execution.setVariable("contextServiceId", aService.getUuid());
+							if ( deploymentRequestID.length()>0 ) {
+								execution.setVariable("deploymentId", Long.parseLong(deploymentRequestID));
+								execution.setVariable("serviceId", aService.getUuid());
+								execution.setVariable("contextServiceId", aService.getUuid());
 
-							nfvOrchestrationCheckDeploymentService.execute(execution);
+								nfvOrchestrationCheckDeploymentService.execute(execution);								
+							}
 
 						}
 
