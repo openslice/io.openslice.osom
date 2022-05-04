@@ -111,14 +111,9 @@ public class ServiceActionCheck implements JavaDelegate {
 					}
 				}else if ( aService.getCategory().equals( "ResourceFacingServiceSpecification") ) {
 					
-					if (aService.getServiceCharacteristicByName( "NSDID" ) != null ){
-						if ( item.getAction().equals( ServiceActionQueueAction.DEACTIVATE ) || item.getAction().equals( ServiceActionQueueAction.TERMINATE ) ) {
-							execution.setVariable("saction", "NFVONSTerminate");
-						} else if (  item.getAction().equals( ServiceActionQueueAction.MODIFY ) ) {
-							execution.setVariable("saction", "NFVODAY2config");
-						}  else {
-							execution.setVariable("saction", "HandleManuallyAction");
-						} 
+					if (aService.getServiceCharacteristicByName( "NSDID" ) != null ){						
+						execution.setVariable("saction", "NFVODAY2config");
+						 
 					} else {
 						execution.setVariable("saction", "AutomaticallyHandleAction");
 					}					
