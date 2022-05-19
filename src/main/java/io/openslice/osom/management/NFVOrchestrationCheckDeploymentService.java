@@ -82,9 +82,18 @@ public class NFVOrchestrationCheckDeploymentService implements JavaDelegate {
 		}
 		//retrieve Status from NFVO (OSM?) scheduler
 		logger.info("Checking Deployment Status of deployment Request id: " + deploymentId );
-		execution.setVariable("serviceDeploymentFinished", Boolean.FALSE );
 
 		DeploymentDescriptor dd =serviceOrderManager.retrieveNFVODeploymentRequestById( deploymentId );
+
+		if ( dd == null) {
+
+			logger.error( "DeploymentDescriptor dd is NULL!" );
+			execution.setVariable("serviceDeploymentFinished", Boolean.TRUE );
+			return;
+		}
+
+		execution.setVariable("serviceDeploymentFinished", Boolean.FALSE );
+		
 		logger.info("Operational Status of deployment Request id: " + dd.getOperationalStatus() );
 		logger.info("Status of deployment Request id: " + dd.getStatus() );
 		ServiceUpdate supd = new ServiceUpdate();
