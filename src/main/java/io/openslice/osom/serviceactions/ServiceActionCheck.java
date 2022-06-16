@@ -63,6 +63,9 @@ public class ServiceActionCheck implements JavaDelegate {
 			
 			
 			Service aService = serviceOrderManager.retrieveService( item.getServiceRefId() );
+			if ( aService == null ) {
+				logger.error("aService is NULL!"  );						
+			}
 			
 			if ( aService.getSupportingService()!=null) {
 				for (ServiceRef aSupportingService : aService.getSupportingService() ) {

@@ -38,6 +38,7 @@ import io.openslice.tmf.sim638.model.ServiceCreate;
 import io.openslice.tmf.sim638.model.ServiceOrderRef;
 import io.openslice.tmf.sim638.model.ServiceUpdate;
 import io.openslice.tmf.so641.model.ServiceOrder;
+import io.openslice.tmf.so641.model.ServiceOrderActionType;
 import io.openslice.tmf.so641.model.ServiceOrderItem;
 import io.openslice.tmf.so641.model.ServiceOrderStateType;
 import io.openslice.tmf.so641.model.ServiceOrderUpdate;
@@ -121,6 +122,12 @@ public class CreateReservedService implements JavaDelegate {
 						
 			serviceOrderUpd.addOrderItemItem(orderItemItem);
 		}
+		
+		Note noteItem = new Note();
+		noteItem.setText( String.format( "Create Reserved Service for %s " ,  spec.getName() ) );
+		noteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
+		noteItem.setAuthor( compname );
+		serviceOrderUpd.addNoteItem( noteItem );
 
 		execution.setVariable("contextServiceId", createdUnderlService.getId() );
 		execution.setVariable("contextServiceSpecId", spec.getId() );

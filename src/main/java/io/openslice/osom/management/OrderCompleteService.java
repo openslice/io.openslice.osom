@@ -123,9 +123,11 @@ public class OrderCompleteService implements JavaDelegate {
 				boolean existsInactive=false;
 				boolean existsActive=false;
 				boolean existsTerminated=false;
-				boolean allTerminated= ( soi.getService().getSupportingService() != null) || ( soi.getService().getSupportingResource() != null);
+				boolean allTerminated= ( soi.getService().getSupportingService() != null && soi.getService().getSupportingService().size()>0) 
+						|| ( soi.getService().getSupportingResource() != null && soi.getService().getSupportingResource().size()>0 );
 				boolean existsDesigned=false;
-				boolean allActive= ( soi.getService().getSupportingService() != null) || ( soi.getService().getSupportingResource() != null);
+				boolean allActive= ( soi.getService().getSupportingService() != null && soi.getService().getSupportingService().size()>0) 
+						|| ( soi.getService().getSupportingResource() != null && soi.getService().getSupportingResource().size()>0 );
 				
 				
 				if ( soi.getService().getSupportingService() != null) {
