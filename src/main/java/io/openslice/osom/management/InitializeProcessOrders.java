@@ -19,6 +19,7 @@
  */
 package io.openslice.osom.management;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +31,7 @@ import org.flowable.engine.delegate.JavaDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import io.openslice.tmf.so641.model.ServiceOrder;
 import io.openslice.tmf.so641.model.ServiceOrderStateType;
 import io.openslice.tmf.so641.model.ServiceOrderUpdate;
 
@@ -57,14 +59,25 @@ public class InitializeProcessOrders implements JavaDelegate {
 		if (execution.getVariable("ordersToBeProcessed") instanceof ArrayList) {
 
 			List<String> ordersToBeProcessed = (ArrayList<String>) execution.getVariable("ordersToBeProcessed");
-			for (String o : ordersToBeProcessed) {
+			for (String oId : ordersToBeProcessed) {
 
-				logger.info("Will send CAMEL Message that Order is IN-PROGRESS orderid= " + o);
+				ServiceOrder sor = serviceOrderManager.retrieveServiceOrder( oId );
 				
+				if ( sor.getStartDate() != null ) {
+					
+					Instant instant = Instant.now() ;                          // Capture the current moment as seen in UTC.
+					boolean odtIsAfter = sor.getStartDate().toInstant().isAfter( instant ) ;
+					
+					if ( odtIsAfter ) {
+						logger.info("Will send CAMEL Message that Order is IN-PROGRESS orderid= " + oId );					
 
-				ServiceOrderUpdate serviceOrderUpd = new ServiceOrderUpdate();
-				serviceOrderUpd.setState(ServiceOrderStateType.INPROGRESS);
-				serviceOrderManager.updateServiceOrderOrder( o, serviceOrderUpd );
+						ServiceOrderUpdate serviceOrderUpd = new ServiceOrderUpdate();
+						serviceOrderUpd.setState(ServiceOrderStateType.INPROGRESS);
+						serviceOrderManager.updateServiceOrderOrder( oId, serviceOrderUpd );						
+					} else	{
+						logger.info("Order remains in ACK until date is after current time, orderid= " + oId );
+					}
+				}
 				
 			}
 
