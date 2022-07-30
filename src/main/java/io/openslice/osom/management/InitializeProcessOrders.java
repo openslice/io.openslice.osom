@@ -61,23 +61,14 @@ public class InitializeProcessOrders implements JavaDelegate {
 			List<String> ordersToBeProcessed = (ArrayList<String>) execution.getVariable("ordersToBeProcessed");
 			for (String oId : ordersToBeProcessed) {
 
-				ServiceOrder sor = serviceOrderManager.retrieveServiceOrder( oId );
-				
-				if ( sor.getStartDate() != null ) {
 					
-					Instant instant = Instant.now() ;                          // Capture the current moment as seen in UTC.
-					boolean odtIsAfter = sor.getStartDate().toInstant().isAfter( instant ) ;
-					
-					if ( odtIsAfter ) {
-						logger.info("Will send CAMEL Message that Order is IN-PROGRESS orderid= " + oId );					
+				logger.info("Will send CAMEL Message that Order is IN-PROGRESS orderid= " + oId );					
 
-						ServiceOrderUpdate serviceOrderUpd = new ServiceOrderUpdate();
-						serviceOrderUpd.setState(ServiceOrderStateType.INPROGRESS);
-						serviceOrderManager.updateServiceOrderOrder( oId, serviceOrderUpd );						
-					} else	{
-						logger.info("Order remains in ACK until date is after current time, orderid= " + oId );
-					}
-				}
+				ServiceOrderUpdate serviceOrderUpd = new ServiceOrderUpdate();
+				serviceOrderUpd.setState(ServiceOrderStateType.INPROGRESS);
+				serviceOrderManager.updateServiceOrderOrder( oId, serviceOrderUpd );						
+					
+				
 				
 			}
 
