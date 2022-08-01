@@ -76,6 +76,10 @@ public class ServiceEvaluateAction  implements JavaDelegate {
 			
 			if ( aService.getServiceOrder().size() >0  ) {
 				sor = serviceOrderManager.retrieveServiceOrder( aService.getServiceOrder().stream().findFirst().get().getId() ) ;
+				if ( sor == null ) {
+					logger.error("ServiceOrder is NULL. will return!");
+					return;
+				}
 				if ( sor.getOrderItem().size()>0) {
 					soi = sor.getOrderItem().stream().findFirst().get();
 				}

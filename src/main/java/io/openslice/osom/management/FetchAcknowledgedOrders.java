@@ -19,6 +19,7 @@
  */
 package io.openslice.osom.management;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +33,7 @@ import org.flowable.task.api.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import io.openslice.tmf.so641.model.ServiceOrder;
 import io.openslice.tmf.so641.model.ServiceOrderStateType;
 
 @Component(value = "fetchAcknowledgedOrders") // bean name
@@ -66,7 +68,20 @@ public class FetchAcknowledgedOrders implements JavaDelegate {
 		if ( orderlist != null ) {
 			for (String orderid : orderlist) {
 				if ( !ordersToBeProcessed.contains( orderid )  ) {
-					ordersToBeProcessed.add( orderid );
+					
+
+					ServiceOrder sor = serviceOrderManager.retrieveServiceOrder( orderid );
+					if ( sor.getStartDate() != null ) {
+						Instant instant = Instant.now() ;                          // Capture the current moment as seen in UTC.
+						boolean canStart = sor.getStartDate().toInstant().isBefore( instant ) ;
+						
+						if ( canStart ) {
+							logger.info("Service order is scheduled to start now, orderid= " + orderid );
+							ordersToBeProcessed.add( orderid );	
+						} else {
+							logger.info("Service order is scheduled to start later, orderid= " + orderid );
+						}
+					}
 					
 				}
 			}	

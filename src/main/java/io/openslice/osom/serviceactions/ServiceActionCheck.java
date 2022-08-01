@@ -64,21 +64,25 @@ public class ServiceActionCheck implements JavaDelegate {
 			
 			Service aService = serviceOrderManager.retrieveService( item.getServiceRefId() );
 			if ( aService == null ) {
-				logger.error("aService is NULL!"  );						
+				logger.error("aService is NULL!"  );	
+				execution.setVariable("saction", "HandleManuallyAction");
+				return;
+			} else {
+				if ( aService.getSupportingService()!=null) {
+					for (ServiceRef aSupportingService : aService.getSupportingService() ) {
+						logger.debug("aSupportingService:" + aSupportingService.getName() );				
+					}
+				}
+
+				if ( aService.getSupportingResource()!=null) {
+					for (ResourceRef aSupportingResource : aService.getSupportingResource() ) {
+						logger.debug("aSupportingResource:" + aSupportingResource.getName() );				
+					}				
+					
+				}				
 			}
 			
-			if ( aService.getSupportingService()!=null) {
-				for (ServiceRef aSupportingService : aService.getSupportingService() ) {
-					logger.debug("aSupportingService:" + aSupportingService.getName() );				
-				}
-			}
-
-			if ( aService.getSupportingResource()!=null) {
-				for (ResourceRef aSupportingResource : aService.getSupportingResource() ) {
-					logger.debug("aSupportingResource:" + aSupportingResource.getName() );				
-				}				
-				
-			}
+			
 			
 			if ( item.getAction().equals( ServiceActionQueueAction.EVALUATE_STATE_CHANGE_TOACTIVE  ) ) {
 				execution.setVariable("saction", "HandleActiveStateChanged");

@@ -62,7 +62,7 @@ public class InitializeProcessOrders implements JavaDelegate {
 			for (String oId : ordersToBeProcessed) {
 
 					
-				logger.info("Will send CAMEL Message that Order is IN-PROGRESS orderid= " + oId );					
+				logger.debug("Will send CAMEL Message that Order is IN-PROGRESS orderid= " + oId );					
 
 				ServiceOrderUpdate serviceOrderUpd = new ServiceOrderUpdate();
 				serviceOrderUpd.setState(ServiceOrderStateType.INPROGRESS);

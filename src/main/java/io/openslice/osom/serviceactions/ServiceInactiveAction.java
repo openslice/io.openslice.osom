@@ -55,6 +55,11 @@ public class ServiceInactiveAction  implements JavaDelegate {
 			item = mapper.readValue( execution.getVariable("serviceActionItem").toString(), ServiceActionQueueItem.class);
 			aService = mapper.readValue( execution.getVariable("Service").toString(), Service.class);
 			
+			if ( aService == null ) {
+				logger.error("Service is NULL. will return!");
+				return;
+			}
+			
 			ServiceUpdate supd = new ServiceUpdate();
 			Note n = new Note();
 			n.setText("Service Action ServiceInactiveAction. Action: " + item.getAction() );
@@ -69,6 +74,11 @@ public class ServiceInactiveAction  implements JavaDelegate {
 			
 			if ( aService.getServiceOrder().size() >0  ) {
 				sor = serviceOrderManager.retrieveServiceOrder( aService.getServiceOrder().stream().findFirst().get().getId() ) ;
+				if ( sor == null) {
+					logger.error("Service Order NULL. will return!");
+					return;
+					
+				}
 				if ( sor.getOrderItem().size()>0) {
 					soi = sor.getOrderItem().stream().findFirst().get();
 				}
