@@ -88,7 +88,7 @@ public class ServiceActionCheck implements JavaDelegate {
 				execution.setVariable("saction", "HandleActiveStateChanged");
 			} else if ( item.getAction().equals( ServiceActionQueueAction.EVALUATE_STATE_CHANGE_TOINACTIVE  ) ) {
 				execution.setVariable("saction", "HandleInactiveStateChanged");
-			} else if ( item.getAction().equals( ServiceActionQueueAction.EVALUATE_CHARACTERISTIC_CHANGED  ) ) {
+			} else if ( item.getAction().equals( ServiceActionQueueAction.EVALUATE_CHARACTERISTIC_CHANGED  ) || item.getAction().equals( ServiceActionQueueAction.EVALUATE_CHARACTERISTIC_CHANGED_MANODAY2  ) ) {
 				
 				execution.setVariable("saction", "HandleEvaluateService");// default
 				
@@ -118,7 +118,7 @@ public class ServiceActionCheck implements JavaDelegate {
 					}
 				}else if ( aService.getCategory().equals( "ResourceFacingServiceSpecification") ) {
 					
-					if (aService.getServiceCharacteristicByName( "NSDID" ) != null ){						
+					if (aService.getServiceCharacteristicByName( "NSDID" ) != null  &&  item.getAction().equals( ServiceActionQueueAction.EVALUATE_CHARACTERISTIC_CHANGED_MANODAY2  ) ){						
 						execution.setVariable("saction", "NFVODAY2config");
 						 
 					} else {
@@ -138,7 +138,7 @@ public class ServiceActionCheck implements JavaDelegate {
 						if (aService.getServiceCharacteristicByName( "NSDID" ) != null ){
 							if ( item.getAction().equals( ServiceActionQueueAction.DEACTIVATE ) || item.getAction().equals( ServiceActionQueueAction.TERMINATE ) ) {
 								execution.setVariable("saction", "NFVONSTerminate");
-							} else if (  item.getAction().equals( ServiceActionQueueAction.MODIFY ) ) {
+							} else if (  item.getAction().equals( ServiceActionQueueAction.MODIFY ) &&  item.getAction().equals( ServiceActionQueueAction.EVALUATE_CHARACTERISTIC_CHANGED_MANODAY2  )) {
 								execution.setVariable("saction", "NFVODAY2config");
 							}  else {
 								execution.setVariable("saction", "HandleManuallyAction");
