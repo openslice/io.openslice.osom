@@ -58,7 +58,7 @@
     <sequenceFlow id="flow36" sourceRef="parallelExternalSPDeploymentReqProcess" targetRef="servicetaskCheckForCreatedServices"></sequenceFlow>
     <sequenceFlow id="flow37" sourceRef="parallelActivityLocalServiceOrchestration" targetRef="servicetaskCheckForCreatedServices"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway4" name="Exclusive Gateway"></exclusiveGateway>
-    <sequenceFlow id="flow38" name="!allSupportingServicesCreated" sourceRef="exclusivegateway4" targetRef="aCreateServiceProcess">
+    <sequenceFlow id="flow38" name="!allSupportingServicesCreated" sourceRef="exclusivegateway4" targetRef="parallelgateway1">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!allSupportingServicesCreated}]]></conditionExpression>
     </sequenceFlow>
     <intermediateCatchEvent id="timerintermediatecatchevent2" name="TimerCatchEvent">
@@ -75,6 +75,15 @@
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${brokeActivity=='TESTSPEC'}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="flow42" sourceRef="parallelActivityServiceTestOrchestrationProcess" targetRef="servicetaskCheckForCreatedServices"></sequenceFlow>
+    <parallelGateway id="parallelgateway1" name="Parallel Gateway"></parallelGateway>
+    <sequenceFlow id="flow43" sourceRef="parallelgateway1" targetRef="aCreateServiceProcess"></sequenceFlow>
+    <intermediateCatchEvent id="timerintermediatecatchevent3" name="TimerCatchEvent">
+      <timerEventDefinition>
+        <timeDuration>PT15S</timeDuration>
+      </timerEventDefinition>
+    </intermediateCatchEvent>
+    <sequenceFlow id="flow44" sourceRef="parallelgateway1" targetRef="timerintermediatecatchevent3"></sequenceFlow>
+    <sequenceFlow id="flow45" sourceRef="timerintermediatecatchevent3" targetRef="servicetask4"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_CreateServiceProcess">
     <bpmndi:BPMNPlane bpmnElement="CreateServiceProcess" id="BPMNPlane_CreateServiceProcess">
@@ -131,6 +140,12 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="parallelActivityServiceTestOrchestrationProcess" id="BPMNShape_parallelActivityServiceTestOrchestrationProcess">
         <omgdc:Bounds height="81.0" width="143.0" x="1029.0" y="710.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="parallelgateway1" id="BPMNShape_parallelgateway1">
+        <omgdc:Bounds height="40.0" width="40.0" x="537.0" y="420.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="timerintermediatecatchevent3" id="BPMNShape_timerintermediatecatchevent3">
+        <omgdc:Bounds height="35.0" width="35.0" x="419.0" y="423.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow19" id="BPMNEdge_flow19">
         <omgdi:waypoint x="72.0" y="230.0"></omgdi:waypoint>
@@ -245,10 +260,9 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow38" id="BPMNEdge_flow38">
         <omgdi:waypoint x="557.0" y="366.0"></omgdi:waypoint>
-        <omgdi:waypoint x="557.0" y="519.0"></omgdi:waypoint>
-        <omgdi:waypoint x="508.0" y="520.0"></omgdi:waypoint>
+        <omgdi:waypoint x="557.0" y="420.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="42.0" width="100.0" x="577.0" y="393.0"></omgdc:Bounds>
+          <omgdc:Bounds height="42.0" width="100.0" x="567.0" y="362.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow39" id="BPMNEdge_flow39">
@@ -275,6 +289,20 @@
         <omgdi:waypoint x="1172.0" y="750.0"></omgdi:waypoint>
         <omgdi:waypoint x="1407.0" y="750.0"></omgdi:waypoint>
         <omgdi:waypoint x="1407.0" y="412.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow43" id="BPMNEdge_flow43">
+        <omgdi:waypoint x="557.0" y="460.0"></omgdi:waypoint>
+        <omgdi:waypoint x="556.0" y="519.0"></omgdi:waypoint>
+        <omgdi:waypoint x="508.0" y="520.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow44" id="BPMNEdge_flow44">
+        <omgdi:waypoint x="537.0" y="440.0"></omgdi:waypoint>
+        <omgdi:waypoint x="454.0" y="440.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow45" id="BPMNEdge_flow45">
+        <omgdi:waypoint x="419.0" y="440.0"></omgdi:waypoint>
+        <omgdi:waypoint x="322.0" y="440.0"></omgdi:waypoint>
+        <omgdi:waypoint x="322.0" y="262.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

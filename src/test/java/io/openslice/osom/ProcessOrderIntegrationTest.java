@@ -185,7 +185,7 @@ public class ProcessOrderIntegrationTest {
 		assertThat(specCirros.getServiceSpecCharacteristic().size()  ).isEqualTo(10);
 		assertThat(sorder.getOrderItem().stream().findFirst().get().getService().getServiceCharacteristic().size()  ).isEqualTo(2);
 		
-		assertThat(repositoryService.createProcessDefinitionQuery().count()).isEqualTo(13);
+		assertThat(repositoryService.createProcessDefinitionQuery().count()).isEqualTo(14);
 		assertThat(taskService.createTaskQuery().count()).isEqualTo(0);
 
 		assertThat( scmocked.getRequeestedDescriptor() ).isNull();

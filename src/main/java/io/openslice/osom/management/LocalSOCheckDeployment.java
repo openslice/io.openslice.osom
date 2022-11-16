@@ -143,6 +143,13 @@ public class LocalSOCheckDeployment  implements JavaDelegate {
 		}
 		logger.info("Wait For Local SO Service Status. ");
 		
+		if ( aService.getState().equals(ServiceStateType.ACTIVE)
+				|| aService.getState().equals(ServiceStateType.TERMINATED)) {
+
+			logger.info("Deployment Status OK. Service state EQUAL = " + aService.getState() );
+			execution.setVariable("lsoServiceDeploymentFinished", true);
+			return;
+		}
 		
 	}
 }
