@@ -269,7 +269,7 @@ public class GenericClient  {
 
 		TcpClient tcpClient = TcpClient.create()
 				//.wiretap(true) //logging on reactor.netty.tcp.TcpClient level to DEBUG 
-				.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 30000)
+				.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 60000)
 				.doOnConnected(connection -> connection.addHandlerLast
 						(new ReadTimeoutHandler(2)).addHandlerLast(new WriteTimeoutHandler(2))
 						);
