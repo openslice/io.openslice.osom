@@ -75,6 +75,11 @@
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${brokeActivity=='TESTSPEC'}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="flow42" sourceRef="parallelActivityServiceTestOrchestrationProcess" targetRef="servicetaskCheckForCreatedServices"></sequenceFlow>
+    <callActivity id="parallelActivityGitlabProcess" name="Gitlab process"></callActivity>
+    <sequenceFlow id="flow43" name="brokeActivity==&quot;GITLAB_PROCESS&quot;" sourceRef="exclusivegateway2" targetRef="parallelActivityGitlabProcess">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${brokeActivity=='GITLAB_PROCESS'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow44" sourceRef="parallelActivityGitlabProcess" targetRef="servicetaskCheckForCreatedServices"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_CreateServiceProcess">
     <bpmndi:BPMNPlane bpmnElement="CreateServiceProcess" id="BPMNPlane_CreateServiceProcess">
@@ -131,6 +136,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="parallelActivityServiceTestOrchestrationProcess" id="BPMNShape_parallelActivityServiceTestOrchestrationProcess">
         <omgdc:Bounds height="81.0" width="143.0" x="1029.0" y="710.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="parallelActivityGitlabProcess" id="BPMNShape_parallelActivityGitlabProcess">
+        <omgdc:Bounds height="71.0" width="145.0" x="1029.0" y="840.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow19" id="BPMNEdge_flow19">
         <omgdi:waypoint x="72.0" y="230.0"></omgdi:waypoint>
@@ -274,6 +282,19 @@
       <bpmndi:BPMNEdge bpmnElement="flow42" id="BPMNEdge_flow42">
         <omgdi:waypoint x="1172.0" y="750.0"></omgdi:waypoint>
         <omgdi:waypoint x="1407.0" y="750.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1407.0" y="412.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow43" id="BPMNEdge_flow43">
+        <omgdi:waypoint x="907.0" y="250.0"></omgdi:waypoint>
+        <omgdi:waypoint x="907.0" y="875.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1029.0" y="875.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="42.0" width="100.0" x="917.0" y="849.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow44" id="BPMNEdge_flow44">
+        <omgdi:waypoint x="1174.0" y="875.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1407.0" y="875.0"></omgdi:waypoint>
         <omgdi:waypoint x="1407.0" y="412.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
