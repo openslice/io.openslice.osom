@@ -89,6 +89,16 @@ public class ServiceEvaluateAction  implements JavaDelegate {
 			if ( spec!= null ) {
 				//execute any LCM rules "SUPERVISION" phase for the SPEC;
 				LCMRulesExecutorVariables vars = new LCMRulesExecutorVariables(spec, sor, soi, null, supd,aService, serviceOrderManager);
+				logger.debug("===============DEBUG lcmRulesController.execPhas SUPERVISION for spec:" + spec.getName() + " =============================");
+				
+				Characteristic schart = aService.getServiceCharacteristicByName("long_text");
+				if ( schart!= null ) {
+					String teest = schart.getValue().getValue();
+					logger.debug("schart size = " + teest.length() );
+					
+					logger.debug("schart " + teest );
+					logger.debug("======================================================================================================");					
+				}
 				
 				logger.debug("===============BEFORE lcmRulesController.execPhas SUPERVISION for spec:" + spec.getName() + " =============================");
 				vars = lcmRulesController.execPhase( ELCMRulePhase.SUPERVISION, vars );
