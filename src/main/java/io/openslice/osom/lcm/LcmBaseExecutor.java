@@ -394,6 +394,12 @@ public abstract class LcmBaseExecutor {
 				"verb: %s\n eurl: %s\n headers: %s\n apayload: %s\n baseurl: %s\n aOAUTH2CLIENTID: %s\n aOAUTHSECRET: %s\n scopes: %s\n aTOKEURI: %s\n aUSERNAME: %s\n ",
 				verb, eurl, headers, apayload, baseurl, aOAUTH2CLIENTID, aOAUTHSECRET, scopes, aTOKEURI, aUSERNAME,
 				aPASSWORD));
+		
+
+		System.out.println("============================================================================= \n");
+		System.out.println("The value length is apayload= \n" + apayload.length());
+		System.out.println("The value is apayload= \n" + apayload);
+		System.out.println("============================================================================= \n");
 
 		if (baseurl != null) {
 			eurl = eurl.replace(baseurl, ""); // remove the baseurl if present
