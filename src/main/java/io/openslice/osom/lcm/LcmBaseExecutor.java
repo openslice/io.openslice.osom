@@ -115,6 +115,7 @@ public abstract class LcmBaseExecutor {
 		Optional<Characteristic> c = getCharacteristicByName(charName);
 
 		if (c.isPresent()) {
+			logger.debug("getCharValFromStringType size = " + c.get().getValue().getValue().length() );
 			logger.debug("getCharValFromStringType " + c.get().getValue().getValue());
 			return c.get().getValue().getValue();
 		}
