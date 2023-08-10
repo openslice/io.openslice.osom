@@ -19,20 +19,6 @@
  */
 package io.openslice.osom.management;
 
-import java.io.IOException;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
-import org.apache.camel.ProducerTemplate;
-import org.apache.camel.model.dataformat.JsonLibrary;
-import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -41,38 +27,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.openslice.osom.lcm.LCMRulesController;
-import io.openslice.osom.lcm.LCMRulesExecutorVariables;
-import io.openslice.tmf.common.model.Any;
-import io.openslice.tmf.common.model.EValueType;
 import io.openslice.tmf.common.model.UserPartRoleType;
-import io.openslice.tmf.common.model.service.Characteristic;
-import io.openslice.tmf.common.model.service.Note;
-import io.openslice.tmf.common.model.service.ServiceRef;
-import io.openslice.tmf.common.model.service.ServiceRelationship;
-import io.openslice.tmf.common.model.service.ServiceSpecificationRef;
-import io.openslice.tmf.common.model.service.ServiceStateType;
-import io.openslice.tmf.lcm.model.ELCMRulePhase;
 import io.openslice.tmf.prm669.model.RelatedParty;
-import io.openslice.tmf.scm633.model.ServiceSpecCharacteristic;
-import io.openslice.tmf.scm633.model.ServiceSpecCharacteristicValue;
-import io.openslice.tmf.scm633.model.ServiceSpecRelationship;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
 import io.openslice.tmf.sim638.model.EServiceStartMode;
 import io.openslice.tmf.sim638.model.Service;
-import io.openslice.tmf.sim638.model.ServiceCreate;
-import io.openslice.tmf.sim638.model.ServiceOrderRef;
-import io.openslice.tmf.sim638.model.ServiceUpdate;
-import io.openslice.tmf.so641.model.ServiceOrder;
-import io.openslice.tmf.so641.model.ServiceOrderActionType;
-import io.openslice.tmf.so641.model.ServiceOrderItem;
-import io.openslice.tmf.so641.model.ServiceOrderStateType;
-import io.openslice.tmf.so641.model.ServiceOrderUpdate;
-import io.openslice.tmf.so641.model.ServiceRestriction;
-import liquibase.change.core.AddAutoIncrementChange;
 
 /**
  * @author ctranoris

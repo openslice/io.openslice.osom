@@ -19,11 +19,6 @@
  */
 package io.openslice.osom.management;
 
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.util.Date;
-
-import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -34,17 +29,11 @@ import org.springframework.stereotype.Component;
 import io.openslice.model.DeploymentDescriptor;
 import io.openslice.model.DeploymentDescriptorStatus;
 import io.openslice.model.DeploymentDescriptorVxFInstanceInfo;
-import io.openslice.model.ExperimentMetadata;
 import io.openslice.tmf.common.model.Any;
 import io.openslice.tmf.common.model.service.Characteristic;
-import io.openslice.tmf.common.model.service.Note;
 import io.openslice.tmf.common.model.service.ServiceStateType;
-import io.openslice.tmf.scm633.model.ServiceSpecCharacteristic;
-import io.openslice.tmf.scm633.model.ServiceSpecCharacteristicValue;
-import io.openslice.tmf.scm633.model.ServiceSpecification;
 import io.openslice.tmf.sim638.model.Service;
 import io.openslice.tmf.sim638.model.ServiceUpdate;
-import io.openslice.tmf.so641.model.ServiceOrder;
 
 
 @Component(value = "nfvOrchestrationCheckDeploymentService") //bean name

@@ -2,21 +2,11 @@ package io.openslice.osom.lcm;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
 import javax.net.ssl.SSLException;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -28,13 +18,20 @@ import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Option;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.web.reactive.function.client.WebClient;
+
 import io.openslice.osom.partnerservices.GenericClient;
 import io.openslice.tmf.common.model.Any;
 import io.openslice.tmf.common.model.EValueType;
 import io.openslice.tmf.common.model.service.Characteristic;
 import io.openslice.tmf.common.model.service.Note;
 import io.openslice.tmf.common.model.service.ServiceRef;
-import io.openslice.tmf.common.model.service.ServiceRelationship;
 import io.openslice.tmf.lcm.model.LCMRuleSpecification;
 import io.openslice.tmf.prm669.model.RelatedParty;
 import io.openslice.tmf.scm633.model.ServiceSpecRelationship;
@@ -43,6 +40,8 @@ import io.openslice.tmf.so641.model.ServiceOrder;
 import io.openslice.tmf.so641.model.ServiceOrderCreate;
 import io.openslice.tmf.so641.model.ServiceOrderItemRelationship;
 import io.openslice.tmf.so641.model.ServiceOrderStateType;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import reactor.core.publisher.Mono;
 
 /**
@@ -330,7 +329,7 @@ public abstract class LcmBaseExecutor {
 				}
 				return asret;
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
+				 
 				e.printStackTrace();
 			}
 
@@ -448,10 +447,10 @@ public abstract class LcmBaseExecutor {
 
 			try {
 				aresponse = webclient.get().uri(eurl).headers(httpHeaders).retrieve()
-						.onStatus(HttpStatus::is4xxClientError, response -> {
+						.onStatus( HttpStatusCode::is4xxClientError , response -> {
 							logger.error("4xx eror");
 							return Mono.error(new RuntimeException("4xx"));
-						}).onStatus(HttpStatus::is5xxServerError, response -> {
+						}).onStatus(HttpStatusCode::is5xxServerError, response -> {
 							logger.error("5xx eror");
 							return Mono.error(new RuntimeException("5xx"));
 						}).bodyToMono(new ParameterizedTypeReference<String>() {
@@ -473,7 +472,7 @@ public abstract class LcmBaseExecutor {
 			try {
 				Thread.sleep(3000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
+				 
 				e.printStackTrace();
 			}
 		}
@@ -492,10 +491,10 @@ public abstract class LcmBaseExecutor {
 
 			try {
 				aresponse = webclient.post().uri(eurl).headers(httpHeaders).bodyValue(apayload).retrieve()
-						.onStatus(HttpStatus::is4xxClientError, response -> {
+						.onStatus(HttpStatusCode::is4xxClientError, response -> {
 							logger.error("4xx eror");
 							return Mono.error(new RuntimeException("4xx"));
-						}).onStatus(HttpStatus::is5xxServerError, response -> {
+						}).onStatus(HttpStatusCode::is5xxServerError, response -> {
 							logger.error("5xx eror");
 							return Mono.error(new RuntimeException("5xx"));
 						}).bodyToMono(new ParameterizedTypeReference<String>() {
@@ -517,7 +516,7 @@ public abstract class LcmBaseExecutor {
 			try {
 				Thread.sleep(3000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
+				 
 				e.printStackTrace();
 			}
 		}
@@ -536,10 +535,10 @@ public abstract class LcmBaseExecutor {
 
 			try {
 				aresponse = webclient.put().uri(eurl).headers(httpHeaders).bodyValue(apayload).retrieve()
-						.onStatus(HttpStatus::is4xxClientError, response -> {
+						.onStatus(HttpStatusCode::is4xxClientError, response -> {
 							logger.error("4xx eror");
 							return Mono.error(new RuntimeException("4xx"));
-						}).onStatus(HttpStatus::is5xxServerError, response -> {
+						}).onStatus(HttpStatusCode::is5xxServerError, response -> {
 							logger.error("5xx eror");
 							return Mono.error(new RuntimeException("5xx"));
 						}).bodyToMono(new ParameterizedTypeReference<String>() {
@@ -561,7 +560,7 @@ public abstract class LcmBaseExecutor {
 			try {
 				Thread.sleep(3000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
+				 
 				e.printStackTrace();
 			}
 		}
@@ -580,10 +579,10 @@ public abstract class LcmBaseExecutor {
 
 			try {
 				aresponse = webclient.patch().uri(eurl).headers(httpHeaders).bodyValue(apayload).retrieve()
-						.onStatus(HttpStatus::is4xxClientError, response -> {
+						.onStatus(HttpStatusCode::is4xxClientError, response -> {
 							logger.error("4xx eror");
 							return Mono.error(new RuntimeException("4xx"));
-						}).onStatus(HttpStatus::is5xxServerError, response -> {
+						}).onStatus(HttpStatusCode::is5xxServerError, response -> {
 							logger.error("5xx eror");
 							return Mono.error(new RuntimeException("5xx"));
 						}).bodyToMono(new ParameterizedTypeReference<String>() {
@@ -605,7 +604,7 @@ public abstract class LcmBaseExecutor {
 			try {
 				Thread.sleep(3000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
+				 
 				e.printStackTrace();
 			}
 		}
@@ -624,10 +623,10 @@ public abstract class LcmBaseExecutor {
 
 			try {
 				aresponse = webclient.delete().uri(eurl).headers(httpHeaders).retrieve()
-						.onStatus(HttpStatus::is4xxClientError, response -> {
+						.onStatus( HttpStatusCode::is4xxClientError, response -> {
 							logger.error("4xx eror");
 							return Mono.error(new RuntimeException("4xx"));
-						}).onStatus(HttpStatus::is5xxServerError, response -> {
+						}).onStatus( HttpStatusCode::is5xxServerError, response -> {
 							logger.error("5xx eror");
 							return Mono.error(new RuntimeException("5xx"));
 						}).bodyToMono(new ParameterizedTypeReference<String>() {
@@ -649,7 +648,7 @@ public abstract class LcmBaseExecutor {
 			try {
 				Thread.sleep(3000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
+				 
 				e.printStackTrace();
 			}
 		}

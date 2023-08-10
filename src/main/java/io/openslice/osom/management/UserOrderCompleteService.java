@@ -19,7 +19,6 @@
  */
 package io.openslice.osom.management;
 
-import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -28,10 +27,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import io.openslice.tmf.common.model.service.Note;
 import io.openslice.tmf.common.model.service.ServiceStateType;
 import io.openslice.tmf.sim638.model.Service;
-import io.openslice.tmf.sim638.model.ServiceUpdate;
 
 
 @Component(value = "userOrderCompleteService") //bean name

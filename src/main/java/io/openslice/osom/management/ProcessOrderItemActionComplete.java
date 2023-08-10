@@ -9,9 +9,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import io.openslice.osom.lcm.LCMRulesController;
-import io.openslice.tmf.so641.model.ServiceOrder;
-import io.openslice.tmf.so641.model.ServiceOrderActionType;
-import io.openslice.tmf.so641.model.ServiceOrderItem;
 
 @Component(value = "processOrderItemActionComplete") // bean name
 public class ProcessOrderItemActionComplete implements JavaDelegate {

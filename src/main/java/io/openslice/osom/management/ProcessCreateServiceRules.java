@@ -2,7 +2,6 @@ package io.openslice.osom.management;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Component;
 
 import io.openslice.osom.lcm.LCMRulesController;
 import io.openslice.osom.lcm.LCMRulesExecutorVariables;
-import io.openslice.tmf.common.model.service.Note;
 import io.openslice.tmf.common.model.service.ServiceRef;
 import io.openslice.tmf.common.model.service.ServiceStateType;
 import io.openslice.tmf.lcm.model.ELCMRulePhase;

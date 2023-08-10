@@ -1,11 +1,3 @@
-
-# For Spring Actuator /info endpoint
-info:
-    artifact: osom-service
-    name: osom-service
-    description: Spring osom-service
-    version: 1.0.0
-
 server:
   port: 13100
     

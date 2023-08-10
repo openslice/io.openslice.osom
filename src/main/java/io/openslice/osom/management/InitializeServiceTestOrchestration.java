@@ -8,10 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import io.openslice.tmf.sim638.model.Service;
-import io.openslice.tmf.sim638.model.ServiceUpdate;
-import io.openslice.tmf.so641.model.ServiceOrder;
-
 @Component(value = "initializeServiceTestOrchestration") //bean name
 public class InitializeServiceTestOrchestration  implements JavaDelegate {
 

@@ -1,11 +1,7 @@
 package io.openslice.osom.management;
 
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.validation.Valid;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -15,15 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import io.openslice.model.DeploymentDescriptorVxFInstanceInfo;
 import io.openslice.tmf.common.model.Any;
 import io.openslice.tmf.common.model.EValueType;
 import io.openslice.tmf.common.model.service.Characteristic;
-import io.openslice.tmf.common.model.service.Note;
 import io.openslice.tmf.common.model.service.ServiceRef;
 import io.openslice.tmf.common.model.service.ServiceStateType;
 import io.openslice.tmf.scm633.model.ServiceSpecCharacteristic;
-import io.openslice.tmf.scm633.model.ServiceSpecCharacteristicValue;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
 import io.openslice.tmf.sim638.model.Service;
 import io.openslice.tmf.sim638.model.ServiceUpdate;
@@ -34,7 +27,7 @@ import io.openslice.tmf.stm653.model.ServiceTest;
 import io.openslice.tmf.stm653.model.ServiceTestCreate;
 import io.openslice.tmf.stm653.model.ServiceTestSpecification;
 import io.openslice.tmf.stm653.model.ServiceTestSpecificationRef;
-import io.openslice.tmf.stm653.model.ServiceTestUpdate;
+import jakarta.validation.Valid;
 
 @Component(value = "checkServiceTestDeployment") //bean name
 public class CheckServiceTestDeployment  implements JavaDelegate {

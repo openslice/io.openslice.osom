@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import io.openslice.osom.management.ServiceOrderManager;
-import io.openslice.tmf.lcm.model.LCMRuleSpecification;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
 import io.openslice.tmf.sim638.model.Service;
 import io.openslice.tmf.sim638.model.ServiceCreate;

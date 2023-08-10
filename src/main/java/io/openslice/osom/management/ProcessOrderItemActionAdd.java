@@ -11,9 +11,7 @@ import org.springframework.stereotype.Component;
 import io.openslice.osom.lcm.LCMRulesController;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
 import io.openslice.tmf.so641.model.ServiceOrder;
-import io.openslice.tmf.so641.model.ServiceOrderActionType;
 import io.openslice.tmf.so641.model.ServiceOrderItem;
-import io.openslice.tmf.so641.model.ServiceRestriction;
 
 @Component(value = "processOrderItemActionAdd") // bean name
 public class ProcessOrderItemActionAdd implements JavaDelegate {
