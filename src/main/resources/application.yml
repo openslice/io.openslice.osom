@@ -24,8 +24,8 @@ spring:
           useUnicode: true
   activemq:
     brokerUrl: tcp://localhost:61616
-    user: admin
-    password: admin
+    user: artemis
+    password: artemis
     pool:
       enabled: true
       max-connections: 100

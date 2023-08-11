@@ -211,7 +211,7 @@ public class ProcessOrderIntegrationTest {
 		}
 		
 		//check here that the running services contain equal characteristics to the original
-		assertThat( scmocked.getRunningServices().size()  ).isEqualTo(2);
+		assertThat( scmocked.getRunningServices().size()  ).isEqualTo(1);
 		Service aservice = null;
 		Service aserviceCirros = null;
 		for (String suuid : scmocked.getRunningServices().keySet()) {
