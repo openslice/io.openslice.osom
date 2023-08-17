@@ -23,7 +23,7 @@ spring:
           CharSet: utf-8
           useUnicode: true
   activemq:
-    brokerUrl: tcp://localhost:61616
+    brokerUrl: tcp://localhost:61616?jms.watchTopicAdvisories=false
     user: artemis
     password: artemis
     pool:
