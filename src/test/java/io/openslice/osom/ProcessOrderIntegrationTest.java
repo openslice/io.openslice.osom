@@ -206,12 +206,13 @@ public class ProcessOrderIntegrationTest {
 			logger.info(" task.name " + task.getName());
 		}
 		
-		if (scmocked.getRunningServices().size() == 0) {
-			Thread.sleep(3000); // wait a little more :-)			
+		if (scmocked.getRunningServices().size() <2) {
+			Thread.sleep(5000); // wait a little more :-)			
 		}
 		
+		
 		//check here that the running services contain equal characteristics to the original
-		assertThat( scmocked.getRunningServices().size()  ).isEqualTo(1);
+		assertThat( scmocked.getRunningServices().size()  ).isEqualTo(2);
 		Service aservice = null;
 		Service aserviceCirros = null;
 		for (String suuid : scmocked.getRunningServices().keySet()) {
