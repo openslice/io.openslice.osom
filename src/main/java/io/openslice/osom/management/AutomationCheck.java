@@ -79,16 +79,18 @@ public class AutomationCheck implements JavaDelegate {
 		execution.setVariable("brokeActivity", "MANUALLY" ); 
 		
 		if ( contextService.getStartMode().equals( EServiceStartMode.AUTOMATICALLY_MANAGED.getValue() ) ) {
-			if ( spec.getType().equals("ResourceFacingServiceSpecification") &&  ( spec.findSpecCharacteristicByName( "OSM_NSDCATALOGID" ) != null ) ) {
-				execution.setVariable("brokeActivity", "RFS" ); 		
-				
-			} else if (fromPartnerOrganization(spec) != null ) {
+			
+			execution.setVariable("brokeActivity", "AUTO" ); 	//the default action
+			
+			 if (fromPartnerOrganization(spec) != null ) {
 				execution.setVariable("brokeActivity", "PARTNER" );	
 			} else if (  ( spec.findSpecCharacteristicByName( "testSpecRef" ) != null ) ) {
 				execution.setVariable("brokeActivity", "TESTSPEC" );
-			} else {
-				execution.setVariable("brokeActivity", "AUTO" ); 				
-			}			
+			} else if ( spec.getType().equals("ResourceFacingServiceSpecification") &&  ( spec.findSpecCharacteristicByName( "OSM_NSDCATALOGID" ) != null ) ) {
+				execution.setVariable("brokeActivity", "RFS_OSM" ); 						
+			}  else if ( spec.getType().equals("ResourceFacingServiceSpecification") &&  ( spec.findSpecCharacteristicByName( "_CR_SPEC" ) != null ) ) {
+				execution.setVariable("brokeActivity", "RFS_CRSPEC" ); 						
+			} 		
 		}
 
 

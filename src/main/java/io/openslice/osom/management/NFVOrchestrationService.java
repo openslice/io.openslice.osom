@@ -77,8 +77,6 @@ public class NFVOrchestrationService implements JavaDelegate {
 		noteItem.setText("");
 		
 		if (execution.getVariable("contextServiceId") instanceof String) {
-
-			//if we get here somethign is wrong so we need to terminate the service.
 			
 			
 			ServiceOrder sorder = serviceOrderManager.retrieveServiceOrder( execution.getVariable("orderid").toString() );

@@ -46,6 +46,11 @@ import io.openslice.model.NetworkServiceDescriptor;
 import io.openslice.model.ScaleDescriptor;
 import io.openslice.osom.serviceactions.NSActionRequestPayload;
 import io.openslice.tmf.pm632.model.Organization;
+import io.openslice.tmf.rcm634.model.ResourceSpecification;
+import io.openslice.tmf.ri639.model.LogicalResource;
+import io.openslice.tmf.ri639.model.PhysicalResource;
+import io.openslice.tmf.ri639.model.Resource;
+import io.openslice.tmf.ri639.model.ResourceCreate;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
 import io.openslice.tmf.sim638.model.ServiceActionQueueItem;
 import io.openslice.tmf.sim638.model.ServiceCreate;
@@ -58,6 +63,7 @@ import io.openslice.tmf.stm653.model.ServiceTest;
 import io.openslice.tmf.stm653.model.ServiceTestCreate;
 import io.openslice.tmf.stm653.model.ServiceTestSpecification;
 import io.openslice.tmf.stm653.model.ServiceTestUpdate;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * @author ctranoris
@@ -162,11 +168,25 @@ public class ServiceOrderManager {
 	
 	@Value("${CATALOG_ADD_SERVICETEST}")
 	private String CATALOG_ADD_SERVICETEST = "";
+	
 	@Value("${CATALOG_UPD_SERVICETEST}")
 	private String CATALOG_UPD_SERVICETEST = "";
+	
 	@Value("${CATALOG_GET_SERVICETEST_BY_ID}")
 	private String CATALOG_GET_SERVICETEST_BY_ID = "";	
 	
+	
+
+	@Value("${CRD_DEPLOY_CR_REQ}")
+	private String CRD_DEPLOY_CR_REQ = "";
+
+    @Value("${CATALOG_ADD_RESOURCE}")
+    private String CATALOG_ADD_RESOURCE = "";
+
+    @Value("${CATALOG_GET_RESOURCE_BY_ID}")
+    private String CATALOG_GET_RESOURCE_BY_ID = "";
+    
+    
 	
 	@Transactional
 	public void processOrder(ServiceOrder serviceOrder) {
@@ -918,6 +938,84 @@ public class ServiceOrderManager {
 		}
 		return null;
 	}
+	
+	/**
+	 * @param rFS_CRSPEC 
+	 * @param serviceId 
+	 * 
+	 */
+	public String cridgeDeploymentRequest(Map<String, Object> map, String CR_SPEC) {
+		
+
+		try {
+            
+			Object response = template.requestBodyAndHeaders( CRD_DEPLOY_CR_REQ, CR_SPEC , map );
+
+			if ( !(response instanceof String)) {
+				logger.error("cridgeDeploymentRequest response object is wrong.");
+				return null;
+			}
+			logger.debug("cridgeDeploymentRequest response is: " + response);
+			return (String) response;
+			
+		}catch (Exception e) {
+			logger.error("Cannot retrieve cridgeDeploymentRequestresponse. " + e.toString());
+			e.printStackTrace();
+		}
+		return null;
+		
+	}
+
+  public Resource createResource(ResourceCreate s, ServiceOrder sor, String resourceSpecid) {
+
+    
+    logger.info("will create Resource for spec: " + resourceSpecid );
+    try {
+        Map<String, Object> map = new HashMap<>();
+        map.put("orderid", sor.getId() );
+        map.put("resourceSpecid", resourceSpecid );
+        Object response = template.requestBodyAndHeaders( CATALOG_ADD_RESOURCE, toJsonString(s), map);
+
+        if ( !(response instanceof String)) {
+            logger.error("Resource Instance object is wrong.");
+        }
+
+        //logger.debug("createResource response is: " + response);
+        try {
+          LogicalResource resourceInstance = toJsonObj( (String)response, LogicalResource.class); 
+          return resourceInstance;          
+        }catch (Exception e) {
+          PhysicalResource resourceInstance = toJsonObj( (String)response, PhysicalResource.class); 
+          return resourceInstance;      
+        }
+        
+        
+    }catch (Exception e) {
+        logger.error("Cannot create Resource for spec " + resourceSpecid + ": " + e.toString());
+    }
+    return null;
+  }
+
+  public Resource retrieveResource(@NotNull String resourceID) {
+    logger.info("will retrieve Resource instance from catalog resourceID=" + resourceID   );
+    try {
+        Object response = template.
+                requestBody( CATALOG_GET_RESOURCE_BY_ID, resourceID);
+
+        if ( !(response instanceof String)) {
+            logger.error("resource object is wrong.");
+            return null;
+        }
+        LogicalResource rInstance = toJsonObj( (String)response, LogicalResource.class);
+        
+        return rInstance;
+        
+    }catch (Exception e) {
+        logger.error("Cannot retrieve LogicalResource details from catalog. " + e.toString());
+    }
+    return null;
+    
+  }
 
 
 

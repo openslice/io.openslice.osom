@@ -137,9 +137,6 @@ public class NFVOrchestrationCheckDeploymentService implements JavaDelegate {
 			}
 			
 			
-			
-			
-			
 		} else {
 			logger.error("Service has no characteristics!" );
 			

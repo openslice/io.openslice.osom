@@ -250,8 +250,8 @@ public class CreateReservedService implements JavaDelegate {
 		}
 
 		serviceToCreate.setName( servicename );
-		serviceToCreate.setCategory(spec.getType());
-		serviceToCreate.setType(spec.getType());
+		serviceToCreate.setCategory(spec.getType().replace("Specification", "") );
+		serviceToCreate.setType(spec.getType().replace("Specification", ""));
 		serviceToCreate.setServiceDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
 		serviceToCreate.setStartDate( OffsetDateTime.now(ZoneOffset.UTC).toString()  );
 		serviceToCreate.setEndDate( sor.getExpectedCompletionDate()  );
