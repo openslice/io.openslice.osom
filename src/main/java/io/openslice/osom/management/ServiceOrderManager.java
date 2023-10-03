@@ -177,8 +177,14 @@ public class ServiceOrderManager {
 	
 	
 
-	@Value("${CRD_DEPLOY_CR_REQ}")
-	private String CRD_DEPLOY_CR_REQ = "";
+    @Value("${CRD_DEPLOY_CR_REQ}")
+    private String CRD_DEPLOY_CR_REQ = "";
+    
+    @Value("${CRD_PATCH_CR_REQ}")
+    private String CRD_PATCH_CR_REQ = "";
+    
+    @Value("${CRD_DELETE_CR_REQ}")
+    private String CRD_DELETE_CR_REQ = "";
 
     @Value("${CATALOG_ADD_RESOURCE}")
     private String CATALOG_ADD_RESOURCE = "";
@@ -939,32 +945,6 @@ public class ServiceOrderManager {
 		return null;
 	}
 	
-	/**
-	 * @param rFS_CRSPEC 
-	 * @param serviceId 
-	 * 
-	 */
-	public String cridgeDeploymentRequest(Map<String, Object> map, String CR_SPEC) {
-		
-
-		try {
-            
-			Object response = template.requestBodyAndHeaders( CRD_DEPLOY_CR_REQ, CR_SPEC , map );
-
-			if ( !(response instanceof String)) {
-				logger.error("cridgeDeploymentRequest response object is wrong.");
-				return null;
-			}
-			logger.debug("cridgeDeploymentRequest response is: " + response);
-			return (String) response;
-			
-		}catch (Exception e) {
-			logger.error("Cannot retrieve cridgeDeploymentRequestresponse. " + e.toString());
-			e.printStackTrace();
-		}
-		return null;
-		
-	}
 
   public Resource createResource(ResourceCreate s, ServiceOrder sor, String resourceSpecid) {
 
@@ -1014,6 +994,61 @@ public class ServiceOrderManager {
         logger.error("Cannot retrieve LogicalResource details from catalog. " + e.toString());
     }
     return null;
+    
+  }
+  
+  /**
+   * @param rFS_CRSPEC 
+   * @param serviceId 
+   * 
+   */
+  public String cridgeDeploymentRequest(Map<String, Object> map, String CR_SPEC) {
+      
+
+      try {
+          
+          Object response = template.requestBodyAndHeaders( CRD_DEPLOY_CR_REQ, CR_SPEC , map );
+
+          if ( !(response instanceof String)) {
+              logger.error("cridgeDeploymentRequest response object is wrong.");
+              return null;
+          }
+          logger.debug("cridgeDeploymentRequest response is: " + response);
+          return (String) response;
+          
+      }catch (Exception e) {
+          logger.error("Cannot retrieve cridgeDeploymentRequestresponse. " + e.toString());
+          e.printStackTrace();
+      }
+      return null;
+      
+  }
+
+  
+
+  /**
+   * @param map
+   * @param crspec
+   */
+  public String cridgeDeletionRequest(Map<String, Object> map, String CR_SPEC) {
+
+    try {
+        
+        Object response = template.requestBodyAndHeaders( CRD_DELETE_CR_REQ, CR_SPEC , map );
+
+        if ( !(response instanceof String)) {
+            logger.error("cridgeDeletionRequest response object is wrong.");
+            return null;
+        }
+        logger.debug("cridgeDeletionRequest response is: " + response);
+        return (String) response;
+        
+    }catch (Exception e) {
+        logger.error("Cannot retrieve cridgeDeletionRequest. " + e.toString());
+        e.printStackTrace();
+    }
+    return null;
+    
     
   }
 

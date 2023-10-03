@@ -113,7 +113,7 @@ public class CROrchestrationService implements JavaDelegate {
         su.addSupportingResourceItem( rr );
 
         if (crspec != null) {
-          createNewDeploymentRequest(aService, resourceCR, sorder.getStartDate(),
+          createNewDeploymentRequest(aService, resourceCR, sorder.getId(), sorder.getStartDate(),
               sorder.getExpectedCompletionDate(), sorder.getId(), crspec);
         }
 
@@ -182,7 +182,7 @@ public class CROrchestrationService implements JavaDelegate {
   }
 
 
-  private String createNewDeploymentRequest(Service aService, Resource resourceCR, 
+  private String createNewDeploymentRequest(Service aService, Resource resourceCR, String orderId,
       OffsetDateTime startDate,
       OffsetDateTime endDate, String orderid, String _CR_SPEC) {
 
@@ -190,6 +190,7 @@ public class CROrchestrationService implements JavaDelegate {
       Map<String, Object> map = new HashMap<>();
       map.put("org.etsi.osl.serviceId", aService.getId() );
       map.put("org.etsi.osl.resourceId", resourceCR.getId() );
+      map.put("org.etsi.osl.serviceOrderId", orderId );
       map.put("org.etsi.osl.statusCheckFieldName",  getServiceCharacteristic(aService, "_CR_CHECK_FIELD")    );
       map.put("org.etsi.osl.statusCheckValueStandby", getServiceCharacteristic(aService, "_CR_CHECKVAL_STANDBY")  );
       map.put("org.etsi.osl.statusCheckValueAlarm", getServiceCharacteristic(aService, "_CR_CHECKVAL_ALARM")  );

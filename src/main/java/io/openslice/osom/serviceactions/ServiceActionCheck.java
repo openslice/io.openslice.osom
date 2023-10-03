@@ -109,12 +109,15 @@ public class ServiceActionCheck implements JavaDelegate {
 						execution.setVariable("organizationId",  rpOrg.getId() );					
 							
 					}
-				}else if ( aService.getCategory().equals( "ResourceFacingServiceSpecification") ) {
+				}else if ( aService.getCategory().equals( "ResourceFacingService") ) {
 					
 					if (aService.getServiceCharacteristicByName( "NSDID" ) != null  &&  item.getAction().equals( ServiceActionQueueAction.EVALUATE_CHARACTERISTIC_CHANGED_MANODAY2  ) ){						
 						execution.setVariable("saction", "NFVODAY2config");
 						 
-					} else {
+					} else if (aService.getServiceCharacteristicByName("_CR_SPEC") != null) {
+					  execution.setVariable("saction", "CRPatch");
+					}
+					else {
 						execution.setVariable("saction", "AutomaticallyHandleAction");
 					}					
 					
@@ -123,10 +126,10 @@ public class ServiceActionCheck implements JavaDelegate {
 				
 			}  else if ( !item.getAction().equals( ServiceActionQueueAction.NONE   ) ) {
 					
-					 if ( aService.getCategory().equals( "CustomerFacingServiceSpecification") ) {
+					 if ( aService.getCategory().equals( "CustomerFacingService") ) {
 						execution.setVariable("saction", "AutomaticallyHandleAction");
 												
-					} else if ( aService.getCategory().equals( "ResourceFacingServiceSpecification") ) {
+					} else if ( aService.getCategory().equals( "ResourceFacingService") ) {
 						
 						if (aService.getServiceCharacteristicByName( "NSDID" ) != null ){
 							if ( item.getAction().equals( ServiceActionQueueAction.DEACTIVATE ) || item.getAction().equals( ServiceActionQueueAction.TERMINATE ) ) {
@@ -136,7 +139,17 @@ public class ServiceActionCheck implements JavaDelegate {
 							}  else {
 								execution.setVariable("saction", "HandleManuallyAction");
 							} 
-						} else {
+                          } else if (aService.getServiceCharacteristicByName("_CR_SPEC") != null) {
+                            if (item.getAction().equals(ServiceActionQueueAction.DEACTIVATE) || item.getAction().equals(ServiceActionQueueAction.TERMINATE)) {
+                              execution.setVariable("saction", "CRTerminate");
+                            } else if (item.getAction().equals(ServiceActionQueueAction.MODIFY) ) {
+                              execution.setVariable("saction", "CRPatch");
+                            } else {
+                              execution.setVariable("saction", "AutomaticallyHandleAction");
+                            }
+						  
+						}
+						else {
 							execution.setVariable("saction", "AutomaticallyHandleAction");
 						}					
 						
