@@ -191,6 +191,7 @@ public class CROrchestrationService implements JavaDelegate {
       map.put("org.etsi.osl.serviceId", aService.getId() );
       map.put("org.etsi.osl.resourceId", resourceCR.getId() );
       map.put("org.etsi.osl.serviceOrderId", orderId );
+      map.put("org.etsi.osl.namespace", orderId );
       map.put("org.etsi.osl.statusCheckFieldName",  getServiceCharacteristic(aService, "_CR_CHECK_FIELD")    );
       map.put("org.etsi.osl.statusCheckValueStandby", getServiceCharacteristic(aService, "_CR_CHECKVAL_STANDBY")  );
       map.put("org.etsi.osl.statusCheckValueAlarm", getServiceCharacteristic(aService, "_CR_CHECKVAL_ALARM")  );

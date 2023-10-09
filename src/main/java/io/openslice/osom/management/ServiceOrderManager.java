@@ -31,6 +31,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.camel.ProducerTemplate;
+import org.apache.camel.model.dataformat.JsonLibrary;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.flowable.engine.RuntimeService;
@@ -1006,8 +1007,13 @@ public class ServiceOrderManager {
       
 
       try {
+        
+        
+
+        //Object response = template.requestBodyAndHeaders( CRD_DEPLOY_CR_REQ, CR_SPEC , map );
+        //see OSOMRouteBuilder.class
+        Object response = template.requestBodyAndHeaders( "direct:retriesCRD_DEPLOY_CR_REQ", CR_SPEC , map );
           
-          Object response = template.requestBodyAndHeaders( CRD_DEPLOY_CR_REQ, CR_SPEC , map );
 
           if ( !(response instanceof String)) {
               logger.error("cridgeDeploymentRequest response object is wrong.");
