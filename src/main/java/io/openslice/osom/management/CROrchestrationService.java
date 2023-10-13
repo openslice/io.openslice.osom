@@ -112,20 +112,28 @@ public class CROrchestrationService implements JavaDelegate {
         rr.setType( resourceCR.getType());
         su.addSupportingResourceItem( rr );
 
+        String response = null;
         if (crspec != null) {
-          createNewDeploymentRequest(aService, resourceCR, sorder.getId(), sorder.getStartDate(),
+          response = createNewDeploymentRequest(aService, resourceCR, sorder.getId(), sorder.getStartDate(),
               sorder.getExpectedCompletionDate(), sorder.getId(), crspec);
         }
-
-        su.setState(ServiceStateType.RESERVED);
-        Note successNoteItem = new Note();
-        successNoteItem.setText(String.format("Requesting CRIDGE to deploy crspec"));
-        successNoteItem.setDate(OffsetDateTime.now(ZoneOffset.UTC).toString());
-        successNoteItem.setAuthor(compname);
-        su.addNoteItem(successNoteItem);
+        
+        if ( response!=null && response.equals("OK")) {
+          su.setState(ServiceStateType.RESERVED);
+          Note successNoteItem = new Note();
+          successNoteItem.setText(String.format("Requesting CRIDGE to deploy crspec"));
+          successNoteItem.setDate(OffsetDateTime.now(ZoneOffset.UTC).toString());
+          successNoteItem.setAuthor(compname);
+          su.addNoteItem(successNoteItem);
+        } else {
+          su.setState(ServiceStateType.TERMINATED);
+          Note errNoteItem = new Note();
+          errNoteItem.setText(String.format("Requesting CRIDGE to deploy crspec failed with message: " + response));
+          errNoteItem.setDate(OffsetDateTime.now(ZoneOffset.UTC).toString());
+          errNoteItem.setAuthor(compname);
+          su.addNoteItem(errNoteItem);
+        }
         Service supd = serviceOrderManager.updateService(aService.getId(), su, false);
-        
-        
         
         return;
 
@@ -190,6 +198,7 @@ public class CROrchestrationService implements JavaDelegate {
       Map<String, Object> map = new HashMap<>();
       map.put("org.etsi.osl.serviceId", aService.getId() );
       map.put("org.etsi.osl.resourceId", resourceCR.getId() );
+      map.put("org.etsi.osl.prefixName", "cr" + resourceCR.getId().substring(0, 8) );
       map.put("org.etsi.osl.serviceOrderId", orderId );
       map.put("org.etsi.osl.namespace", orderId );
       map.put("org.etsi.osl.statusCheckFieldName",  getServiceCharacteristic(aService, "_CR_CHECK_FIELD")    );
@@ -200,7 +209,9 @@ public class CROrchestrationService implements JavaDelegate {
       map.put("org.etsi.osl.statusCheckValueUnknown", getServiceCharacteristic(aService, "_CR_CHECKVAL_UNKNOWN")  );
       map.put("org.etsi.osl.statusCheckValueSuspended", getServiceCharacteristic(aService, "_CR_CHECKVAL_SUSPENDED")  );
       
-      serviceOrderManager.cridgeDeploymentRequest( map, _CR_SPEC);
+      String response  = serviceOrderManager.cridgeDeploymentRequest( map, _CR_SPEC);
+      return response;
+      
     } catch (Exception e) {
       logger.error("cridgeDeploymentRequest failed");
       e.printStackTrace();

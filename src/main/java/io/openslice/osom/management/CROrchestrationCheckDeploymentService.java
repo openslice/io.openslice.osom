@@ -37,6 +37,7 @@ import io.openslice.tmf.ri639.model.Resource;
 import io.openslice.tmf.ri639.model.ResourceStatusType;
 import io.openslice.tmf.sim638.model.Service;
 import io.openslice.tmf.sim638.model.ServiceUpdate;
+import jakarta.validation.Valid;
 
 
 @Component(value = "crOrchestrationCheckDeploymentService") //bean name
@@ -76,54 +77,85 @@ public class CROrchestrationCheckDeploymentService implements JavaDelegate {
 		boolean propagateToSO = false;
 
 		//retrieve the related supporting resource by id and check its status
-		ResourceRef supresourceRef = aService.getSupportingResource().stream().findFirst().get();//we assume for now we have only one related resource
-		Resource res = serviceOrderManager.retrieveResource( supresourceRef.getId() );
-		if ( res == null ) {
-		  supd.setState( ServiceStateType.TERMINATED);
-          execution.setVariable("serviceDeploymentFinished", Boolean.TRUE);
-          Service serviceResult = serviceOrderManager.updateService( aService.getId(), supd, propagateToSO );
-          return;
-		}
-		if ( res.getResourceStatus() != null ) {
-		  switch (res.getResourceStatus()) {
-		    case AVAILABLE: {
-		      supd.setState( ServiceStateType.ACTIVE);
-		      break;
-		    }
-		    case STANDBY: {
-		      supd.setState( ServiceStateType.RESERVED);
-		      break;
-		    }
-		    case SUSPENDED: {
-		      supd.setState( ServiceStateType.INACTIVE);
-		      break;
-		    }
-		    case RESERVED: {
-		      supd.setState( ServiceStateType.RESERVED);
-		      break;
-		    }
-		    case UNKNOWN: {
-		      if (aService.getState().equals( ServiceStateType.ACTIVE  )) {
-		        supd.setState( ServiceStateType.TERMINATED);              
-		      }
-		      break;
-		    }
-		    case ALARM: {
-		      supd.setState( ServiceStateType.INACTIVE);
-		      break;
-		    }
-		    default:
-		      throw new IllegalArgumentException("Unexpected value: " + res.getResourceStatus());
-		  } 
-		}
+		//ResourceRef supresourceRef = aService.getSupportingResource().stream().findFirst().get();//we assume for now we have only one related resource
 
+        @Valid
+        ServiceStateType nextState = aService.getState() ;
+        boolean allActive = aService.getSupportingResource().size() > 0 ;
+        boolean allTerminated = aService.getSupportingResource().size() > 0 ;
+        boolean existsInactive=false;
+        boolean existsTerminated=false;
+        boolean existsReserved=false;
+		for ( ResourceRef supresourceRef : aService.getSupportingResource()) {
+	        Resource res = serviceOrderManager.retrieveResource( supresourceRef.getId() );
+	        if ( res == null ) {
+	          supd.setState( ServiceStateType.TERMINATED);
+	          execution.setVariable("serviceDeploymentFinished", Boolean.TRUE);
+	          Service serviceResult = serviceOrderManager.updateService( aService.getId(), supd, propagateToSO );
+	          return;
+	        }
+
+
+	        
+	        if ( res.getResourceStatus() != null ) {
+	          switch (res.getResourceStatus()) {
+	            case AVAILABLE: {
+	              nextState = ServiceStateType.ACTIVE;
+	              break;
+	            }
+	            case STANDBY: {
+	              nextState = ServiceStateType.RESERVED;
+	              break;
+	            }
+	            case SUSPENDED: {
+	              nextState = ServiceStateType.INACTIVE;
+	              break;
+	            }
+	            case RESERVED: {
+	              nextState = ServiceStateType.RESERVED;
+	              break;
+	            }
+	            case UNKNOWN: {
+	              if (aService.getState().equals( ServiceStateType.ACTIVE  )) {
+	                nextState = ServiceStateType.TERMINATED;              
+	              }
+	              break;
+	            }
+	            case ALARM: {
+	              nextState = ServiceStateType.INACTIVE;
+	              break;
+	            }
+	            default:
+	              throw new IllegalArgumentException("Unexpected value: " + res.getResourceStatus());
+	          } 
+	        }
+
+            allActive = allActive && nextState == ServiceStateType.ACTIVE;
+            allTerminated = allTerminated && nextState == ServiceStateType.TERMINATED;
+            existsInactive = existsInactive || nextState == ServiceStateType.INACTIVE;
+            existsTerminated = existsTerminated || nextState == ServiceStateType.TERMINATED;
+            existsReserved = existsReserved || nextState == ServiceStateType.RESERVED;
+            
+		  
+        }
 		
+		
+		if ( allActive ) {
+		  supd.setState( ServiceStateType.ACTIVE ); 
+		} else if ( allTerminated ) {
+          supd.setState( ServiceStateType.TERMINATED ); 
+        } else if ( existsInactive ) {
+          supd.setState( ServiceStateType.INACTIVE ); 
+        } else if ( existsReserved ) {
+          supd.setState( ServiceStateType.RESERVED ); 
+        } else if ( existsTerminated ) {
+          supd.setState( ServiceStateType.INACTIVE ); 
+        }
 		
 		Service serviceResult = serviceOrderManager.updateService( aService.getId(), supd, propagateToSO );
 		
 		if ( serviceResult!= null ) {
 			if ( serviceResult.getState().equals(ServiceStateType.ACTIVE)
-					||serviceResult.getState().equals(ServiceStateType.INACTIVE)
 					|| serviceResult.getState().equals(ServiceStateType.TERMINATED)) {
 
 				logger.info("Deployment Status OK. Service state = " + serviceResult.getState() );
