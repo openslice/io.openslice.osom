@@ -72,6 +72,8 @@ public class CRTerminateTask  implements JavaDelegate {
               try {
                 for (ResourceRef resRef : aService.getSupportingResource()) {
                   Map<String, Object> map = new HashMap<>();
+                  map.put("currentContextCluster",getServiceCharacteristic(aService, "currentContextCluster")    );
+                  map.put("clusterMasterURL",getServiceCharacteristic(aService, "clusterMasterURL")    );
                   map.put("org.etsi.osl.serviceId", aService.getId() );
                   map.put("org.etsi.osl.resourceId", resRef.getId() );
                   map.put("org.etsi.osl.serviceOrderId", aService.getServiceOrder().stream().findFirst().get().getId() );

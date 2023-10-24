@@ -196,6 +196,8 @@ public class CROrchestrationService implements JavaDelegate {
 
     try {
       Map<String, Object> map = new HashMap<>();
+      map.put("currentContextCluster",getServiceCharacteristic(aService, "currentContextCluster")    );
+      map.put("clusterMasterURL",getServiceCharacteristic(aService, "clusterMasterURL")    );
       map.put("org.etsi.osl.serviceId", aService.getId() );
       map.put("org.etsi.osl.resourceId", resourceCR.getId() );
       map.put("org.etsi.osl.prefixName", "cr" + resourceCR.getId().substring(0, 8) );
@@ -210,6 +212,15 @@ public class CROrchestrationService implements JavaDelegate {
       map.put("org.etsi.osl.statusCheckValueSuspended", getServiceCharacteristic(aService, "_CR_CHECKVAL_SUSPENDED")  );
       
       String response  = serviceOrderManager.cridgeDeploymentRequest( map, _CR_SPEC);
+      int retries = 0;
+      while ( response.equals("SEE OTHER")) {
+        response  = serviceOrderManager.cridgeDeploymentRequest( map, _CR_SPEC);
+        Thread.sleep(1000);
+        retries++;
+        if (retries>100) { //will support maximum 100 registered CRIDGE in queue
+          break;
+        }
+      }
       return response;
       
     } catch (Exception e) {
