@@ -27,6 +27,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.apache.camel.ProducerTemplate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,13 +41,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.openslice.model.DeploymentDescriptor;
 import io.openslice.model.NetworkServiceDescriptor;
 import io.openslice.model.ScaleDescriptor;
-import io.openslice.osom.configuration.OSOMRouteBuilder;
 import io.openslice.osom.serviceactions.NSActionRequestPayload;
 import io.openslice.tmf.pm632.model.Organization;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
@@ -55,8 +54,10 @@ import io.openslice.tmf.so641.model.ServiceOrder;
 import io.openslice.tmf.so641.model.ServiceOrderCreate;
 import io.openslice.tmf.so641.model.ServiceOrderStateType;
 import io.openslice.tmf.so641.model.ServiceOrderUpdate;
-
-import static java.util.Arrays.asList;
+import io.openslice.tmf.stm653.model.ServiceTest;
+import io.openslice.tmf.stm653.model.ServiceTestCreate;
+import io.openslice.tmf.stm653.model.ServiceTestSpecification;
+import io.openslice.tmf.stm653.model.ServiceTestUpdate;
 
 /**
  * @author ctranoris
@@ -154,9 +155,17 @@ public class ServiceOrderManager {
 
 	@Value("${NFV_CATALOG_NSACTIONS_SCALE}")
 	private String NFV_CATALOG_NSACTIONS_SCALE = "";
+
+
+	@Value("${CATALOG_GET_SERVICETESTSPEC_BY_ID}")
+	private String CATALOG_GET_SERVICETESTSPEC_BY_ID = "";
 	
-	
-	
+	@Value("${CATALOG_ADD_SERVICETEST}")
+	private String CATALOG_ADD_SERVICETEST = "";
+	@Value("${CATALOG_UPD_SERVICETEST}")
+	private String CATALOG_UPD_SERVICETEST = "";
+	@Value("${CATALOG_GET_SERVICETEST_BY_ID}")
+	private String CATALOG_GET_SERVICETEST_BY_ID = "";	
 	
 	
 	@Transactional
@@ -802,6 +811,114 @@ public class ServiceOrderManager {
 		}
 		return null;
 	}
+	
+	
+	/**
+	 * get  service Test spec by id from model via bus
+	 * @param id
+	 * @return
+	 * @throws IOException
+	 */
+	public ServiceTestSpecification retrieveServiceTestSpec(String specid) {
+		logger.info("will retrieve Service Test Specification from catalog orderid=" + specid   );
+		
+		try {
+			Object response = template.
+					requestBody( CATALOG_GET_SERVICETESTSPEC_BY_ID, specid);
+
+			if ( !(response instanceof String)) {
+				logger.error("Service Test Specification object is wrong.");
+				return null;
+			}
+			ServiceTestSpecification sor = toJsonObj( (String)response, ServiceTestSpecification.class); 
+			//logger.debug("retrieveSpec response is: " + response);
+			return sor;
+			
+		}catch (Exception e) {
+			logger.error("Cannot retrieve Service Test Specification details from catalog. " + e.toString());
+		}
+		return null;
+	}
+
+	public ServiceTest createServiceTest( ServiceTestCreate s, ServiceOrder sor, ServiceTestSpecification spec) {
+		logger.info("will create Service Test for spec: " + spec.getId() );
+		try {
+			Map<String, Object> map = new HashMap<>();
+			map.put("orderid", sor.getId() );
+			map.put("serviceTestSpecid", spec.getId() );
+			Object response = template.requestBodyAndHeaders( CATALOG_ADD_SERVICETEST, toJsonString(s), map);
+
+			if ( !(response instanceof String)) {
+				logger.error("Service Instance object is wrong.");
+			}
+
+			ServiceTest serviceInstance = toJsonObj( (String)response, ServiceTest.class); 
+			//logger.debug("createService response is: " + response);
+			return serviceInstance;
+			
+			
+		}catch (Exception e) {
+			logger.error("Cannot create Service for spec " + spec.getId()+ ": " + e.toString());
+		}
+		return null;
+		
+	}
+	
+	/**
+	 * @param serviceId
+	 * @param s
+	 * @return
+	 */
+	public ServiceTest updateServiceTest(String serviceId, ServiceTestUpdate s) {
+		logger.info("will update Service : " + serviceId );
+		try {
+			Map<String, Object> map = new HashMap<>();
+			map.put("serviceid", serviceId );
+			
+			Object response = template.requestBodyAndHeaders( CATALOG_UPD_SERVICETEST, toJsonString(s), map);
+
+			if ( !(response instanceof String)) {
+				logger.error("ServiceTest Instance object is wrong.");
+			}
+
+			ServiceTest serviceInstance = toJsonObj( (String)response, ServiceTest.class); 
+
+			return serviceInstance;
+			
+			
+		}catch (Exception e) {
+			logger.error("Cannot update ServiceTest: " + serviceId + ": " + e.toString());
+		}
+		return null;
+		
+	}
+	
+
+	/**
+	 * Ger ServiceTest instance via bus
+	 * @param serviceID
+	 * @return
+	 */
+	public ServiceTest retrieveServiceTest(String serviceID) {
+		logger.info("will retrieve ServiceTest instance from catalog serviceID=" + serviceID   );
+		try {
+			Object response = template.
+					requestBody( CATALOG_GET_SERVICETEST_BY_ID, serviceID);
+
+			if ( !(response instanceof String)) {
+				logger.error("Service object is wrong.");
+				return null;
+			}
+			ServiceTest serviceInstance = toJsonObj( (String)response, ServiceTest.class); 
+			//logger.debug("retrieveService response is: " + response);
+			return serviceInstance;
+			
+		}catch (Exception e) {
+			logger.error("Cannot retrieve ServiceTest details from catalog. " + e.toString());
+		}
+		return null;
+	}
+
 
 
 }

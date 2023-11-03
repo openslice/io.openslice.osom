@@ -27,22 +27,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.validation.Valid;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.openslice.model.DeploymentDescriptor;
 import io.openslice.model.DeploymentDescriptorStatus;
 import io.openslice.model.NetworkServiceDescriptor;
 import io.openslice.tmf.lcm.model.LCMRuleSpecification;
-import io.openslice.tmf.scm633.model.ServiceSpecification;
-import io.openslice.tmf.sim638.model.ServiceCreate;
 import io.openslice.tmf.so641.model.ServiceOrder;
+import jakarta.validation.Valid;
 
 public class SCMocked {
 

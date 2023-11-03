@@ -3,6 +3,10 @@ package io.openslice.osom.serviceactions;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -11,13 +15,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.openslice.osom.lcm.LCMRulesController;
 import io.openslice.osom.lcm.LCMRulesExecutorVariables;
 import io.openslice.osom.management.ServiceOrderManager;
+import io.openslice.tmf.common.model.Any;
+import io.openslice.tmf.common.model.service.Characteristic;
 import io.openslice.tmf.common.model.service.Note;
 import io.openslice.tmf.lcm.model.ELCMRulePhase;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
@@ -26,7 +28,8 @@ import io.openslice.tmf.sim638.model.ServiceActionQueueItem;
 import io.openslice.tmf.sim638.model.ServiceUpdate;
 import io.openslice.tmf.so641.model.ServiceOrder;
 import io.openslice.tmf.so641.model.ServiceOrderItem;
-import io.openslice.tmf.so641.model.ServiceOrderUpdate;
+import io.openslice.tmf.stm653.model.ServiceTest;
+import io.openslice.tmf.stm653.model.ServiceTestUpdate;
 
 @Component(value = "ServiceEvaluateAction") //bean name
 public class ServiceEvaluateAction  implements JavaDelegate {
@@ -70,6 +73,10 @@ public class ServiceEvaluateAction  implements JavaDelegate {
 			
 			if ( aService.getServiceOrder().size() >0  ) {
 				sor = serviceOrderManager.retrieveServiceOrder( aService.getServiceOrder().stream().findFirst().get().getId() ) ;
+				if ( sor == null ) {
+					logger.error("ServiceOrder is NULL. will return!");
+					return;
+				}
 				if ( sor.getOrderItem().size()>0) {
 					soi = sor.getOrderItem().stream().findFirst().get();
 				}
@@ -79,27 +86,56 @@ public class ServiceEvaluateAction  implements JavaDelegate {
 			if ( spec!= null ) {
 				//execute any LCM rules "SUPERVISION" phase for the SPEC;
 				LCMRulesExecutorVariables vars = new LCMRulesExecutorVariables(spec, sor, soi, null, supd,aService, serviceOrderManager);
+				logger.debug("===============DEBUG lcmRulesController.execPhas SUPERVISION for spec:" + spec.getName() + " =============================");
+				
+				Characteristic schart = aService.getServiceCharacteristicByName("long_text");
+				if ( schart!= null ) {
+					String teest = schart.getValue().getValue();
+					logger.debug("schart size = " + teest.length() );
+					
+					logger.debug("schart " + teest );
+					logger.debug("======================================================================================================");					
+				}
 				
 				logger.debug("===============BEFORE lcmRulesController.execPhas SUPERVISION for spec:" + spec.getName() + " =============================");
 				vars = lcmRulesController.execPhase( ELCMRulePhase.SUPERVISION, vars );
 
 				//logger.debug("vars= " + vars );		
 				logger.debug("===============AFTER lcmRulesController.execPhas =============================");
-				
+
+				Note noteItem = new Note();
 				if ( vars.getCompileDiagnosticErrors().size()>0 ) {
-					Note noteItem = new Note();
 					String msg = "LCM Rule execution error by ServiceEvaluateAction. ";
 					for (String tmsg :  vars.getCompileDiagnosticErrors()) {
 						msg = msg + "\n"+ tmsg;
 					}
 					noteItem.setText( msg );
-					noteItem.setAuthor( compname );
-					supd.addNoteItem(noteItem);
+				} else {
+					String msg = "LCM SUPERVISION Rules executed. ";
+					noteItem.setText( msg );
+					
 				}
+				noteItem.setAuthor( compname );
+				supd.addNoteItem(noteItem);
 			}
 			
 			serviceOrderManager.updateService( aService.getId() , supd, false);
 			
+			//if references ServiceTest we need to update it
+			
+			if (  ( aService.getServiceCharacteristicByName( "testSpecRef" ) != null ) && ( aService.getServiceCharacteristicByName( "testInstanceRef" ) != null )  ) {
+				String sTestId = aService.getServiceCharacteristicByName( "testInstanceRef" ).getValue().getValue();
+				ServiceTest serviceTest = serviceOrderManager.retrieveServiceTest(sTestId);
+				ServiceTestUpdate stupd = new ServiceTestUpdate();
+				for (io.openslice.tmf.stm653.model.Characteristic c : serviceTest.getCharacteristic()) {						
+					stupd.addCharacteristicItem( c );		
+					String newvalue = aService.getServiceCharacteristicByName( c.getName() ).getValue().getValue();
+					c.setValue( new Any(newvalue) ) ; 
+				}	
+				
+				serviceOrderManager.updateServiceTest(sTestId, stupd);				
+				
+			}
 			
 		} catch (JsonMappingException e) {
 			e.printStackTrace();

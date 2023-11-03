@@ -23,9 +23,7 @@ import javax.tools.ToolProvider;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import io.openslice.osom.OsomSpringBoot;
 import io.openslice.tmf.lcm.model.LCMRuleSpecification;
-import io.openslice.tmf.scm633.model.ServiceSpecification;
 
 /**
  * @author ctranoris
@@ -167,7 +165,7 @@ public class LCMRulesExecutor {
          * This is the location of the jar inside the running container 
          */
         
-        File classesJar = new File("/opt/openslice/lib/io.openslice.osom-1.1.0-SNAPSHOT.jar");        
+        File classesJar = new File("/opt/openslice/lib/io.openslice.osom-1.2.0-SNAPSHOT.jar");        
         if ( classesJar.exists()  ) {
             optionList.addAll(Arrays.asList("-classpath", classesJar.getAbsoluteFile().toString() ));
         } 

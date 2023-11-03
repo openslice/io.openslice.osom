@@ -21,7 +21,6 @@ package io.openslice.osom.management;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,7 +30,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import io.openslice.model.DeploymentDescriptor;
 import io.openslice.osom.partnerservices.PartnerOrganizationServicesManager;
 import io.openslice.tmf.common.model.Any;
 import io.openslice.tmf.common.model.UserPartRoleType;
@@ -41,8 +39,6 @@ import io.openslice.tmf.common.model.service.ServiceSpecificationRef;
 import io.openslice.tmf.common.model.service.ServiceStateType;
 import io.openslice.tmf.pm632.model.Organization;
 import io.openslice.tmf.prm669.model.RelatedParty;
-import io.openslice.tmf.scm633.model.ServiceSpecCharacteristic;
-import io.openslice.tmf.scm633.model.ServiceSpecCharacteristicValue;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
 import io.openslice.tmf.sim638.model.Service;
 import io.openslice.tmf.sim638.model.ServiceUpdate;
@@ -76,14 +72,14 @@ public class ExternalPartnerSubmitOrderService  implements JavaDelegate {
 		logger.info( "ExternalPartnerSubmitOrderService" );
 		logger.info( "VariableNames:" + execution.getVariableNames().toString() );
 		logger.info("orderid:" + execution.getVariable("orderid").toString() );
-		logger.info("serviceId:" + execution.getVariable("serviceId").toString() );
+		logger.info("contextServiceId:" + execution.getVariable("contextServiceId").toString() );
 				
 
 		ServiceUpdate su = new ServiceUpdate();//the object to update the service
-		if (execution.getVariable("serviceId") instanceof String) {
+		if (execution.getVariable("contextServiceId") instanceof String) {
 
 			ServiceOrder sorder = serviceOrderManager.retrieveServiceOrder( execution.getVariable("orderid").toString() );
-			Service aService = serviceOrderManager.retrieveService( (String) execution.getVariable("serviceId") );
+			Service aService = serviceOrderManager.retrieveService( (String) execution.getVariable("contextServiceId") );
 			logger.info("Service name:" + aService.getName() );
 			logger.info("Service state:" + aService.getState()  );			
 			logger.info("Request to External Service Partner for Service: " + aService.getId() );
@@ -158,7 +154,7 @@ public class ExternalPartnerSubmitOrderService  implements JavaDelegate {
 						serviceCharacteristicItem.setValue( any );
 						su.addServiceCharacteristicItem(serviceCharacteristicItem);
 						
-						Service supd = serviceOrderManager.updateService(  execution.getVariable("serviceId").toString(), su, false);
+						Service supd = serviceOrderManager.updateService(  aService.getId(), su, false);
 						logger.info("Request to partner " + orgz.getName() + " for spec:" + spec.getName()  + " done! Service: " + supd.getId() );						
 						return;						
 					}

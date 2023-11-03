@@ -31,20 +31,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import io.openslice.osom.partnerservices.PartnerOrganizationServicesManager;
-import io.openslice.tmf.common.model.UserPartRoleType;
-import io.openslice.tmf.common.model.service.Characteristic;
 import io.openslice.tmf.common.model.service.Note;
 import io.openslice.tmf.common.model.service.ServiceRef;
 import io.openslice.tmf.common.model.service.ServiceStateType;
-import io.openslice.tmf.pm632.model.Organization;
-import io.openslice.tmf.prm669.model.RelatedParty;
 import io.openslice.tmf.scm633.model.ServiceSpecCharacteristic;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
 import io.openslice.tmf.sim638.model.Service;
 import io.openslice.tmf.sim638.model.ServiceUpdate;
 import io.openslice.tmf.so641.model.ServiceOrder;
-import io.openslice.tmf.so641.model.ServiceOrderItem;
-import io.openslice.tmf.so641.model.ServiceOrderStateType;
 
 
 @Component(value = "localSoCheckDeployment") //bean name
@@ -70,7 +64,7 @@ public class LocalSOCheckDeployment  implements JavaDelegate {
 		execution.setVariable("lsoServiceDeploymentFinished",   false );
 
 		ServiceOrder sorder = serviceOrderManager.retrieveServiceOrder( execution.getVariable("orderid").toString() );
-		Service aService = serviceOrderManager.retrieveService( (String) execution.getVariable("serviceId") );
+		Service aService = serviceOrderManager.retrieveService( (String) execution.getVariable("contextServiceId") );
 		logger.debug("Check LocalSOCheckDeploymentfor Service name:" + aService.getName() );
 		logger.debug("Check LocalSOCheckDeployment  Service state:" + aService.getState()  );			
 		logger.debug("Request for Service id: " + aService.getId() );
@@ -128,7 +122,7 @@ public class LocalSOCheckDeployment  implements JavaDelegate {
 		
 		if ( aService.getState() != supd.getState()) {			
 			Note noteItem = new Note();
-			noteItem.setText("Update Service Order State to: " + supd.getState() + ". ");
+			noteItem.setText("Update Service State to: " + supd.getState() + ". ");
 			noteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
 			noteItem.setAuthor( compname );
 			supd.addNoteItem( noteItem );
@@ -143,6 +137,13 @@ public class LocalSOCheckDeployment  implements JavaDelegate {
 		}
 		logger.info("Wait For Local SO Service Status. ");
 		
+		if ( aService.getState().equals(ServiceStateType.ACTIVE)
+				|| aService.getState().equals(ServiceStateType.TERMINATED)) {
+
+			logger.info("Deployment Status OK. Service state EQUAL = " + aService.getState() );
+			execution.setVariable("lsoServiceDeploymentFinished", true);
+			return;
+		}
 		
 	}
 }

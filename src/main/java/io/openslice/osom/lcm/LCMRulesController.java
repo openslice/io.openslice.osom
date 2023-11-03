@@ -1,10 +1,13 @@
 package io.openslice.osom.lcm;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.camel.ProducerTemplate;
 import org.apache.commons.logging.Log;
@@ -13,17 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.openslice.osom.management.ServiceOrderManager;
-import io.openslice.tmf.common.model.Any;
 import io.openslice.tmf.lcm.model.ELCMRulePhase;
 import io.openslice.tmf.lcm.model.LCMRuleSpecification;
-import io.openslice.tmf.scm633.model.ServiceSpecification;
-import io.openslice.tmf.sim638.model.ServiceCreate;
-import io.openslice.tmf.so641.model.ServiceOrder;
 
 /**
  * @author ctranoris

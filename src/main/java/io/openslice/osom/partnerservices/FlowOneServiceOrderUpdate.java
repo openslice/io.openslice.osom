@@ -20,7 +20,6 @@
 package io.openslice.osom.partnerservices;
 
 import io.openslice.tmf.common.model.service.Characteristic;
-import io.openslice.tmf.so641.model.ServiceOrderCreate;
 import io.openslice.tmf.so641.model.ServiceOrderUpdate;
 
 public class FlowOneServiceOrderUpdate extends ServiceOrderUpdate{

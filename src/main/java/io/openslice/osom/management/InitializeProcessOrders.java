@@ -57,14 +57,16 @@ public class InitializeProcessOrders implements JavaDelegate {
 		if (execution.getVariable("ordersToBeProcessed") instanceof ArrayList) {
 
 			List<String> ordersToBeProcessed = (ArrayList<String>) execution.getVariable("ordersToBeProcessed");
-			for (String o : ordersToBeProcessed) {
+			for (String oId : ordersToBeProcessed) {
 
-				logger.info("Will send CAMEL Message that Order is IN-PROGRESS orderid= " + o);
-				
+					
+				logger.debug("Will send CAMEL Message that Order is IN-PROGRESS orderid= " + oId );					
 
 				ServiceOrderUpdate serviceOrderUpd = new ServiceOrderUpdate();
 				serviceOrderUpd.setState(ServiceOrderStateType.INPROGRESS);
-				serviceOrderManager.updateServiceOrderOrder( o, serviceOrderUpd );
+				serviceOrderManager.updateServiceOrderOrder( oId, serviceOrderUpd );						
+					
+				
 				
 			}
 

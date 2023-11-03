@@ -2,8 +2,6 @@ package io.openslice.osom.partnerservices;
 
 import java.util.List;
 
-import javax.validation.constraints.NotNull;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -13,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import io.openslice.osom.management.ServiceOrderManager;
 import io.openslice.tmf.common.model.service.Characteristic;
-import io.openslice.tmf.common.model.service.ServiceStateType;
 import io.openslice.tmf.pm632.model.Organization;
 import io.openslice.tmf.prm669.model.RelatedParty;
 import io.openslice.tmf.sim638.model.Service;

@@ -21,13 +21,7 @@ package io.openslice.osom.management;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
-import javax.validation.Valid;
-
-import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -36,7 +30,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import io.openslice.model.DeploymentDescriptor;
 import io.openslice.tmf.common.model.service.Note;
 import io.openslice.tmf.common.model.service.ResourceRef;
 import io.openslice.tmf.common.model.service.ServiceRef;
@@ -46,6 +39,7 @@ import io.openslice.tmf.so641.model.ServiceOrder;
 import io.openslice.tmf.so641.model.ServiceOrderItem;
 import io.openslice.tmf.so641.model.ServiceOrderStateType;
 import io.openslice.tmf.so641.model.ServiceOrderUpdate;
+import jakarta.validation.Valid;
 
 
 @Component(value = "orderCompleteService") //bean name
@@ -76,41 +70,46 @@ public class OrderCompleteService implements JavaDelegate {
 				logger.error("Cannot retrieve Service Order details from catalog.");
 				return;
 			}
-			
-			
-				for (ServiceOrderItem soi : sOrder.getOrderItem()) {
-					for (ServiceRef sref : soi.getService().getSupportingService()) {
-						Service aService = serviceOrderManager.retrieveService( sref.getId()  );						
-						
 
-						if ( (aService!=null ) &&
-								(aService.getServiceCharacteristicByName( "externalPartnerServiceId" ) != null )){
-							//service belongs to a partner. Here we might query it
-							
-						}else if ( (aService!=null ) &&
-								(aService.getServiceCharacteristicByName( "DeploymentRequestID" ) != null )){
-							
-							if ( nfvOrchestrationCheckDeploymentService!= null) {
-								String deploymentRequestID = aService.getServiceCharacteristicByName( "DeploymentRequestID" ).getValue().getValue();
-	
-								execution.setVariable( "deploymentId", Long.parseLong( deploymentRequestID ));
-								execution.setVariable( "serviceId", aService.getUuid() );
-								
-								nfvOrchestrationCheckDeploymentService.execute(execution);
+			for (ServiceOrderItem soi : sOrder.getOrderItem()) {
+				for (ServiceRef sref : soi.getService().getSupportingService()) {
+					Service aService = serviceOrderManager.retrieveService(sref.getId());
 
+					if ((aService != null)
+							&& (aService.getServiceCharacteristicByName("externalPartnerServiceId") != null)) {
+						// service belongs to a partner. Here we might query it
+
+					} else if ((aService != null)
+							&& (aService.getServiceCharacteristicByName("DeploymentRequestID") != null)) {
+
+						if (nfvOrchestrationCheckDeploymentService != null) {
+							String deploymentRequestID = aService.getServiceCharacteristicByName("DeploymentRequestID")
+									.getValue().getValue();
+
+							if ( deploymentRequestID.length()>0 ) {
+								execution.setVariable("deploymentId", Long.parseLong(deploymentRequestID));
+								execution.setVariable("serviceId", aService.getUuid());
+								execution.setVariable("contextServiceId", aService.getUuid());
+
+								nfvOrchestrationCheckDeploymentService.execute(execution);								
 							}
-						
+
+						}
+
 					}
 				}
-				
+
 			}
 
 
+			@Valid
+			ServiceOrderStateType currentState = sOrder.getState();
+				
 			boolean allCompletedItemsInOrder= true;
 			boolean allTerminatedItemsInOrder= true;
 			boolean existsInactiveInORder= false;
 			boolean existsTerminatedInORder= false;
-			boolean updateServiceOrder= false;
+			//boolean updateServiceOrder= false;
 			
 			logger.info("ServiceOrder id:" + sOrder.getId());
 			for (ServiceOrderItem soi : sOrder.getOrderItem()) {
@@ -118,9 +117,11 @@ public class OrderCompleteService implements JavaDelegate {
 				boolean existsInactive=false;
 				boolean existsActive=false;
 				boolean existsTerminated=false;
-				boolean allTerminated= ( soi.getService().getSupportingService() != null) || ( soi.getService().getSupportingResource() != null);
+				boolean allTerminated= ( soi.getService().getSupportingService() != null && soi.getService().getSupportingService().size()>0) 
+						|| ( soi.getService().getSupportingResource() != null && soi.getService().getSupportingResource().size()>0 );
 				boolean existsDesigned=false;
-				boolean allActive= ( soi.getService().getSupportingService() != null) || ( soi.getService().getSupportingResource() != null);
+				boolean allActive= ( soi.getService().getSupportingService() != null && soi.getService().getSupportingService().size()>0) 
+						|| ( soi.getService().getSupportingResource() != null && soi.getService().getSupportingResource().size()>0 );
 				
 				
 				if ( soi.getService().getSupportingService() != null) {
@@ -169,17 +170,14 @@ public class OrderCompleteService implements JavaDelegate {
 				} else if (existsReserved) {
 					sserviceState = ServiceStateType.RESERVED;	
 					soi.setState( ServiceOrderStateType.INPROGRESS );						
-				} else if (existsTerminated) {
-					sserviceState = ServiceStateType.TERMINATED;	
-					soi.setState( ServiceOrderStateType.FAILED  );
-					existsTerminatedInORder = true;
 				}
 				
 				
 				
-				if ( soi.getService().getState() != sserviceState ) {
-					updateServiceOrder = true;
-				}
+				
+//				if ( soi.getService().getState() != sserviceState ) {
+//					updateServiceOrder = true;
+//				}
 				soi.getService().setState(sserviceState);	
 
 //				allCompletedItemsInOrder = allCompletedItemsInOrder && soi.getService().getState().equals( ServiceStateType.ACTIVE  );
@@ -193,7 +191,7 @@ public class OrderCompleteService implements JavaDelegate {
 			
 			   
 			if (allCompletedItemsInOrder || allTerminatedItemsInOrder) {
-				updateServiceOrder = true;
+				//updateServiceOrder = true;
 				sOrder.setState( ServiceOrderStateType.COMPLETED );				
 			} else if ( existsInactiveInORder ) {
 				sOrder.setState( ServiceOrderStateType.FAILED );		
@@ -201,7 +199,7 @@ public class OrderCompleteService implements JavaDelegate {
 				sOrder.setState( ServiceOrderStateType.FAILED );		
 			} 
 			
-			if ( updateServiceOrder ) {
+			if ( currentState != sOrder.getState() ) {
 				logger.info("Will update ServiceOrder with state:" +  sOrder.getState() );
 				ServiceOrderUpdate serviceOrderUpd = new ServiceOrderUpdate();
 				serviceOrderUpd.setState( sOrder.getState() );
@@ -211,13 +209,13 @@ public class OrderCompleteService implements JavaDelegate {
 				}
 				
 				Note noteItem = new Note();
-				noteItem.setText("Update Service Order State to: " +  serviceOrderUpd.getState());
+				noteItem.setText( String.format( "Service Order State is: %s " ,  serviceOrderUpd.getState()) );
 				noteItem.setDate( OffsetDateTime.now(ZoneOffset.UTC).toString() );
 				noteItem.setAuthor( compname );
 				serviceOrderUpd.addNoteItem( noteItem );
 				
 				serviceOrderManager.updateServiceOrderOrder( sOrder.getId() , serviceOrderUpd);
-				
+
 			}
 			
 		}

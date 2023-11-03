@@ -3,7 +3,7 @@
   <process id="fetchInRpogressOrdersProcess" name="My process" isExecutable="true">
     <startEvent id="timerstarteventFetchOrders" name="Timer start">
       <timerEventDefinition>
-        <timeCycle>0/30 * * * * ?</timeCycle>
+        <timeCycle>0/20 * * * * ?</timeCycle>
       </timerEventDefinition>
     </startEvent>
     <serviceTask id="stFetchInProgressOrders" name="Fetch In-Progress Orders" activiti:delegateExpression="${fetchInProgressOrders}"></serviceTask>

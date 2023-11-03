@@ -1,10 +1,11 @@
 package io.openslice.osom.lcm;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.openslice.osom.management.ServiceOrderManager;
-import io.openslice.tmf.lcm.model.LCMRuleSpecification;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
 import io.openslice.tmf.sim638.model.Service;
 import io.openslice.tmf.sim638.model.ServiceCreate;
@@ -28,6 +29,7 @@ public class LCMRulesExecutorVariables {
 	private Service service;
 	private List<String> compileDiagnosticErrors;
 	private ServiceOrderManager serviceOrderManager;
+	private Map<String, String> outParams;
 
 	/**
 	 * @param spec
@@ -49,5 +51,6 @@ public class LCMRulesExecutorVariables {
 		this.service = serviceInstance;
 		this.serviceOrderManager = aServiceOrderManager;
 		this.compileDiagnosticErrors = new ArrayList<>();
+		this.outParams = new HashMap<String,String>();
 	}
 }

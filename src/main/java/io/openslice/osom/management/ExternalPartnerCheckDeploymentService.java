@@ -21,7 +21,6 @@ package io.openslice.osom.management;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -76,7 +75,7 @@ public class ExternalPartnerCheckDeploymentService  implements JavaDelegate {
 		execution.setVariable("serviceDeploymentFinished",   false );
 
 		ServiceOrder sorder = serviceOrderManager.retrieveServiceOrder( execution.getVariable("orderid").toString() );
-		Service aLocalWrapperProxyService = serviceOrderManager.retrieveService( (String) execution.getVariable("serviceId") );
+		Service aLocalWrapperProxyService = serviceOrderManager.retrieveService( (String) execution.getVariable("contextServiceId") );
 		logger.debug("Check external partner for Service name:" + aLocalWrapperProxyService.getName() );
 		logger.debug("Check external partner for  Service state:" + aLocalWrapperProxyService.getState()  );			
 		logger.debug("Request to External Service Partner for Service: " + aLocalWrapperProxyService.getId() );

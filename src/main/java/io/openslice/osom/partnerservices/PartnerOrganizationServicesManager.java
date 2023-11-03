@@ -24,12 +24,14 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.SSLException;
-import javax.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import org.apache.camel.ProducerTemplate;
 import org.apache.commons.logging.Log;
@@ -37,37 +39,23 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-
-import io.openslice.osom.management.ServiceOrderManager;
 import io.openslice.tmf.common.model.Any;
-import io.openslice.tmf.common.model.service.Note;
-import io.openslice.tmf.common.model.service.ServiceSpecificationRef;
 import io.openslice.tmf.pm632.model.Characteristic;
 import io.openslice.tmf.pm632.model.Organization;
 import io.openslice.tmf.scm633.model.ServiceCandidate;
-import io.openslice.tmf.scm633.model.ServiceCandidateRef;
 import io.openslice.tmf.scm633.model.ServiceCategory;
 import io.openslice.tmf.scm633.model.ServiceSpecCharacteristic;
-import io.openslice.tmf.scm633.model.ServiceSpecCharacteristicValue;
 import io.openslice.tmf.scm633.model.ServiceSpecification;
 import io.openslice.tmf.sim638.model.ServiceUpdate;
 import io.openslice.tmf.so641.model.ServiceOrder;
 import io.openslice.tmf.so641.model.ServiceOrderCreate;
-import io.openslice.tmf.so641.model.ServiceOrderItem;
 import io.openslice.tmf.so641.model.ServiceOrderStateType;
 import io.openslice.tmf.so641.model.ServiceOrderUpdate;
-import io.openslice.tmf.so641.model.ServiceRestriction;
+import jakarta.validation.constraints.NotNull;
 import reactor.core.publisher.Mono;
 
 /**
@@ -165,13 +153,13 @@ public class PartnerOrganizationServicesManager {
 							.uri( url )
 								//.attributes( ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId("authOpensliceProvider"))
 								.retrieve()
-								.onStatus(HttpStatus::is4xxClientError, response -> {
+								.onStatus(HttpStatusCode::is4xxClientError, response -> {
 									logger.error("4xx error");
 									 webclients.remove( org.getId(), webclient );
 									this.updateOrgzStatus(org, "WEBCLIENT 4xx ERROR");
 							        return Mono.error(new RuntimeException("4xx"));
 							      })
-							      .onStatus(HttpStatus::is5xxServerError, response -> {
+							      .onStatus(HttpStatusCode::is5xxServerError, response -> {
 							    	  logger.error("5xx error");
 									webclients.remove( org.getId(), webclient );
 									this.updateOrgzStatus(org, "WEBCLIENT 5xx ERROR");
@@ -225,13 +213,13 @@ public class PartnerOrganizationServicesManager {
 							.uri( url )
 								//.attributes( ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId("authOpensliceProvider"))
 								.retrieve()
-								.onStatus(HttpStatus::is4xxClientError, response -> {
+								.onStatus(HttpStatusCode::is4xxClientError, response -> {
 									logger.error("4xx error");
 									 webclients.remove( org.getId(), webclient );
 									this.updateOrgzStatus(org, "WEBCLIENT 4xx ERROR");
 							        return Mono.error(new RuntimeException("4xx"));
 							      })
-							      .onStatus(HttpStatus::is5xxServerError, response -> {
+							      .onStatus(HttpStatusCode::is5xxServerError, response -> {
 							    	  logger.error("5xx error");
 									webclients.remove( org.getId(), webclient );
 									this.updateOrgzStatus(org, "WEBCLIENT 5xx ERROR");
@@ -250,13 +238,13 @@ public class PartnerOrganizationServicesManager {
 									.uri( urlCandidate )
 										//.attributes( ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId("authOpensliceProvider"))
 										.retrieve()
-										.onStatus(HttpStatus::is4xxClientError, response -> {
+										.onStatus(HttpStatusCode::is4xxClientError, response -> {
 											logger.error("4xx error");
 											 webclients.remove( org.getId(), webclient );
 											this.updateOrgzStatus(org, "WEBCLIENT 4xx ERROR");
 									        return Mono.error(new RuntimeException("4xx"));
 									      })
-									      .onStatus(HttpStatus::is5xxServerError, response -> {
+									      .onStatus(HttpStatusCode::is5xxServerError, response -> {
 									    	  logger.error("5xx error");
 											webclients.remove( org.getId(), webclient );
 											this.updateOrgzStatus(org, "WEBCLIENT 5xx ERROR");
@@ -312,13 +300,13 @@ public class PartnerOrganizationServicesManager {
 				ServiceSpecification fullspec = webclient.get()
 						.uri( urlfullspec + "/" + specsrc.getId() )
 						.retrieve()
-						.onStatus(HttpStatus::is4xxClientError, response -> {
+						.onStatus(HttpStatusCode::is4xxClientError, response -> {
 							logger.error("4xx error");
 							webclients.remove( org.getId(), webclient );
 							this.updateOrgzStatus(org, "WEBCLIENT ServiceSpecification 4xx ERROR " + specsrc.getId() );
 					        return Mono.error(new RuntimeException("4xx"));
 					      })
-					      .onStatus(HttpStatus::is5xxServerError, response -> {
+					      .onStatus(HttpStatusCode::is5xxServerError, response -> {
 					    	  logger.error("5xx error");
 
 								webclients.remove( org.getId(), webclient );
@@ -357,12 +345,12 @@ public class PartnerOrganizationServicesManager {
 						.uri( org.findPartyCharacteristic("EXTERNAL_TMFAPI_SERVICE_CATALOG_URLS").getValue().getValue()  )
 							//.attributes( ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId("authOpensliceProvider"))
 							.retrieve()
-							.onStatus(HttpStatus::is4xxClientError, response -> {
+							.onStatus(HttpStatusCode::is4xxClientError, response -> {
 								logger.error("4xx eror");
 								this.updateOrgzStatus(org, "WEBCLIENT 4xx ERROR");
 						        return Mono.error(new RuntimeException("4xx"));
 						      })
-						      .onStatus(HttpStatus::is5xxServerError, response -> {
+						      .onStatus(HttpStatusCode::is5xxServerError, response -> {
 						    	  logger.error("5xx eror");
 									this.updateOrgzStatus(org, "WEBCLIENT 5xx ERROR");
 						        return Mono.error(new RuntimeException("5xx"));
@@ -609,11 +597,11 @@ public class PartnerOrganizationServicesManager {
 				      .bodyValue( servOrder ) 
 						//.attributes( ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId("authOpensliceProvider"))
 						.retrieve()
-						.onStatus(HttpStatus::is4xxClientError, response -> {
+						.onStatus(HttpStatusCode::is4xxClientError, response -> {
 							logger.error("4xx eror");
 					        return Mono.error(new RuntimeException("4xx"));
 					      })
-					      .onStatus(HttpStatus::is5xxServerError, response -> {
+					      .onStatus(HttpStatusCode::is5xxServerError, response -> {
 					    	  logger.error("5xx eror");
 					        return Mono.error(new RuntimeException("5xx"));
 					      })
@@ -669,11 +657,11 @@ public class PartnerOrganizationServicesManager {
 				      .bodyValue( abody ) 
 						//.attributes( ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId("authOpensliceProvider"))
 						.retrieve()
-						.onStatus(HttpStatus::is4xxClientError, response -> {
+						.onStatus(HttpStatusCode::is4xxClientError, response -> {
 							logger.error("4xx eror");
 					        return Mono.error(new RuntimeException("4xx"));
 					      })
-					      .onStatus(HttpStatus::is5xxServerError, response -> {
+					      .onStatus(HttpStatusCode::is5xxServerError, response -> {
 					    	  logger.error("5xx eror");
 					        return Mono.error(new RuntimeException("5xx"));
 					      })
@@ -723,11 +711,11 @@ public class PartnerOrganizationServicesManager {
 				      //.header("Authorization", "Basic " + encodedClientData)
 						//.attributes( ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId("authOpensliceProvider"))
 						.retrieve()
-						.onStatus(HttpStatus::is4xxClientError, response -> {
+						.onStatus(HttpStatusCode::is4xxClientError, response -> {
 							logger.error("4xx eror");
 					        return Mono.error(new RuntimeException("4xx"));
 					      })
-					      .onStatus(HttpStatus::is5xxServerError, response -> {
+					      .onStatus(HttpStatusCode::is5xxServerError, response -> {
 					    	  logger.error("5xx eror");
 					        return Mono.error(new RuntimeException("5xx"));
 					      })
@@ -776,11 +764,11 @@ public class PartnerOrganizationServicesManager {
 				      //.header("Authorization", "Basic " + encodedClientData)
 						//.attributes( ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId("authOpensliceProvider"))
 						.retrieve()
-						.onStatus(HttpStatus::is4xxClientError, response -> {
+						.onStatus(HttpStatusCode::is4xxClientError, response -> {
 							logger.error("4xx eror");
 					        return Mono.error(new RuntimeException("4xx"));
 					      })
-					      .onStatus(HttpStatus::is5xxServerError, response -> {
+					      .onStatus(HttpStatusCode::is5xxServerError, response -> {
 					    	  logger.error("5xx eror");
 					        return Mono.error(new RuntimeException("5xx"));
 					      })
@@ -853,11 +841,11 @@ public class PartnerOrganizationServicesManager {
 				      .bodyValue( servOrder ) 
 						//.attributes( ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId("authOpensliceProvider"))
 						.retrieve()
-						.onStatus(HttpStatus::is4xxClientError, response -> {
+						.onStatus(HttpStatusCode::is4xxClientError, response -> {
 							logger.error("4xx eror");
 					        return Mono.error(new RuntimeException("4xx"));
 					      })
-					      .onStatus(HttpStatus::is5xxServerError, response -> {
+					      .onStatus(HttpStatusCode::is5xxServerError, response -> {
 					    	  logger.error("5xx eror");
 					        return Mono.error(new RuntimeException("5xx"));
 					      })
@@ -913,11 +901,11 @@ public class PartnerOrganizationServicesManager {
 				      .bodyValue( abody ) 
 						//.attributes( ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId("authOpensliceProvider"))
 						.retrieve()
-						.onStatus(HttpStatus::is4xxClientError, response -> {
+						.onStatus(HttpStatusCode::is4xxClientError, response -> {
 							logger.error("4xx eror");
 					        return Mono.error(new RuntimeException("4xx"));
 					      })
-					      .onStatus(HttpStatus::is5xxServerError, response -> {
+					      .onStatus(HttpStatusCode::is5xxServerError, response -> {
 					    	  logger.error("5xx eror");
 					        return Mono.error(new RuntimeException("5xx"));
 					      })
@@ -966,11 +954,11 @@ public class PartnerOrganizationServicesManager {
 					      //.header("Authorization", "Basic " + encodedClientData)
 							//.attributes( ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId("authOpensliceProvider"))
 							.retrieve()
-							.onStatus(HttpStatus::is4xxClientError, response -> {
+							.onStatus(HttpStatusCode::is4xxClientError, response -> {
 								logger.error("4xx eror");
 						        return Mono.error(new RuntimeException("4xx"));
 						      })
-						      .onStatus(HttpStatus::is5xxServerError, response -> {
+						      .onStatus(HttpStatusCode::is5xxServerError, response -> {
 						    	  logger.error("5xx eror");
 						        return Mono.error(new RuntimeException("5xx"));
 						      })
@@ -1042,11 +1030,11 @@ public class PartnerOrganizationServicesManager {
 				      .bodyValue( servUpdate ) 
 						//.attributes( ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId("authOpensliceProvider"))
 						.retrieve()
-						.onStatus(HttpStatus::is4xxClientError, response -> {
+						.onStatus(HttpStatusCode::is4xxClientError, response -> {
 							logger.error("4xx eror");
 					        return Mono.error(new RuntimeException("4xx"));
 					      })
-					      .onStatus(HttpStatus::is5xxServerError, response -> {
+					      .onStatus(HttpStatusCode::is5xxServerError, response -> {
 					    	  logger.error("5xx eror");
 					        return Mono.error(new RuntimeException("5xx"));
 					      })

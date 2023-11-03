@@ -19,25 +19,12 @@
  */
 package io.openslice.osom.management;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.flowable.dmn.api.DmnRepositoryService;
-import org.flowable.dmn.api.DmnRuleService;
-import org.flowable.dmn.api.ExecuteDecisionBuilder;
 import org.flowable.dmn.engine.DmnEngine;
-import org.flowable.dmn.model.DmnDefinition;
-import org.flowable.dmn.xml.converter.DmnXMLConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -58,8 +45,8 @@ public class DependencyRulesSolver {
 	@Autowired
 	private DmnEngine dmnEngine;
 
-	@Autowired
-	private DmnRuleService ruleService;
+//	@Autowired
+//	private DmnRuleService ruleService;
 
 	/**
 	 * @param sorder is the containing order to resolve

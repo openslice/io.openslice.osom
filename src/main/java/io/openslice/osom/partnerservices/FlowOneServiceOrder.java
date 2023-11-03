@@ -19,14 +19,10 @@
  */
 package io.openslice.osom.partnerservices;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.openslice.tmf.so641.model.ServiceOrderItem;
-import io.openslice.tmf.so641.model.ServiceOrderStateType;
 
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class FlowOneServiceOrder  {
